@@ -25,9 +25,8 @@ prompt_scripts_dir() {
 # Main function to execute installation process
 install_project() {
     prompt_scripts_dir
-    initialize_project
     clone_project
-
+    initialize_project
     echo "Installation completed successfully."
 }
 
