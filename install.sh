@@ -3,7 +3,7 @@
 # Function to clone the project from GitHub
 clone_project() {
     echo "Cloning project from GitHub into $SCRIPTS_DIR..."
-    git clone https://github.com/maskalix/cmnds/tree/main/scripts%20 "$SCRIPTS_DIR"
+    git clone https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR"
     echo "Project cloned successfully."
 }
 
