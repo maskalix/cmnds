@@ -101,3 +101,7 @@ install_project() {
 
 # Run installation process
 install_project
+
+# Add the script to PATH and source .bashrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
