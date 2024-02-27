@@ -22,9 +22,18 @@ prompt_scripts_dir() {
     SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts"}
 }
 
+# Function to create SCRIPTS_DIR if it doesn't exist
+create_scripts_dir() {
+    if [ ! -d "$SCRIPTS_DIR" ]; then
+        echo "Creating directory: $SCRIPTS_DIR"
+        mkdir -p "$SCRIPTS_DIR"
+    fi
+}
+
 # Main function to execute installation process
 install_project() {
     prompt_scripts_dir
+    create_scripts_dir
     clone_project
     initialize_project
     echo "Installation completed successfully."
