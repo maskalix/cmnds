@@ -11,3 +11,6 @@ Simply commands to ease using Linux server and Docker
 ## Updating 
 - using `deploy` enable `cmnds-update`
 - run `cmnds-update` and proceed in installation
+
+
+© Martin Skalicky 2024
