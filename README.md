@@ -1,4 +1,9 @@
-# CMNDS scripts
+#    ________  ____   ______  _____
+#  / ____/  |/  / | / / __ \/ ___/
+# / /   / /|_/ /  |/ / / / /\__ \ 
+#/ /___/ /  / / /|  / /_/ /___/ / 
+#\____/_/  /_/_/ |_/_____//____/  
+                                
 Simply commands to ease using Linux server and Docker
 
 ## Installation
