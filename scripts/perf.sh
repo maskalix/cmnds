@@ -57,7 +57,7 @@ if ! command -v speedtest &> /dev/null; then
     curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
     sudo apt-get install -y speedtest
 else
-    echo -e "${YELLOW}Speedtest is already installed.${NC}"
+    echo -e "${YELLOW}speedtest is already installed.${NC}"
 fi
 
 echo
@@ -86,7 +86,7 @@ display_uptime
 echo
 
 # Display network usage
-display_header "Network Usage"
+display_header "Network"
 # Function to display network information
 display_network_info() {
     local interface=$(ip route get 8.8.8.8 | awk 'NR==1{print $5}')
@@ -108,7 +108,7 @@ display_network_info
 echo
 
 # Display processor usage
-display_header "Processor Usage"
+display_header "Processor"
 display_processor_usage() {
     local processor_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
     progress_bar "$processor_usage"
@@ -118,7 +118,7 @@ echo
 echo
 
 # Display disk usage
-display_header "Disk Usage"
+display_header "Disk"
 display_disk_usage() {
     local disk_info=$(df -h / | awk 'NR==2{printf "%.1f %.1f %.1f", $3, $2, $5}')
     read disk_used disk_all disk_percent <<< "$disk_info"
@@ -131,7 +131,7 @@ echo
 echo
 
 # Display RAM usage
-display_header "RAM Usage"
+display_header "RAM"
 ram_info=$(free -m | awk 'NR==2{printf "%.1f %.1f %.1f", $3/1024, $2/1024, $3/$2*100}')
 read RAM_used RAM_all RAM_percent <<< "$ram_info"
 
@@ -141,7 +141,7 @@ echo "$RAM_used GB/$RAM_all GB"
 echo
 
 # Run Ookla speedtest and display result
-display_header "Speed Test"
+display_header "Speedtest"
 display_speed_test() {
     local speedtest_result=$(speedtest)
     local download_speed=$(echo "$speedtest_result" | grep -oE 'Download:\s+[0-9]+\.[0-9]+ Mbps' | awk '{print $2}')
