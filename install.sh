@@ -80,8 +80,8 @@ initialize_project() {
 
 # Function to prompt user for SCRIPTS_DIR
 prompt_scripts_dir() {
-    read -rp "Enter preferred directory for scripts (default: /data/scripts): " SCRIPTS_DIR
-    SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts"}
+    read -rp "Enter preferred directory for scripts (default: /data/scripts/cmnds): " SCRIPTS_DIR
+    SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
 }
 
 # Function to create SCRIPTS_DIR if it doesn't exist
