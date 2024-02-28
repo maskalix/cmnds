@@ -65,10 +65,10 @@ initialize_project() {
     # Remove the now-empty scripts folder
     rmdir "$SCRIPTS_DIR/scripts"
     # Update deploy.sh with customized directories
-    sed -i "s|SCRIPTS_DIR=.*|SCRIPTS_DIR=\"$SCRIPTS_DIR\"|g" "$SCRIPTS_DIR/deploy.sh"
-    sed -i "s|COMMANDS_DIR=.*|COMMANDS_DIR=\"$SCRIPTS_DIR/commands\"|g" "$SCRIPTS_DIR/deploy.sh"
+    sed -i "s|SCRIPTS_DIR=.*|SCRIPTS_DIR=\"$SCRIPTS_DIR\"|g" "$SCRIPTS_DIR/cmnds/deploy.sh"
+    sed -i "s|COMMANDS_DIR=.*|COMMANDS_DIR=\"$SCRIPTS_DIR/commands\"|g" "$SCRIPTS_DIR/cmnds/deploy.sh"
     # Make deploy.sh executable
-    chmod +x "$SCRIPTS_DIR/deploy.sh"
+    chmod +x "$SCRIPTS_DIR/cmnds/deploy.sh"
     # Add $SCRIPTS_DIR/commands to ~/.bashrc if not already there
     if ! grep -q "$SCRIPTS_DIR/commands" ~/.bashrc; then
         echo "export PATH=\"$SCRIPTS_DIR/commands:\$PATH\"" >> ~/.bashrc
