@@ -23,7 +23,7 @@ wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh
 - run `cmnds-update` and proceed in installation
 
 ## Command not found
-- run ` source ~/.bashrc`, sometimes more than once :/
-
+- **Option 1:** run ` source ~/.bashrc`, sometimes more than once :/
+- **Option 2:** close and reconnect to SSH
 ---
 © Martin Skalicky 2024
