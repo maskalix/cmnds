@@ -1,4 +1,4 @@
-# CMNDS 
+# CMNDS - Simple commands to ease using Linux server
 ```
    ______ __  ___ _   __ ____  _____
   / ____//  |/  // | / // __ \/ ___/
@@ -6,7 +6,7 @@
 / /___ / /  / // /|  // /_/ /___/ / 
 \____//_/  /_//_/ |_//_____//____/
 
-Simply commands to ease using Linux server and Docker                             
+Simply commands to ease using Linux server                            
 ```                                
 
 ## Installation
