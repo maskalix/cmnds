@@ -110,7 +110,7 @@ create_scripts_dir() {
 # Function to run deploy.sh
 run_deploy() {
     msg_info "Running deploy.sh..."
-    "$SCRIPTS_DIR/deploy.sh"
+    "$SCRIPTS_DIR/cmnds/deploy.sh"
     msg_success "Commands deployed successfully."
 }
 
