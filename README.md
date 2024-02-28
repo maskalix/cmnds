@@ -22,6 +22,8 @@ wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh
 - using `deploy` enable `cmnds-update`
 - run `cmnds-update` and proceed in installation
 
+## Command not found
+- run ` source ~/.bashrc`, sometimes more than once :/
 
 ---
 © Martin Skalicky 2024
