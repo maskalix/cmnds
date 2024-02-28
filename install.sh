@@ -1,9 +1,36 @@
 #!/bin/bash
 
+ # Reset text color
+NC='\033[0m'           
+
+# Error msg
+msg_error() {
+    RED='\033[0;31m'
+    echo -e "${RED}$1${NC}"
+}
+
+# Success msg
+msg_success() {
+    GREEN='\033[0;32m'
+    echo -e "${GREEN}$1${NC}"
+}
+
+# Info msg
+msg_info() {
+    YELLOW='\033[1;33m'
+    echo -e "${YELLOW}$1${NC}"
+}
+
+# Other msg
+msg_other() {
+    LIGHT_PURPLE='\033[1;35m'
+    echo -e "${LIGHT_PURPLE}$1${NC}"
+}
+
 # Function to install dialog if not installed
 install_dialog() {
     if ! command -v dialog &>/dev/null; then
-        echo "Installing dialog..."
+        msg_info "Installing dialog..."
         # Check if the package manager is apt (Debian/Ubuntu)
         if command -v apt &>/dev/null; then
             sudo apt update
@@ -16,7 +43,7 @@ install_dialog() {
             sudo pacman -Sy --noconfirm dialog
         # If the package manager is not found, prompt the user to install dialog manually
         else
-            echo "Error: Unable to determine the package manager. Please install dialog manually and try again."
+            msg_error "Error: Unable to determine the package manager. Please install dialog manually and try again."
             exit 1
         fi
     fi
@@ -24,11 +51,11 @@ install_dialog() {
 
 # Function to clone the project from GitHub
 clone_project() {
-    echo "Cloning project from GitHub into $SCRIPTS_DIR..."
+    msg_info "Cloning project from GitHub into $SCRIPTS_DIR..."
     git clone --depth 1 --filter=tree:0 https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR"
     cd "$SCRIPTS_DIR" || exit 1
     git sparse-checkout set --no-cone scripts
-    echo "Project cloned successfully."
+    msg_success "Project cloned successfully."
 }
 
 # Function to initialize the project
@@ -48,7 +75,7 @@ initialize_project() {
     fi
     # Source ~/.bashrc
     source ~/.bashrc
-    echo "Project initialized successfully."
+    msg_success "Project initialized successfully."
 }
 
 # Function to prompt user for SCRIPTS_DIR
@@ -60,21 +87,21 @@ prompt_scripts_dir() {
 # Function to create SCRIPTS_DIR if it doesn't exist
 create_scripts_dir() {
     if [ -d "$SCRIPTS_DIR" ]; then
-        echo "Directory already exists: $SCRIPTS_DIR"
+        msg_other "Directory already exists: $SCRIPTS_DIR"
         read -rp "Do you want update the script? It will delete the existing directory and create a new one? (y/n): " choice
         case "$choice" in
             [yY]|[yY][eE][sS])
-                echo "Deleting existing directory: $SCRIPTS_DIR"
+                msg_info "Deleting existing directory: $SCRIPTS_DIR"
                 rm -rf "$SCRIPTS_DIR"
                 mkdir -p "$SCRIPTS_DIR"
                 ;;
             *)
-                echo "Exiting installation process."
+                msg_error "Exiting installation process."
                 exit 1
                 ;;
         esac
     else
-        echo "Creating directory: $SCRIPTS_DIR"
+        msg_info "Creating directory: $SCRIPTS_DIR"
         mkdir -p "$SCRIPTS_DIR"
     fi
 }
@@ -82,9 +109,9 @@ create_scripts_dir() {
 
 # Function to run deploy.sh
 run_deploy() {
-    echo "Running deploy.sh..."
+    msg_info "Running deploy.sh..."
     "$SCRIPTS_DIR/deploy.sh"
-    echo "deploy.sh executed successfully."
+    msg_success "deploy.sh executed successfully."
 }
 
 # Main function to execute installation process
@@ -96,12 +123,8 @@ install_project() {
     initialize_project
     run_deploy
     source ~/.bashrc
-    echo "Installation completed successfully."
+    msg_success "Installation completed successfully."
 }
 
 # Run installation process
 install_project
-
-# Add the script to PATH and source .bashrc
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
