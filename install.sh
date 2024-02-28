@@ -111,7 +111,7 @@ create_scripts_dir() {
 run_deploy() {
     msg_info "Running deploy.sh..."
     "$SCRIPTS_DIR/deploy.sh"
-    msg_success "deploy.sh executed successfully."
+    msg_success "Commands deployed successfully."
 }
 
 # Main function to execute installation process
