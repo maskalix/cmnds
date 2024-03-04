@@ -59,14 +59,14 @@ manage_commands() {
     IFS=$'\n' read -rd '' -a selected_scripts <<< "$choice"
 
     # Check if "Enable all" or "Disable all" is selected
-    if [[ " ${selected_scripts[@]} " =~ " Enable all " ]]; then
+    if [[ " ${selected_scripts[@]} " =~ "Enable all" ]]; then
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
             enable_command "$script_name" "$script_path"
         done
         echo "All commands enabled."
         exit 0
-    elif [[ " ${selected_scripts[@]} " =~ " Disable all " ]]; then
+    elif [[ " ${selected_scripts[@]} " =~ "Disable all" ]]; then
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
             disable_command "$script_name"
@@ -88,7 +88,6 @@ manage_commands() {
     # Refresh shell's cache
     hash -r
 }
-
 
 # Function to enable a command
 enable_command() {
