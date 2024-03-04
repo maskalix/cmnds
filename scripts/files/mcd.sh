@@ -10,9 +10,11 @@ mcd() {
         # Print message in green text
         echo -e "${GREEN}Directory $1 created${NC}"
         mkdir -p "$1" && cd "$1" || return 1
+        cd $1
     else
         # Print message in red text
         echo -e "${RED}Directory $1 already exists${NC}"
+        cd $1
     fi
 }
 
