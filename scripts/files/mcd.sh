@@ -12,7 +12,7 @@ mcd() {
             echo -e "${GREEN}Directory $1 created${NC}"
             if cd "$1"; then
                 echo "Changed directory to: $PWD"
-                cd $PWD
+                cd "$PWD"
             else
                 echo -e "${RED}Failed to change directory to $1${NC}"
                 return 1
@@ -26,7 +26,7 @@ mcd() {
         echo -e "${RED}Directory $1 already exists${NC}"
         if cd "$1"; then
             echo "Changed directory to: $PWD"
-            cd $PWD
+            cd "$PWD"
         else
             echo -e "${RED}Failed to change directory to $1${NC}"
             return 1
