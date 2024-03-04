@@ -12,6 +12,7 @@ make_scripts_executable() {
 }
 
 # Function to display menu and manage selected commands using dialog
+# Function to display menu and manage selected commands using dialog
 manage_commands() {
     make_scripts_executable
 
@@ -41,8 +42,12 @@ manage_commands() {
         fi
     done
 
+    # Add options to enable/disable all scripts
+    local enable_disable_all=("Enable all" "" off)
+    local disable_all=("Disable all" "" off)
+
     # Show dialog menu
-    choice=$(dialog --clear --checklist "Select scripts to enable/disable" 20 40 10 "${enabled_scripts[@]}" 2>&1 >/dev/tty)
+    choice=$(dialog --clear --checklist "Select scripts to enable/disable" 20 40 10 "${enable_disable_all[@]}" "${disable_all[@]}" "${enabled_scripts[@]}" 2>&1 >/dev/tty)
 
     # Check if dialog was canceled
     if [[ $? -ne 0 ]]; then
@@ -52,6 +57,23 @@ manage_commands() {
 
     # Convert dialog output to array
     IFS=$'\n' read -rd '' -a selected_scripts <<< "$choice"
+
+    # Check if "Enable all" or "Disable all" is selected
+    if [[ " ${selected_scripts[@]} " =~ " Enable all " ]]; then
+        for script_path in "${script_list[@]}"; do
+            script_name=$(basename "$script_path" .sh)
+            enable_command "$script_name" "$script_path"
+        done
+        echo "All commands enabled."
+        exit 0
+    elif [[ " ${selected_scripts[@]} " =~ " Disable all " ]]; then
+        for script_path in "${script_list[@]}"; do
+            script_name=$(basename "$script_path" .sh)
+            disable_command "$script_name"
+        done
+        echo "All commands disabled."
+        exit 0
+    fi
 
     # Manage selected commands
     for script_path in "${script_list[@]}"; do
@@ -66,6 +88,7 @@ manage_commands() {
     # Refresh shell's cache
     hash -r
 }
+
 
 # Function to enable a command
 enable_command() {
