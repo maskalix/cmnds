@@ -24,7 +24,7 @@ wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh
 
 ## Command not found
 - option 1
-   -  run ` source ~/.bashrc`, sometimes more than once :/
+   -  run `source ~/.bashrc`, sometimes more than once :/
 - option 2
    - close and reconnect to SSH
 ---
