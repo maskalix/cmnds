@@ -22,6 +22,10 @@ wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh
 - using `deploy` enable `cmnds-update`
 - run `cmnds-update` and proceed in installation
 
+## Custom commands
+- feel free to add own commands into the root folder of CMNDS or into subdirectory
+- it must be in .sh format, then it will be registered by `deploy.sh` (`deploy`) command 
+
 ## Command not found
 - option 1
    -  run `source ~/.bashrc`, sometimes more than once :/
