@@ -36,7 +36,11 @@ create_export_directory "$export_dir"
 # Function to export files from subfolders with progress bar
 export_files() {
     local folder="$1"
-    rsync -a --progress "$folder"/* "$export_dir/"
+    for file in "$folder"/*; do
+        if [ -f "$file" ]; then
+            cp "$file" "$export_dir"
+        fi
+    done
 }
 
 # Loop through subfolders of main folder
