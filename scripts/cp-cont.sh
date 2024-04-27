@@ -34,8 +34,10 @@ export_files() {
 # Loop through subfolders of main folder
 for subfolder in "$main_folder"/*; do
     if [ -d "$subfolder" ]; then
+        echo "Exporting files from: $subfolder"
         # Export files from each subfolder with progress
         export_files "$subfolder"
+        echo "Exporting done for: $subfolder"
     fi
 done
 
