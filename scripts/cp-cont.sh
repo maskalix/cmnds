@@ -10,6 +10,15 @@ validate_directory() {
     echo "$dir"
 }
 
+# Function to create export directory if it doesn't exist
+create_export_directory() {
+    local dir="$1"
+    if [ ! -d "$dir" ]; then
+        mkdir -p "$dir"
+        echo "Export directory created: $dir"
+    fi
+}
+
 # Ask for main folder path
 echo "This tool copies only files not folders!"
 echo "Enter the main folder path:"
@@ -22,22 +31,19 @@ read export_dir
 export_dir=$(validate_directory "$export_dir")
 
 # Create export directory if it doesn't exist
-mkdir -p "$export_dir"
+create_export_directory "$export_dir"
 
 # Function to export files from subfolders with progress bar
 export_files() {
     local folder="$1"
-    echo "Copying files from: $folder"
     rsync -a --progress "$folder"/* "$export_dir/"
 }
 
 # Loop through subfolders of main folder
 for subfolder in "$main_folder"/*; do
     if [ -d "$subfolder" ]; then
-        echo "Exporting files from: $subfolder"
         # Export files from each subfolder with progress
         export_files "$subfolder"
-        echo "Exporting done for: $subfolder"
     fi
 done
 
