@@ -27,6 +27,7 @@ mkdir -p "$export_dir"
 # Function to export files from subfolders with progress bar
 export_files() {
     local folder="$1"
+    echo "Copying files from: $folder"
     rsync -a --progress "$folder"/* "$export_dir/"
 }
 
