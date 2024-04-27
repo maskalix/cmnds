@@ -24,20 +24,16 @@ export_dir=$(validate_directory "$export_dir")
 # Create export directory if it doesn't exist
 mkdir -p "$export_dir"
 
-# Function to export files from subfolders
+# Function to export files from subfolders with progress bar
 export_files() {
     local folder="$1"
-    for file in "$folder"/*; do
-        if [ -f "$file" ]; then
-            cp "$file" "$export_dir"
-        fi
-    done
+    rsync -a --progress "$folder"/* "$export_dir/"
 }
 
 # Loop through subfolders of main folder
 for subfolder in "$main_folder"/*; do
     if [ -d "$subfolder" ]; then
-        # Export files from each subfolder
+        # Export files from each subfolder with progress
         export_files "$subfolder"
     fi
 done
