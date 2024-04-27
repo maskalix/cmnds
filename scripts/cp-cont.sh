@@ -29,8 +29,12 @@ export_files() {
     mkdir -p "$target_dir/$subfolder_name"
     echo "Export directory created: $target_dir/$subfolder_name"
     
-    # Copy files from source subfolder to target subfolder with progress
-    rsync -a --progress "$source_dir"/* "$target_dir/$subfolder_name/"
+    # Copy files from source subfolder to target subfolder
+    for file in "$source_dir"/*; do
+        if [ -f "$file" ]; then
+            cp "$file" "$target_dir/$subfolder_name/"
+        fi
+    done
 }
 
 # Ask for main folder path
