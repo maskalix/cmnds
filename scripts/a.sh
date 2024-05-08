@@ -2,9 +2,13 @@
 
 # Function to create aliases for apt commands
 a() {
-    case "$1" in
+    # Convert hyphens and remove leading spaces
+    local command="$(echo "$1" | sed 's/-/ /' | sed 's/^ *//')"
+    shift
+
+    case "$command" in
         i|install)
-            apt install "${@:2}"
+            apt install "$@"
             ;;
         u|update)
             apt update
@@ -13,10 +17,10 @@ a() {
             apt upgrade
             ;;
         r|remove)
-            apt remove "${@:2}"
+            apt remove "$@"
             ;;
         p|purge)
-            apt purge "${@:2}"
+            apt purge "$@"
             ;;
         au|autoremove)
             apt autoremove
@@ -28,7 +32,7 @@ a() {
             apt autoclean
             ;;
         s|source)
-            apt source "${@:2}"
+            apt source "$@"
             ;;
         -h|--help)
             display_help
