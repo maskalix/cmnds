@@ -2,8 +2,8 @@
 
 # Function to create aliases for apt commands
 a() {
-    # Convert hyphens and remove leading spaces
-    local command="$(echo "$1" | sed 's/-/ /' | sed 's/^ *//')"
+    # Convert hyphens to spaces
+    local command="${1//-/ }"
     shift
 
     case "$command" in
