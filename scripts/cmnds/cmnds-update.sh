@@ -11,6 +11,11 @@ display_header() {
     echo -e "${GRAY}$1:${NC}"
 }
 
+echo
+echo -e "\e[32m   ________  ____   ______  _____    ____            ____\n  / ____/  |/  / | / / __ \/ ___/   / __ \___  _____/ __/\n / /   / /|_/ /  |/ / / / /\__ \   / /_/ / _ \/ ___/ /_ \e[0m"
+echo -e "\e[32mcreated by Martin Skalicky ## @maskalix\e[0m"
+echo
+
 # Check if /cmnds-temp directory exists
 if [ -d "/cmnds-temp" ]; then
     echo "${YELLOW}Removing existing /cmnds-temp directory...${NC}"
