@@ -12,8 +12,9 @@ display_header() {
 }
 
 echo
-echo -e "\e[32m   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/\n\e[0m"
-echo -e "\e[32mcreated by Martin Skalicky ## @maskalix\e[0m"
+echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/\n${NC}"
+echo -e "${GREEN}created by Martin Skalicky ## @maskalix\n${NC}"
+echo -e "${GREEN}CMNDs update tool${NC}"
 echo
 
 # Check if /cmnds-temp directory exists
@@ -31,6 +32,5 @@ display_header "${YELLOW}Downloading and executing install script${NC}"
 wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh && chmod +x install.sh && ./install.sh
 
 # Remove /cmnds-temp directory
-display_header "${GREEN}Downloaded!${NC}"
-display_header "${YELLOW}Cleaning up${NC}"
+display_header "${YELLOW}Installer cleaning up${NC}"
 rm -rf /cmnds-temp
