@@ -2,19 +2,37 @@
 
 # Function to create aliases for apt commands
 a() {
-    # Convert hyphens to spaces
-    local command="${1//-/ }"
+    local auto_yes=0
+
+    # Check if the command includes the '-y' flag
+    if [[ "$1" == "-y" ]]; then
+        auto_yes=1
+        shift
+    fi
+
+    local command="$1"
     shift
+
+    # Convert hyphens and remove leading spaces
+    command="$(echo "$command" | sed 's/-/ /' | sed 's/^ *//')"
 
     case "$command" in
         i|install)
-            apt install "$@"
+            if [ $auto_yes -eq 1 ]; then
+                apt install -y "$@"
+            else
+                apt install "$@"
+            fi
             ;;
         u|update)
             apt update
             ;;
         ug|upgrade)
-            apt upgrade
+            if [ $auto_yes -eq 1 ]; then
+                apt upgrade -y
+            else
+                apt upgrade
+            fi
             ;;
         r|remove)
             apt remove "$@"
@@ -46,7 +64,7 @@ a() {
 # Function to display help message
 display_help() {
     cat << EOF
-Usage: a <command> [arguments]
+Usage: a [-y] <command> [arguments]
 
 Commands:
   i, install      Install a package
@@ -59,6 +77,9 @@ Commands:
   ac, autoclean   Clear out the local repository of retrieved package files, but only remove package files that can no longer be downloaded
   s, source       Download the source code for a package
   -h, --help      Display this help message
+
+Options:
+  -y              Automatically answer 'yes' to prompts; assume 'yes' as the answer to all prompts and run non-interactively.
 EOF
 }
 
