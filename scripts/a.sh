@@ -52,7 +52,7 @@ a() {
         s|source)
             apt source "$@"
             ;;
-        -h|--help)
+        h|help)
             display_help
             ;;
         *)
@@ -76,7 +76,7 @@ Commands:
   c, clean        Clear out the local repository of retrieved package files
   ac, autoclean   Clear out the local repository of retrieved package files, but only remove package files that can no longer be downloaded
   s, source       Download the source code for a package
-  -h, --help      Display this help message
+  h, help      Display this help message
 
 Options:
   -y              Automatically answer 'yes' to prompts; assume 'yes' as the answer to all prompts and run non-interactively.
