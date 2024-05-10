@@ -50,10 +50,7 @@ manage_commands() {
     local disable_all=("Disable all" "" off)
 
     # Show dialog menu
-    choice=$(dialog --clear --checklist "Select scripts to enable/disable" 20 40 10 "${enable_disable_all[@]}" "${disable_all[@]}" "${enabled_scripts[@]}" 2>&1 >/dev/tty)
-
-    # Reset terminal color scheme
-    tput sgr0
+    choice=$(dialog --clear --keep-tite --checklist "Select scripts to enable/disable" 20 40 10 "${enable_disable_all[@]}" "${disable_all[@]}" "${enabled_scripts[@]}" 2>&1 >/dev/tty)
 
     # Check if dialog was canceled
     if [[ $? -ne 0 ]]; then
