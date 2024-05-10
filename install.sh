@@ -112,6 +112,7 @@ run_deploy() {
     msg_info "Running deploy.sh..."
     "$SCRIPTS_DIR/cmnds/deploy.sh"
     msg_success "Commands deployed successfully."
+    msg_info "If commands isn't found, then run >> source ~/.bashrc << multiple times"
 }
 
 # Main function to execute installation process
