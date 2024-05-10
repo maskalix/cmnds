@@ -6,6 +6,12 @@ SCRIPTS_DIR="/data/scripts/cmnds"
 # Directory to store command links
 COMMANDS_DIR="/data/scripts/cmnds/commands"
 
+# Define colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
 # Function to make all scripts in SCRIPTS_DIR and its subfolders executable
 make_scripts_executable() {
     find "$SCRIPTS_DIR" -type f -name "*.sh" -exec chmod +x {} +
