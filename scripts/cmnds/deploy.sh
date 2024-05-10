@@ -115,7 +115,7 @@ enable_command() {
     if [[ -f "$script_path" ]]; then
         chmod +x "$script_path"
         ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
-        echo -e "${GREEN} $script_name${NC}"
+        echo -e "${GREEN}$script_name${NC}"
     else
         echo -e "${YELLOW}$script_name${NC}"
     fi
