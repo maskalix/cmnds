@@ -12,7 +12,6 @@ make_scripts_executable() {
 }
 
 # Function to display menu and manage selected commands using dialog
-# Function to display menu and manage selected commands using dialog
 manage_commands() {
     make_scripts_executable
 
@@ -22,6 +21,8 @@ manage_commands() {
     local enabled_scripts=()
     local selected_scripts=()
     local initial_enabled=()
+    local enabled_commands=()  # Store enabled commands
+    local disabled_commands=()  # Store disabled commands
 
     # Get list of scripts in SCRIPTS_DIR and its subfolders
     while IFS= read -r -d '' script_path; do
@@ -37,8 +38,10 @@ manage_commands() {
         script_name=$(basename "$script_path" .sh)
         if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
             enabled_scripts+=( "$script_name" "" on )
+            enabled_commands+=( "$script_name" )
         else
             enabled_scripts+=( "$script_name" "" off )
+            disabled_commands+=( "$script_name" )
         fi
     done
 
@@ -63,6 +66,8 @@ manage_commands() {
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
             enable_command "$script_name" "$script_path"
+            enabled_commands+=( "$script_name" )
+            disabled_commands=("${disabled_commands[@]/$script_name}")
         done
         echo "All commands enabled."
         exit 0
@@ -70,6 +75,8 @@ manage_commands() {
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
             disable_command "$script_name"
+            disabled_commands+=( "$script_name" )
+            enabled_commands=("${enabled_commands[@]/$script_name}")
         done
         echo "All commands disabled."
         exit 0
@@ -80,13 +87,24 @@ manage_commands() {
         script_name=$(basename "$script_path" .sh)
         if [[ " ${selected_scripts[@]} " =~ " $script_name " ]]; then
             enable_command "$script_name" "$script_path"  # Pass the actual path of the script
+            enabled_commands+=( "$script_name" )
+            disabled_commands=("${disabled_commands[@]/$script_name}")
         else
             disable_command "$script_name"
+            disabled_commands+=( "$script_name" )
+            enabled_commands=("${enabled_commands[@]/$script_name}")
         fi
     done
 
     # Refresh shell's cache
     hash -r
+
+    # Display enabled and disabled commands in a table
+    echo "Enabled commands:"
+    printf "%-20s\n" "${enabled_commands[@]}"
+    echo
+    echo "Disabled commands:"
+    printf "%-20s\n" "${disabled_commands[@]}"
 }
 
 # Function to enable a command
