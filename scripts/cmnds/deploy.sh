@@ -67,8 +67,7 @@ manage_commands() {
     # Convert dialog output to array
     IFS=$'\n' read -rd '' -a selected_scripts <<< "$choice"
 
-    printf "%-20s %-20s %-20s\n" "Enabled" "Disabled" "Not Used"
-    printf "%-20s %-20s %-20s\n" "-------" "--------" "---------"
+    echo "Commands: ${GREEN}enabled${NC} ${RED}disabled${NC}, ${YELLOW}not used${NC}"
 
     # Check if "Enable all" or "Disable all" is selected
     if [[ " ${selected_scripts[@]} " =~ "Enable all" ]]; then
