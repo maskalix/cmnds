@@ -61,6 +61,9 @@ manage_commands() {
     # Convert dialog output to array
     IFS=$'\n' read -rd '' -a selected_scripts <<< "$choice"
 
+    printf "%-20s %-20s %-20s\n" "Enabled" "Disabled" "Not Used"
+    printf "%-20s %-20s %-20s\n" "-------" "--------" "---------"
+
     # Check if "Enable all" or "Disable all" is selected
     if [[ " ${selected_scripts[@]} " =~ "Enable all" ]]; then
         for script_path in "${script_list[@]}"; do
@@ -81,7 +84,7 @@ manage_commands() {
         echo "All commands disabled."
         exit 0
     fi
-
+    
     # Manage selected commands
     for script_path in "${script_list[@]}"; do
         script_name=$(basename "$script_path" .sh)
@@ -107,9 +110,9 @@ enable_command() {
     if [[ -f "$script_path" ]]; then
         chmod +x "$script_path"
         ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
-        echo "Enabled command: $script_name"
+        echo -e "${GREEN} $script_name${NC}"
     else
-        echo "$script_name: command not found"
+        echo -e "${YELLOW}$script_name${NC}"
     fi
 }
 
@@ -119,9 +122,9 @@ disable_command() {
     local command_path="$COMMANDS_DIR/$script_name"
     if [[ -L "$command_path" ]]; then
         rm -f "$command_path"
-        echo "Disabled command: $script_name"
+        echo -e "${RED}$script_name${NC}"
     else
-        echo "$script_name: command not found"
+        echo -e "${YELLOW}$script_name${NC}"
     fi
 }
 
