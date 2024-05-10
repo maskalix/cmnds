@@ -55,6 +55,40 @@ manage_commands() {
     local enable_disable_all=("Enable all" "" off)
     local disable_all=("Disable all" "" off)
 
+    # Check if -a (enable all) option is passed
+    if [[ "$1" == "-a" ]]; then
+        for script_path in "${script_list[@]}"; do
+            script_name=$(basename "$script_path" .sh)
+            enable_command "$script_name" "$script_path"
+            enabled_commands+=( "$script_name" )
+            disabled_commands=("${disabled_commands[@]/$script_name}")
+        done
+        echo "All commands enabled."
+        exit 0
+    fi
+
+    # Check if -n (disable all) option is passed
+    if [[ "$1" == "-n" ]]; then
+        for script_path in "${script_list[@]}"; do
+            script_name=$(basename "$script_path" .sh)
+            disable_command "$script_name"
+            disabled_commands+=( "$script_name" )
+            enabled_commands=("${enabled_commands[@]/$script_name}")
+        done
+        echo "All commands disabled."
+        exit 0
+    fi
+
+    # Show help information if -h option is passed
+    if [[ "$1" == "-h" ]]; then
+        echo "Usage: deploy [OPTION]"
+        echo "Options:"
+        echo "  -a    Enable all commands"
+        echo "  -n    Disable all commands"
+        echo "  -h    Display this help message"
+        exit 0
+    fi
+
     # Show dialog menu
     choice=$(dialog --clear --keep-tite --checklist "Select scripts to enable/disable" 20 40 10 "${enable_disable_all[@]}" "${disable_all[@]}" "${enabled_scripts[@]}" 2>&1 >/dev/tty)
 
@@ -140,4 +174,4 @@ if ! command -v dialog &>/dev/null; then
 fi
 
 # Run the function to manage commands
-manage_commands
+manage_commands "$@"
