@@ -52,6 +52,9 @@ manage_commands() {
     # Show dialog menu
     choice=$(dialog --clear --checklist "Select scripts to enable/disable" 20 40 10 "${enable_disable_all[@]}" "${disable_all[@]}" "${enabled_scripts[@]}" 2>&1 >/dev/tty)
 
+    # Reset terminal color scheme
+    tput sgr0
+
     # Check if dialog was canceled
     if [[ $? -ne 0 ]]; then
         echo "Dialog canceled. No changes were made."
