@@ -98,13 +98,6 @@ manage_commands() {
 
     # Refresh shell's cache
     hash -r
-
-    # Display enabled and disabled commands in a table
-    echo "Enabled commands:"
-    printf "%-20s\n" "${enabled_commands[@]}"
-    echo
-    echo "Disabled commands:"
-    printf "%-20s\n" "${disabled_commands[@]}"
 }
 
 # Function to enable a command
