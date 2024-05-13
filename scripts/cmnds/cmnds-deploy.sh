@@ -133,6 +133,12 @@ manage_commands() {
 enable_command() {
     local script_name="$1"
     local script_path="$2"  # Fetch the actual path of the script from the argument
+    
+    # Check if $script_name contains "cmnds"
+    if [[ "$script_name" == *"cmnds"* ]]; then
+        return  # If it contains "cmnds", do nothing and return
+    fi
+
     if [[ -f "$script_path" ]]; then
         chmod +x "$script_path"
         ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
