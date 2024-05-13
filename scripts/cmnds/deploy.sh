@@ -152,7 +152,7 @@ if ! command -v dialog &>/dev/null; then
 fi
 
 load_scripts
-echo -e "${BLUE}?Do you want to (${WHITE}c${NC}${BLUE})hoose commands, (${GREEN}e${NC}${BLUE})nable all commands, or (${RED}d${NC}${BLUE})isable all commands?$ ${NC}[${WHITE}c${NC}/${GREEN}e${NC}/${RED}d${NC}]${BLUE}:${NC} \c"
+echo -e "${BLUE}Do you want to (${WHITE}c${NC}${BLUE})hoose commands, (${GREEN}e${NC}${BLUE})nable all commands, or (${RED}d${NC}${BLUE})isable all commands? [${NC}${WHITE}c${BLUE}/${NC}${GREEN}e${BLUE}/${NC}${RED}d${BLUE}]:${NC} \c"
 read -r action
 case $action in
     c|C)
