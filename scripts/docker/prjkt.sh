@@ -50,6 +50,7 @@ while getopts ":n:cr:h:u:" opt; do
             ;;
         u)
             docker compose up -d
+            echo -e "${YELLOW}Docker Composed successfully!${NC}"
             ;;
         r)
             rm -rf "$OPTARG"
