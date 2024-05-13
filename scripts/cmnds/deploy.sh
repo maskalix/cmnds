@@ -151,7 +151,7 @@ if ! command -v dialog &>/dev/null; then
 fi
 
 load_scripts
-read -rp $${BLUE}"Do you want to ("$${NC}"c"$${BLUE}")hoose commands, ("$${GREEN}"e"$${NC}$${BLUE}")nable all commands, or ("$${RED}"d"$${NC}$${BLUE}")isable all commands?$${NC} [$${NC}c/$${GREEN}e/$${RED}d]: "$${NC} action
+read -rp "${BLUE}Do you want to (${NC}c${BLUE})hoose commands, (${GREEN}e${NC}${BLUE})nable all commands, or (${RED}d${NC}${BLUE})isable all commands?${NC} [${NC}c/${GREEN}e/${RED}d]:${NC} " action
 case $action in
     c|C)
         # Run the function to manage commands
