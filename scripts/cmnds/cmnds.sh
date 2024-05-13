@@ -38,26 +38,6 @@ show_help() {
     echo -e "   ${YELLOW}-u${NC} : Update CMNDS"
 }
 
-# Function to list all scripts in the same directory as cmnds.sh
-list_commands() {
-    COMMANDS_DIR="${script_path_without_cmnds}commands/"
-    
-    # Initialize the command list variable
-    command_list=""
-    
-    # Loop through each file in the directory
-    for file in "$COMMANDS_DIR"/*; do
-        # Extract the command name from the file path
-        command_name=$(basename "$file")
-        
-        # Add the command name to the list
-        command_list+="\n$command_name"
-    done
-    
-    # Echo the command list as a table
-    echo -e "Command Name\n------------$command_list"
-}
-
 # Function to run cmnds-update
 run_update() {
     echo "Running update..."
