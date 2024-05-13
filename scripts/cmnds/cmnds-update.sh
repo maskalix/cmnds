@@ -14,7 +14,8 @@ display_header() {
 echo
 echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
 echo -e "${GREEN}CMNDs update tool${NC}"
-echo -e "${GREEN}>> created by Martin Skalicky ## GitHub → @maskalix\n${NC}"
+echo -e "${GREEN}>> created by Martin Skalicky"
+echo -e ">> GitHub → @maskalix\n${NC}"
 
 # Check if /cmnds-temp directory exists
 if [ -d "/cmnds-temp" ]; then
@@ -22,9 +23,14 @@ if [ -d "/cmnds-temp" ]; then
     rm -rf /cmnds-temp
 fi
 
-# Create /cmnds-temp directory
-mkdir /cmnds-temp
-cd /cmnds-temp
+# Check if /cmnds-temp directory exists or create it
+if [ ! -d "/cmnds-temp" ]; then
+    echo "${YELLOW}Creating /cmnds-temp directory...${NC}"
+    mkdir /cmnds-temp
+fi
+
+# Change to /cmnds-temp directory
+cd /cmnds-temp || exit 1
 
 # Download and execute install script
 display_header "${YELLOW}Downloading and executing install script${NC}"
@@ -32,4 +38,4 @@ wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install
 
 # Remove /cmnds-temp directory
 display_header "${YELLOW}Installer cleaning up${NC}"
-rm -rf /cmnds-temp
+cd .. && rm -rf /cmnds-temp
