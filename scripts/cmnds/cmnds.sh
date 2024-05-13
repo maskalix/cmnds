@@ -67,7 +67,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Parse command-line options
-while getopts ":" opt; do
+while getopts ":abcdefghijklmnopqrstuvwxyz" opt; do
     case $opt in
         a)  
             list_commands
