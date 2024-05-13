@@ -122,7 +122,7 @@ if ! command -v dialog &>/dev/null; then
     exit 1
 fi
 
-load_scripts()
+load_scripts
 read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
 case $action in
     c|C)
