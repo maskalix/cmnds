@@ -33,7 +33,7 @@ while getopts ":n:cr:h" opt; do
             read -rp "Enter preferred directory (default: /data/misc/): " custom_dir
             dir=${custom_dir:-"/data/misc/"}
             mkdir -p "$dir/$project_name" && {
-                echo -e "\r\e[32mProject >>\e[0m $project_name \r\e[32m<< created\e[0m"
+                echo -e "\e[32mProject \e[0m>>\e[32m $project_name \e[0m<<\e[32m created\e[0m"
                 change_directory "$dir/$project_name"
             }
             ;;
