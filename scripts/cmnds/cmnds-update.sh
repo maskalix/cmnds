@@ -8,14 +8,13 @@ NC='\033[0m'
 
 # Function to display section headers
 display_header() {
-    echo -e "${GRAY}$1:${NC}"
+    echo -e "${GRAY}$1${NC}"
 }
 
 echo
-echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/\n${NC}"
-echo -e "${GREEN}created by Martin Skalicky ## @maskalix\n${NC}"
+echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
 echo -e "${GREEN}CMNDs update tool${NC}"
-echo
+echo -e "${GREEN}>> created by Martin Skalicky ## GitHub → @maskalix\n${NC}"
 
 # Check if /cmnds-temp directory exists
 if [ -d "/cmnds-temp" ]; then
