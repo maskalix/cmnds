@@ -59,6 +59,7 @@ while getopts ":n:cr:hu" opt; do
             read -rp "Enter preferred directory (default: /data/misc/): " custom_dir
             dir=${custom_dir:-"/data/misc/"}
             echo -R "${dir}docker-compose.yml"
+            ;;
         \?)
             echo "Invalid option: $OPTARG" 1>&2
             show_help
