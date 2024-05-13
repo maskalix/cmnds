@@ -2,13 +2,13 @@
 
 # Function to display help information
 show_help() {
-    echo "Usage: prjkt.sh [option] [project_name] [directory_path]"
+    echo "Usage: prjkt -option [project_name]"
     echo ""
     echo "Options:"
-    echo "  -n [project_name] [directory_path]   Create a new project directory."
-    echo "  -c                                   Open 'docker-compose.yml' in nano (use after -n)."
-    echo "  -r [project_name]                    Remove the specified project directory."
-    echo "  -h                                   Display this help message."
+    echo -e "${YELLOW}-n [project_name]${NC} :     Create a new project directory."
+    echo -e "${YELLOW}-c${NC} :                    Open 'docker-compose.yml' in nano (use after -n)."
+    echo -e "${YELLOW}-r [project_name]${NC} :     Remove the specified project directory."
+    echo -e "${YELLOW}-h${NC} :                    Display this help message."
 }
 
 # Function to prepare change directory command
