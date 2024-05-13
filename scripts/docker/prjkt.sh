@@ -11,21 +11,6 @@ show_help() {
     echo "  -h                                   Display this help message."
 }
 
-# Default project directory
-default_dir="/data/misc/"
-
-# Progress indicator function
-progress_indicator() {
-    local chars="/-\|"
-    end_time=$((SECONDS+2))  # Minimum duration of 2 seconds
-    while [ $SECONDS -lt $end_time ]; do
-        for (( i=0; i<${#chars}; i++ )); do
-            echo -en "\r ${chars:$i:1} Creating project >> $project_name <<"
-            sleep 0.1
-        done
-    done
-}
-
 # Function to change directory
 change_directory() {
     cd "$1" || {
@@ -45,17 +30,12 @@ while getopts ":n:cr:h" opt; do
     case ${opt} in
         n)
             project_name="$OPTARG"
-            read -rp "Enter preferred directory (default: $default_dir): " custom_dir
-            dir=${custom_dir:-$default_dir}
-            (
-                progress_indicator &
-                pid=$!
-                mkdir -p "$dir/$project_name" && {
-                    kill "$pid" && wait "$pid" 2>/dev/null
-                    echo -e "\r\e[32mProject >>\e[0m $project_name \r\e[32m<< created\e[0m"
-                    change_directory "$dir/$project_name"
-                }
-            )
+            read -rp "Enter preferred directory (default: /data/misc/): " custom_dir
+            dir=${custom_dir:-"/data/misc/"}
+            mkdir -p "$dir/$project_name" && {
+                echo -e "\r\e[32mProject >>\e[0m $project_name \r\e[32m<< created\e[0m"
+                change_directory "$dir/$project_name"
+            }
             ;;
         c)
             # Ensure the docker-compose file is opened only if the -n option was used before -c
