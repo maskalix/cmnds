@@ -17,6 +17,71 @@ make_scripts_executable() {
     find "$SCRIPTS_DIR" -type f -name "*.sh" -exec chmod +x {} +
 }
 
+# Function to enable a command
+enable_command() {
+    local script_name="$1"
+    local script_path="$2"  # Fetch the actual path of the script from the argument
+    if [[ -f "$script_path" ]]; then
+        chmod +x "$script_path"
+        ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
+        echo -e "${GREEN}$script_name${NC}"
+    else
+        echo -e "${YELLOW}$script_name${NC}"
+    fi
+}
+
+# Function to disable a command
+disable_command() {
+    local script_name="$1"
+    local command_path="$COMMANDS_DIR/$script_name"
+    if [[ -L "$command_path" ]]; then
+        rm -f "$command_path"
+        echo -e "${RED}$script_name${NC}"
+    else
+        echo -e "${YELLOW}$script_name${NC}"
+    fi
+}
+
+# Check if dialog is installed
+if ! command -v dialog &>/dev/null; then
+    echo "Error: dialog is not installed. Please install it and try again."
+    exit 1
+fi
+
+# Check if dialog is installed
+if ! command -v dialog &>/dev/null; then
+    echo "Error: dialog is not installed. Please install it and try again."
+    exit 1
+fi
+
+# Prompt user to choose action
+read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
+
+case $action in
+    c|C)
+        # Run the function to manage commands
+        manage_commands
+        ;;
+    e|E)
+        for script_path in "$SCRIPTS_DIR"/*.sh; do
+            script_name=$(basename "$script_path" .sh)
+            enable_command "$script_name" "$script_path"
+        done
+        echo "All commands enabled."
+        ;;
+    d|D)
+        for script_path in "$SCRIPTS_DIR"/*.sh; do
+            script_name=$(basename "$script_path" .sh)
+            disable_command "$script_name"
+        done
+        echo "All commands disabled."
+        ;;
+    *)
+        echo "Invalid option. Exiting."
+        exit 1
+        ;;
+esac
+
 # Function to display menu and manage selected commands using dialog
 manage_commands() {
     make_scripts_executable
@@ -51,46 +116,8 @@ manage_commands() {
         fi
     done
 
-    # Add options to enable/disable all scripts
-    local enable_disable_all=("Enable all" "" off)
-    local disable_all=("Disable all" "" off)
-
-    # Check if -a (enable all) option is passed
-    if [[ "$1" == "-a" ]]; then
-        for script_path in "${script_list[@]}"; do
-            script_name=$(basename "$script_path" .sh)
-            enable_command "$script_name" "$script_path"
-            enabled_commands+=( "$script_name" )
-            disabled_commands=("${disabled_commands[@]/$script_name}")
-        done
-        echo "All commands enabled."
-        exit 0
-    fi
-
-    # Check if -n (disable all) option is passed
-    if [[ "$1" == "-n" ]]; then
-        for script_path in "${script_list[@]}"; do
-            script_name=$(basename "$script_path" .sh)
-            disable_command "$script_name"
-            disabled_commands+=( "$script_name" )
-            enabled_commands=("${enabled_commands[@]/$script_name}")
-        done
-        echo "All commands disabled."
-        exit 0
-    fi
-
-    # Show help information if -h option is passed
-    if [[ "$1" == "-h" ]]; then
-        echo "Usage: deploy [OPTION]"
-        echo "Options:"
-        echo "  -a    Enable all commands"
-        echo "  -n    Disable all commands"
-        echo "  -h    Display this help message"
-        exit 0
-    fi
-
     # Show dialog menu
-    choice=$(dialog --clear --keep-tite --checklist "Select scripts to enable/disable" 20 40 10 "${enable_disable_all[@]}" "${disable_all[@]}" "${enabled_scripts[@]}" 2>&1 >/dev/tty)
+    choice=$(dialog --clear --keep-tite --checklist "Select scripts to enable/disable" 20 40 10 "${enabled_scripts[@]}" 2>&1 >/dev/tty)
 
     # Check if dialog was canceled
     if [[ $? -ne 0 ]]; then
@@ -103,27 +130,6 @@ manage_commands() {
 
     echo -e "Commands: ${GREEN}enabled${NC}, ${RED}disabled${NC}, ${YELLOW}not used${NC}"
 
-    # Check if "Enable all" or "Disable all" is selected
-    if [[ " ${selected_scripts[@]} " =~ "Enable all" ]]; then
-        for script_path in "${script_list[@]}"; do
-            script_name=$(basename "$script_path" .sh)
-            enable_command "$script_name" "$script_path"
-            enabled_commands+=( "$script_name" )
-            disabled_commands=("${disabled_commands[@]/$script_name}")
-        done
-        echo "All commands enabled."
-        exit 0
-    elif [[ " ${selected_scripts[@]} " =~ "Disable all" ]]; then
-        for script_path in "${script_list[@]}"; do
-            script_name=$(basename "$script_path" .sh)
-            disable_command "$script_name"
-            disabled_commands+=( "$script_name" )
-            enabled_commands=("${enabled_commands[@]/$script_name}")
-        done
-        echo "All commands disabled."
-        exit 0
-    fi
-    
     # Manage selected commands
     for script_path in "${script_list[@]}"; do
         script_name=$(basename "$script_path" .sh)
@@ -141,37 +147,3 @@ manage_commands() {
     # Refresh shell's cache
     hash -r
 }
-
-# Function to enable a command
-enable_command() {
-    local script_name="$1"
-    local script_path="$2"  # Fetch the actual path of the script from the argument
-    if [[ -f "$script_path" ]]; then
-        chmod +x "$script_path"
-        ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
-        echo -e "${GREEN}$script_name${NC}"
-    else
-        echo -e "${YELLOW}$script_name${NC}"
-    fi
-}
-
-# Function to disable a command
-disable_command() {
-    local script_name="$1"
-    local command_path="$COMMANDS_DIR/$script_name"
-    if [[ -L "$command_path" ]]; then
-        rm -f "$command_path"
-        echo -e "${RED}$script_name${NC}"
-    else
-        echo -e "${YELLOW}$script_name${NC}"
-    fi
-}
-
-# Check if dialog is installed
-if ! command -v dialog &>/dev/null; then
-    echo "Error: dialog is not installed. Please install it and try again."
-    exit 1
-fi
-
-# Run the function to manage commands
-manage_commands "$@"
