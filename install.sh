@@ -68,11 +68,11 @@ initialize_project() {
     mv "$SCRIPTS_DIR/scripts"/* "$SCRIPTS_DIR"/
     # Remove the now-empty scripts folder
     rmdir "$SCRIPTS_DIR/scripts"
-    # Update deploy.sh with customized directories
-    sed -i "s|SCRIPTS_DIR=.*|SCRIPTS_DIR=\"$SCRIPTS_DIR\"|g" "$SCRIPTS_DIR/cmnds/deploy.sh"
-    sed -i "s|COMMANDS_DIR=.*|COMMANDS_DIR=\"$SCRIPTS_DIR/commands\"|g" "$SCRIPTS_DIR/cmnds/deploy.sh"
-    # Make deploy.sh executable
-    chmod +x "$SCRIPTS_DIR/cmnds/deploy.sh"
+    # Update cmnds-deploy.sh with customized directories
+    sed -i "s|SCRIPTS_DIR=.*|SCRIPTS_DIR=\"$SCRIPTS_DIR\"|g" "$SCRIPTS_DIR/cmnds/cmnds-deploy.sh"
+    sed -i "s|COMMANDS_DIR=.*|COMMANDS_DIR=\"$SCRIPTS_DIR/commands\"|g" "$SCRIPTS_DIR/cmnds/cmnds-deploy.sh"
+    # Make cmnds-deploy.sh executable
+    chmod +x "$SCRIPTS_DIR/cmnds/cmnds-deploy.sh"
     # Add $SCRIPTS_DIR/commands to ~/.bashrc if not already there
     if ! grep -q "$SCRIPTS_DIR/commands" ~/.bashrc; then
         echo "export PATH=\"$SCRIPTS_DIR/commands:\$PATH\"" >> ~/.bashrc
@@ -113,10 +113,10 @@ create_scripts_dir() {
 }
 
 
-# Function to run deploy.sh
+# Function to run cmnds-deploy.sh
 run_deploy() {
-    msg_info "Running deploy.sh..."
-    "$SCRIPTS_DIR/cmnds/deploy.sh"
+    msg_info "Running cmnds-deploy.sh..."
+    "$SCRIPTS_DIR/cmnds/cmnds-deploy.sh"
     msg_success "Commands deployed successfully."
     msg_info "If commands isn't found, then run multiple times >> ${LIGHT_PURPLE}source ~/.bashrc${NC}"
 }
