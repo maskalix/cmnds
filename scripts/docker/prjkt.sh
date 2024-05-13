@@ -17,6 +17,7 @@ show_help() {
     echo -e "${YELLOW}-n ${BLUE}[project_name]${NC}      Create a new project directory."
     echo -e "${YELLOW}-c${NC}                     Open 'docker-compose.yml' in nano (use after -n [project_name])."
     echo -e "${YELLOW}-u${NC}                     Run the docker compose up -d (use after -n [project_name])."
+    echo -e "${YELLOW}-v ${BLUE}[project_name]${NC}      View project docker-compose.yml."
     echo -e "${YELLOW}-r ${BLUE}[project_name]${NC}      Remove the specified project directory."
     echo -e "${YELLOW}-h${NC}                     Display this help message."
 }
@@ -53,6 +54,11 @@ while getopts ":n:cr:hu" opt; do
         h)
             show_help
             ;;
+        v)
+            project_name="$OPTARG"
+            read -rp "Enter preferred directory (default: /data/misc/): " custom_dir
+            dir=${custom_dir:-"/data/misc/"}
+            echo -R "${dir}docker-compose.yml"
         \?)
             echo "Invalid option: $OPTARG" 1>&2
             show_help
