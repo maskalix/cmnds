@@ -14,9 +14,9 @@ show_help() {
     echo "Usage: prjkt -option [project_name]"
     echo ""
     echo "Options:"
-    echo -e "${YELLOW}-n [project_name]${NC}      Create a new project directory."
+    echo -e "${YELLOW}-n ${BLUE}[project_name]${NC}      Create a new project directory."
     echo -e "${YELLOW}-c${NC}                     Open 'docker-compose.yml' in nano (use after -n)."
-    echo -e "${YELLOW}-r [project_name]${NC}      Remove the specified project directory."
+    echo -e "${YELLOW}-r ${BLUE}[project_name]${NC}      Remove the specified project directory."
     echo -e "${YELLOW}-h${NC}                     Display this help message."
 }
 
