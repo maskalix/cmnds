@@ -28,7 +28,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Parse command line options
-while getopts ":n:cr:h" opt; do
+while getopts ":n:cr:h:u:" opt; do
     case ${opt} in
         n)
             project_name="$OPTARG"
