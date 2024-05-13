@@ -27,8 +27,11 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+run_c=false
+run_u=false
+
 # Parse command line options
-while getopts ":n:cr:h:u:" opt; do
+while getopts ":n:cr:hu" opt; do
     case ${opt} in
         n)
             project_name="$OPTARG"
@@ -39,18 +42,10 @@ while getopts ":n:cr:h:u:" opt; do
             }
             ;;
         c)
-            # Ensure the docker-compose file is opened only if the -n option was used before -c
-            if [ -n "$project_name" ]; then
-                cd "$dir/$project_name"
-                nano "docker-compose.yml"
-            else
-                echo "Error: '-c' must be used after '-n [project_name] [directory_path]'"
-                exit 1
-            fi
+            run_c=true
             ;;
         u)
-            docker compose up -d
-            echo -e "${YELLOW}Docker Composed successfully!${NC}"
+            run_u=true
             ;;
         r)
             rm -rf "$OPTARG"
@@ -71,3 +66,36 @@ while getopts ":n:cr:h:u:" opt; do
     esac
 done
 shift $((OPTIND -1))
+
+# If both -c and -u options were provided, execute both actions
+if [ "$run_c" = true ] && [ "$run_u" = true ]; then
+    # Ensure the docker-compose file is opened only if the -n option was used before -c
+    if [ -n "$project_name" ]; then
+        cd "$dir/$project_name"
+        nano "docker-compose.yml"
+        docker compose up -d
+        echo -e "${YELLOW}Docker Composed successfully!${NC}"
+    else
+        echo "Error: '-c' and '-u' must be used after '-n [project_name] [directory_path]'"
+        exit 1
+    fi
+# If only -u is provided, execute docker compose up -d
+elif [ "$run_u" = true ]; then
+    if [ -n "$project_name" ]; then
+        cd "$dir/$project_name"
+        docker compose up -d
+        echo -e "${YELLOW}Docker Composed successfully!${NC}"
+    else
+        echo "Error: '-u' must be used after '-n [project_name] [directory_path]'"
+        exit 1
+    fi
+# If only -c is provided, execute cd and nano
+elif [ "$run_c" = true ]; then
+    if [ -n "$project_name" ]; then
+        cd "$dir/$project_name"
+        nano "docker-compose.yml"
+    else
+        echo "Error: '-c' must be used after '-n [project_name] [directory_path]'"
+        exit 1
+    fi
+fi
