@@ -43,8 +43,8 @@ get_version() {
     echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
     echo -e "${GREEN}Simply commands to ease using Linux server${NC}"
     echo -e "${GREEN}>> created by Martin Skalicky"
-    echo -e ">> GitHub → @maskalix\n${NC}"
-    echo -e "${BLUE}alpha${NC}${WHITE} $version${NC}"
+    echo -e ">> GitHub → @maskalix${NC}"
+    echo -e "${BLUE}alpha${NC}${WHITE} $version${NC}\n"
 }
 
 # If no arguments are provided, print version number and show help message
