@@ -11,12 +11,15 @@ show_help() {
     echo "  -h                                   Display this help message."
 }
 
+# Function to prepare change directory command
+prepare_change_directory_command() {
+    echo "cd \"$1\""
+}
+
 # Function to change directory
 change_directory() {
-    cd "$1" || {
-        echo "Error: Unable to change directory to $1"
-        exit 1
-    }
+    prepare_change_directory_command "$1"
+    # You might want to add an additional message here to prompt the user to press Enter
 }
 
 # Check for no options
