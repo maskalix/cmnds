@@ -58,7 +58,7 @@ while getopts ":n:v:r:crhuv:" opt; do
             project_name="$OPTARG"
             read -rp "Enter preferred directory (default: /data/misc/): " custom_dir
             dir=${custom_dir:-"/data/misc/"}
-            nano -R "${dir}docker-compose.yml"
+            nano -R "${dir}${project_name}/docker-compose.yml"
             ;;
         \?)
             echo "Invalid option: $OPTARG" 1>&2
