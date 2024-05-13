@@ -27,8 +27,10 @@ prepare_change_directory_command() {
 
 # Function to change directory
 change_directory() {
-    prepare_change_directory_command "$1"
-    # You might want to add an additional message here to prompt the user to press Enter
+    local cd_command=$(prepare_change_directory_command "$1")
+    echo -n "Press Enter to change directory: "
+    read -r
+    eval "$cd_command"
 }
 
 # Check for no options
