@@ -1,8 +1,15 @@
 #!/bin/bash
-
+# Colors
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+GRAY='\033[1;33m'
+BLUE='\e[1;34m'
+WHITE='\033[0;97m'
+# Reset color
+NC='\033[0m'
 # Function to display help message
 show_help() {
-    echo "Usage: $0 [option]"
+    echo "Usage: cmnds [option]"
     echo "Options:"
     echo "  -h  : Display help message"
     echo "  -u  : Update CMNDS"
@@ -28,13 +35,12 @@ run_update() {
 get_version() {
     script_path=$(realpath "$0")
     script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
-    echo "${script_path_without_cmnds}version"
     if [ -f "${script_path_without_cmnds}version" ]; then
         version="($(cat ${script_path_without_cmnds}version))"
     else
         version="(unknown)"
     fi
-    echo "CMNDS version alpha $version ($script_path_without_cmnds)"
+    echo -e "${BLUE}CMNDS version${NC}${GREEN} alpha${NC}${WHITE} $version ($script_path_without_cmnds)${NC}"
 }
 
 # If no arguments are provided, print version number and show help message
@@ -45,7 +51,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Parse command-line options
-while getopts ":hu:" opt; do
+while getopts ":hu" opt; do
     case $opt in
         h)  show_help
             exit 0
