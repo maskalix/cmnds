@@ -29,10 +29,10 @@ list_commands() {
 
 # Function to display help message
 show_help() {
-    echo "Usage: cmnds [option]"
+    echo -e "Usage: ${WHITE}cmnds${NC}${BLUE} [option]${NC}"
     echo "Options:"
-    echo "   ${YELLOW}-h  : Display help message ${NC}"
-    echo "   ${YELLOW}-u  : Update CMNDS ${NC}"
+    echo -e "   ${YELLOW}-h${NC} : Display help message"
+    echo -e "   ${YELLOW}-u${NC} : Update CMNDS"
 }
 
 # Function to list all scripts in the same directory as cmnds.sh
