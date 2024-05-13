@@ -12,6 +12,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 LIGHT_PURPLE='\033[1;35m'
+BLUE='\e[1;34m'
 
 # Function to make all scripts in SCRIPTS_DIR and its subfolders executable
 make_scripts_executable() {
@@ -150,7 +151,7 @@ if ! command -v dialog &>/dev/null; then
 fi
 
 load_scripts
-read -rp $'\e[1;34m'"Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: "$'\e[0m' action
+read -rp $${BLUE}"Do you want to ("$${NC}"c"$${BLUE}")hoose commands, ("$${GREEN}"e"$${NC}$${BLUE}")nable all commands, or ("$${RED}"d"$${NC}$${BLUE}")isable all commands?$${NC} [$${NC}c/$${GREEN}e/$${RED}d]: "$${NC} action
 case $action in
     c|C)
         # Run the function to manage commands
