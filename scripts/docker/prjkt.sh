@@ -32,7 +32,7 @@ run_c=false
 run_u=false
 
 # Parse command line options
-while getopts ":nv:crhuv:" opt; do
+while getopts ":n:v:crhuv:" opt; do
     case ${opt} in
         n)
             project_name="$OPTARG"
