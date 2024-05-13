@@ -34,8 +34,9 @@ list_commands() {
 show_help() {
     echo -e "Usage: ${WHITE}cmnds${NC}${BLUE} [option]${NC}"
     echo "Options:"
-    echo -e "   ${YELLOW}-a${NC} : List all commands"
-    echo -e "   ${YELLOW}-u${NC} : Update CMNDS"
+    echo -e "${YELLOW}-a${NC} : List all commands"
+    echo -e "${YELLOW}-u${NC} : Update CMNDS"
+    echo -e "${YELLOW}-d${NC} : Deploy CMNDS commands"
 }
 
 # Function to run cmnds-update
@@ -79,6 +80,10 @@ while getopts "auh" opt; do
         h)  
             get_version
             show_help
+            exit 0
+            ;;
+        d)
+            cmnds-deploy
             exit 0
             ;;
         \?)
