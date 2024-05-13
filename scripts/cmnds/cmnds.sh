@@ -7,12 +7,32 @@ BLUE='\e[1;34m'
 WHITE='\033[0;97m'
 # Reset color
 NC='\033[0m'
+
+script_path=$(realpath "$0")
+script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
+
+list_commands() {
+    COMMANDS_DIR="${script_path_without_cmnds}commands/"
+    # Initialize the command list variable
+    command_list=""
+    # Loop through each file in the directory
+    for file in "$COMMANDS_DIR"/*; do
+        # Extract the command name from the file path
+        command_name=$(basename "$file")
+        
+        # Add the command name to the list
+        command_list+="\n$command_name"
+    done
+    # Echo the command list as a table
+    echo -e "Command Name\n------------$command_list"
+}
+
 # Function to display help message
 show_help() {
     echo "Usage: cmnds [option]"
     echo "Options:"
-    echo "  -h  : Display help message"
-    echo "  -u  : Update CMNDS"
+    echo "   ${YELLOW}-h  : Display help message ${NC}"
+    echo "   ${YELLOW}-u  : Update CMNDS ${NC}"
 }
 
 # Function to list all scripts in the same directory as cmnds.sh
@@ -33,8 +53,6 @@ run_update() {
 
 # Function to get version number and path of the script
 get_version() {
-    script_path=$(realpath "$0")
-    script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
     if [ -f "${script_path_without_cmnds}version" ]; then
         version="($(cat ${script_path_without_cmnds}version))"
     else
@@ -50,14 +68,14 @@ get_version() {
 # If no arguments are provided, print version number and show help message
 if [ $# -eq 0 ]; then
     get_version
-    echo -e "Run ${YELLOW}cmnds -h${NC} for help"
+    show_help
     exit 0
 fi
 
 # Parse command-line options
 while getopts ":hu" opt; do
     case $opt in
-        h)  show_help
+        a)  list_commands
             exit 0
             ;;
         u)  run_update
