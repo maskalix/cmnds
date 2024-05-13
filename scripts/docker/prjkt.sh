@@ -17,9 +17,10 @@ default_dir="/data/misc/"
 # Progress indicator function
 progress_indicator() {
     local chars="/-\|"
-    while true; do
+    end_time=$((SECONDS+2))  # Minimum duration of 2 seconds
+    while [ $SECONDS -lt $end_time ]; do
         for (( i=0; i<${#chars}; i++ )); do
-            echo -en "\rCreating project $project_name ${chars:$i:1}"
+            echo -en "\r ${chars:$i:1} Creating project >> $project_name <<"
             sleep 0.1
         done
     done
@@ -51,7 +52,7 @@ while getopts ":n:cr:h" opt; do
                 pid=$!
                 mkdir -p "$dir/$project_name" && {
                     kill "$pid" && wait "$pid" 2>/dev/null
-                    echo -e "\r\e[32mProject $project_name created\e[0m"
+                    echo -e "\r\e[32mProject >>\e[0m $project_name \r\e[32m<< created\e[0m"
                     change_directory "$dir/$project_name"
                 }
             )
