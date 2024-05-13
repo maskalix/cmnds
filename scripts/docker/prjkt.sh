@@ -20,19 +20,6 @@ show_help() {
     echo -e "${YELLOW}-h${NC}                     Display this help message."
 }
 
-# Function to prepare change directory command
-prepare_change_directory_command() {
-    echo "cd \"$1\""
-}
-
-# Function to change directory
-change_directory() {
-    local cd_command=$(prepare_change_directory_command "$1")
-    echo -n "Press Enter to change directory: "
-    read -r
-    eval "$cd_command"
-}
-
 # Check for no options
 if [ $# -eq 0 ]; then
     show_help
@@ -48,12 +35,12 @@ while getopts ":n:cr:h" opt; do
             dir=${custom_dir:-"/data/misc/"}
             mkdir -p "$dir/$project_name" && {
                 echo -e "\e[32mProject \e[0m>> $project_name <<\e[32m created\e[0m"
-                change_directory "$dir/$project_name"
             }
             ;;
         c)
             # Ensure the docker-compose file is opened only if the -n option was used before -c
             if [ -n "$project_name" ]; then
+                cd "$dir/$project_name"
                 nano "docker-compose.yml"
             else
                 echo "Error: '-c' must be used after '-n [project_name] [directory_path]'"
