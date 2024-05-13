@@ -63,7 +63,7 @@ manage_commands() {
         script_name=$(basename "$script_path" .sh)
         if [[ "$script_name" == "cmnds" ]]; then
             # Skip cmnds.sh script
-            enable_command()
+            continue
         fi
         if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
             initial_enabled+=( "$script_name" )
