@@ -18,7 +18,7 @@ list_commands() {
     # Loop through each file in the directory
     for file in "$COMMANDS_DIR"/*; do
         # Check if the file is a markdown file
-        if [[ "$file" == *.md ]]; then
+        if [[ "$file" == *".md" ]]; then
             continue  # Skip markdown files
         fi
         # Extract the command name from the file path
