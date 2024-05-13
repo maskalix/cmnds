@@ -21,6 +21,9 @@ list_commands() {
 # Function to run cmnds-update
 run_update() {
     echo "Running update..."
+    if [ "$1" == "-s" ]; then
+        echo -e "\n\ny\n\n"
+    fi
     cmnds-update
 }
 
@@ -35,18 +38,18 @@ get_version() {
 
 # If no arguments are provided, print version number and show help message
 if [ $# -eq 0 ]; then
-    echo "CMNDS version alpha ($(get_version))"
+    echo "CMNDS version alpha $(get_version)"
     show_help
     exit 0
 fi
 
 # Parse command-line options
-while getopts ":hu" opt; do
+while getopts ":hu:" opt; do
     case $opt in
         h)  show_help
             exit 0
             ;;
-        u)  run_update
+        u)  run_update "$OPTARG"
             exit 0
             ;;
         :)  echo "Option -$OPTARG requires an argument." >&2
