@@ -27,6 +27,8 @@ msg_other() {
     echo -e "${LIGHT_PURPLE}$1${NC}"
 }
 
+BLUE='\e[1;34m'
+
 # Function to install dialog if not installed
 install_dialog() {
     if ! command -v dialog &>/dev/null; then
@@ -80,7 +82,8 @@ initialize_project() {
 
 # Function to prompt user for SCRIPTS_DIR
 prompt_scripts_dir() {
-    read -rp "Enter preferred directory for scripts (default: /data/scripts/cmnds): " SCRIPTS_DIR
+    echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+    read -r SCRIPTS_DIR
     SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
 }
 
@@ -88,7 +91,7 @@ prompt_scripts_dir() {
 create_scripts_dir() {
     if [ -d "$SCRIPTS_DIR" ]; then
         msg_other "Directory already exists: $SCRIPTS_DIR"
-        echo -e "${YELLOW}Do you want to update the script?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): "
+        echo -e "${BLUE}Do you want to update the script?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
         read -r choice
         case "$choice" in
             [yY]|[yY][eE][sS])
