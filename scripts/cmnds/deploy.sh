@@ -103,7 +103,6 @@ manage_commands() {
         exit 0
     fi
 
-    echo -e "Commands: ${GREEN}enabled${NC}, ${RED}disabled${NC}, ${YELLOW}not used${NC}"
     # Manage selected commands
     for script_path in "${script_list[@]}"; do
         script_name=$(basename "$script_path" .sh)
@@ -113,6 +112,7 @@ manage_commands() {
             disable_command "$script_name"
         fi
     done
+    echo -e "Commands: ${GREEN}enabled${NC}, ${RED}disabled${NC}, ${YELLOW}not used${NC}"
 
     # Refresh shell's cache
     hash -r
