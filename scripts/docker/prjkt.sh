@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Colors
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+GRAY='\033[1;33m'
+BLUE='\e[1;34m'
+WHITE='\033[0;97m'
+# Reset color
+NC='\033[0m'
+
 # Function to display help information
 show_help() {
     echo "Usage: prjkt -option [project_name]"
