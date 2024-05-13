@@ -28,7 +28,7 @@ load_scripts() {
         script_name=$(basename "$script_path" .sh)
         if [[ "$script_name" == "cmnds" ]]; then
             # Skip cmnds.sh script
-            enable_command("$script_name" "$script_path")
+            enable_command "$script_name" "$script_path"
             continue
         fi
         if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
