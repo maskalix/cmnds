@@ -31,7 +31,7 @@ list_commands() {
 show_help() {
     echo -e "Usage: ${WHITE}cmnds${NC}${BLUE} [option]${NC}"
     echo "Options:"
-    echo -e "   ${YELLOW}-h${NC} : Display help message"
+    echo -e "   ${YELLOW}-a${NC} : List all commands"
     echo -e "   ${YELLOW}-u${NC} : Update CMNDS"
 }
 
