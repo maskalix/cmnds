@@ -21,24 +21,23 @@ list_commands() {
 # Function to run cmnds-update
 run_update() {
     echo "Running update..."
-    if [ "$1" == "-s" ]; then
-        echo -e "\n\ny\n\n"
-    fi
     cmnds-update
 }
 
-# Function to get version number from ../version file
+# Function to get version number and path of the script
 get_version() {
+    script_path=$(realpath "$0")
     if [ -f "../version" ]; then
-        echo "($(cat ../version))"
+        version="($(cat ../version))"
     else
-        echo "(unknown)"
+        version="(unknown)"
     fi
+    echo "CMNDS version alpha $version ($script_path)"
 }
 
 # If no arguments are provided, print version number and show help message
 if [ $# -eq 0 ]; then
-    echo "CMNDS version alpha $(get_version)"
+    get_version
     show_help
     exit 0
 fi
@@ -49,7 +48,7 @@ while getopts ":hu:" opt; do
         h)  show_help
             exit 0
             ;;
-        u)  run_update "$OPTARG"
+        u)  run_update
             exit 0
             ;;
         :)  echo "Option -$OPTARG requires an argument." >&2
