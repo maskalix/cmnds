@@ -11,6 +11,17 @@ NC='\033[0m'
 script_path=$(realpath "$0")
 script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
 
+
+local auto_yes=0
+
+# Check if the command includes the '-y' flag
+if [[ "$1" == "-y" ]]; then
+    auto_yes=1
+    shift
+fi
+
+local command="$1"
+shift
 # Convert hyphens and remove leading spaces
 command="$(echo "$command" | sed 's/-/ /' | sed 's/^ *//')"
 
