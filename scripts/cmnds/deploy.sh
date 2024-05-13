@@ -6,6 +6,13 @@ SCRIPTS_DIR="/data/scripts/cmnds"
 # Directory to store command links
 COMMANDS_DIR="/data/scripts/cmnds/commands"
 
+# Colors
+NC='\033[0m'           
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+LIGHT_PURPLE='\033[1;35m'
+
 # Function to make all scripts in SCRIPTS_DIR and its subfolders executable
 make_scripts_executable() {
     find "$SCRIPTS_DIR" -type f -name "*.sh" -exec chmod +x {} +
@@ -66,17 +73,18 @@ manage_commands() {
             script_name=$(basename "$script_path" .sh)
             enable_command "$script_name" "$script_path"
         done
-        echo "All commands enabled."
+        echo -e "Commands: all ${GREEN}enabled${NC}"
         exit 0
     elif [[ " ${selected_scripts[@]} " =~ "Disable all" ]]; then
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
             disable_command "$script_name"
         done
-        echo "All commands disabled."
+        echo -e "Commands: all ${RED}disabled${NC}"
         exit 0
     fi
 
+    echo -e "Commands: ${GREEN}enabled${NC}, ${RED}disabled${NC}, ${YELLOW}not used${NC}"
     # Manage selected commands
     for script_path in "${script_list[@]}"; do
         script_name=$(basename "$script_path" .sh)
@@ -98,9 +106,9 @@ enable_command() {
     if [[ -f "$script_path" ]]; then
         chmod +x "$script_path"
         ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
-        echo "Enabled command: $script_name"
+        echo -e "${GREEN}$script_name${NC}"
     else
-        echo "$script_name: command not found"
+        echo -e "${YELLOW}$script_name${NC}"
     fi
 }
 
@@ -110,9 +118,9 @@ disable_command() {
     local command_path="$COMMANDS_DIR/$script_name"
     if [[ -L "$command_path" ]]; then
         rm -f "$command_path"
-        echo "Disabled command: $script_name"
+        echo -e "${RED}$script_name${NC}"
     else
-        echo "$script_name: command not found"
+        echo -e "${YELLOW}$script_name${NC}"
     fi
 }
 
@@ -132,16 +140,16 @@ case $action in
     e|E)
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
+            echo -e "Commands: all ${GREEN}enabled${NC}"
             enable_command "$script_name" "$script_path"
         done
-        echo "All commands enabled."
         ;;
     d|D)
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
+            echo -e "Commands: all ${RED}disabled${NC}"
             disable_command "$script_name"
         done
-        echo "All commands disabled."
         ;;
     *)
         echo "Invalid option. Exiting."
