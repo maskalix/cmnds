@@ -11,9 +11,6 @@ NC='\033[0m'
 script_path=$(realpath "$0")
 script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
 
-# Convert hyphens and remove leading spaces
-command="$(echo "$command" | sed 's/-/ /' | sed 's/^ *//')"
-
 list_commands() {
     COMMANDS_DIR="${script_path_without_cmnds}commands/"
     # Initialize the command list variable
@@ -86,17 +83,27 @@ if [ $# -eq 0 ]; then
 fi
 
 # Parse command-line options
-case "$command" in
-    a)  list_commands
-        exit 0
-        ;;
-    u)  run_update
-        exit 0
-        ;;
-    *) echo "Invalid option: -$OPTARG" >&2
-        exit 1
-        ;;
-esac
+while getopts "auh" opt; do
+    case $opt in
+        a)  
+            list_commands
+            exit 0
+            ;;
+        u)  
+            run_update
+            exit 0
+            ;;
+        h)  
+            get_version
+            show_help
+            exit 0
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+    esac
+done
 
 # If an unknown argument is provided
 if [ $OPTIND -eq 1 ]; then
