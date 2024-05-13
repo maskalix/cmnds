@@ -15,7 +15,8 @@ show_help() {
     echo ""
     echo "Options:"
     echo -e "${YELLOW}-n ${BLUE}[project_name]${NC}      Create a new project directory."
-    echo -e "${YELLOW}-c${NC}                     Open 'docker-compose.yml' in nano (use after -n)."
+    echo -e "${YELLOW}-c${NC}                     Open 'docker-compose.yml' in nano (use after -n [project_name])."
+    echo -e "${YELLOW}-u${NC}                     Run the docker compose up -d (use after -n [project_name])."
     echo -e "${YELLOW}-r ${BLUE}[project_name]${NC}      Remove the specified project directory."
     echo -e "${YELLOW}-h${NC}                     Display this help message."
 }
@@ -46,6 +47,9 @@ while getopts ":n:cr:h" opt; do
                 echo "Error: '-c' must be used after '-n [project_name] [directory_path]'"
                 exit 1
             fi
+            ;;
+        u)
+            docker compose up -d
             ;;
         r)
             rm -rf "$OPTARG"
