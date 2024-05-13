@@ -14,6 +14,25 @@ show_help() {
 # Default project directory
 default_dir="/data/misc/"
 
+# Progress indicator function
+progress_indicator() {
+    local chars="/-\|"
+    while true; do
+        for (( i=0; i<${#chars}; i++ )); do
+            echo -en "\rCreating project $project_name ${chars:$i:1}"
+            sleep 0.1
+        done
+    done
+}
+
+# Function to change directory
+change_directory() {
+    cd "$1" || {
+        echo "Error: Unable to change directory to $1"
+        exit 1
+    }
+}
+
 # Check for no options
 if [ $# -eq 0 ]; then
     show_help
@@ -27,16 +46,15 @@ while getopts ":n:cr:h" opt; do
             project_name="$OPTARG"
             read -rp "Enter preferred directory (default: $default_dir): " custom_dir
             dir=${custom_dir:-$default_dir}
-            # Prompt user for confirmation
-            read -p "Create project directory '$project_name' in '$dir'? [Y/n] " confirm
-            confirm=${confirm:-Y}  # Default to 'Y' if user just presses enter
-            if [[ $confirm =~ ^[Yy]$ ]]; then
-                mkdir -p "$dir/$project_name"
-                cd "$dir/$project_name"
-            else
-                echo "Operation cancelled."
-                exit 1
-            fi
+            (
+                progress_indicator &
+                pid=$!
+                mkdir -p "$dir/$project_name" && {
+                    kill "$pid" && wait "$pid" 2>/dev/null
+                    echo -e "\r\e[32mProject $project_name created\e[0m"
+                    change_directory "$dir/$project_name"
+                }
+            )
             ;;
         c)
             # Ensure the docker-compose file is opened only if the -n option was used before -c
