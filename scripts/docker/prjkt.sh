@@ -18,6 +18,7 @@ show_help() {
     echo -e "${YELLOW}-c${NC}                     Open 'docker-compose.yml' in nano (use after -n [project_name])."
     echo -e "${YELLOW}-u${NC}                     Run the docker compose up -d (use after -n [project_name])."
     echo -e "${YELLOW}-v ${BLUE}[project_name]${NC}      View project docker-compose.yml."
+    echo -e "${YELLOW}-d ${BLUE}[project_name]${NC}      Decompose"
     echo -e "${YELLOW}-r ${BLUE}[project_name]${NC}      Remove the specified project directory."
     echo -e "${YELLOW}-h${NC}                     Display this help message."
 }
@@ -32,7 +33,7 @@ run_c=false
 run_u=false
 
 # Parse command line options
-while getopts ":n:v:r:crhuv:" opt; do
+while getopts ":n:v:r:d:dcrhuv:" opt; do
     case ${opt} in
         n)
             project_name="$OPTARG"
@@ -41,6 +42,13 @@ while getopts ":n:v:r:crhuv:" opt; do
             mkdir -p "$dir/$project_name" && {
                 echo -e "\e[32mProject \e[0m>> $project_name <<\e[32m created\e[0m"
             }
+            ;;
+        d)
+            project_name="$OPTARG"
+            read -rp "Enter preferred directory (default: /data/misc/): " custom_dir
+            dir=${custom_dir:-"/data/misc/"}
+            cd "${dir}${project_name}/"
+            docker compose down
             ;;
         c)
             run_c=true
