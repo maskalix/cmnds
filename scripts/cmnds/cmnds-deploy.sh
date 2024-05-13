@@ -26,7 +26,7 @@ load_scripts() {
     # Get list of scripts in SCRIPTS_DIR and its subfolders
     while IFS= read -r -d '' script_path; do
         script_name=$(basename "$script_path" .sh)
-        if [[ "$script_name" == "cmnds" ]]; then
+        if [[ "$script_name" == *"cmnds"* ]]; then
             # Skip cmnds.sh script
             enable_command "$script_name" "$script_path"
             continue
@@ -61,7 +61,7 @@ manage_commands() {
     # Get list of scripts in SCRIPTS_DIR and its subfolders
     while IFS= read -r -d '' script_path; do
         script_name=$(basename "$script_path" .sh)
-        if [[ "$script_name" == "cmnds" ]]; then
+        if [[ "$script_name" == *"cmnds"* ]]; then
             # Skip cmnds.sh script
             continue
         fi
