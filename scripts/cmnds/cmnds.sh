@@ -28,9 +28,9 @@ run_update() {
 get_version() {
     script_path=$(realpath "$0")
     script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
-    echo "${script_path_without_cmnds}/version"
-    if [ -f "../version" ]; then
-        version="($(cat script_path_without_cmnds/version))"
+    echo "${script_path_without_cmnds}version"
+    if [ -f "${script_path_without_cmnds}version" ]; then
+        version="($(cat ${script_path_without_cmnds}version))"
     else
         version="(unknown)"
     fi
