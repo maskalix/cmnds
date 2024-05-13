@@ -42,47 +42,7 @@ disable_command() {
     fi
 }
 
-# Check if dialog is installed
-if ! command -v dialog &>/dev/null; then
-    echo "Error: dialog is not installed. Please install it and try again."
-    exit 1
-fi
-
-# Check if dialog is installed
-if ! command -v dialog &>/dev/null; then
-    echo "Error: dialog is not installed. Please install it and try again."
-    exit 1
-fi
-
-# Prompt user to choose action
-read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
-
-case $action in
-    c|C)
-        # Run the function to manage commands
-        manage_commands
-        ;;
-    e|E)
-        for script_path in "$SCRIPTS_DIR"/*.sh; do
-            script_name=$(basename "$script_path" .sh)
-            enable_command "$script_name" "$script_path"
-        done
-        echo "All commands enabled."
-        ;;
-    d|D)
-        for script_path in "$SCRIPTS_DIR"/*.sh; do
-            script_name=$(basename "$script_path" .sh)
-            disable_command "$script_name"
-        done
-        echo "All commands disabled."
-        ;;
-    *)
-        echo "Invalid option. Exiting."
-        exit 1
-        ;;
-esac
-
-# Function to display menu and manage selected commands using dialog
+# Function to manage commands
 manage_commands() {
     make_scripts_executable
 
@@ -147,3 +107,31 @@ manage_commands() {
     # Refresh shell's cache
     hash -r
 }
+
+# Prompt user to choose action
+read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
+
+case $action in
+    c|C)
+        # Run the function to manage commands
+        manage_commands
+        ;;
+    e|E)
+        for script_path in "$SCRIPTS_DIR"/*.sh; do
+            script_name=$(basename "$script_path" .sh)
+            enable_command "$script_name" "$script_path"
+        done
+        echo "All commands enabled."
+        ;;
+    d|D)
+        for script_path in "$SCRIPTS_DIR"/*.sh; do
+            script_name=$(basename "$script_path" .sh)
+            disable_command "$script_name"
+        done
+        echo "All commands disabled."
+        ;;
+    *)
+        echo "Invalid option. Exiting."
+        exit 1
+        ;;
+esac
