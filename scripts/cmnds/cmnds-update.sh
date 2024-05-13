@@ -17,25 +17,28 @@ echo -e "${GREEN}CMNDs update tool${NC}"
 echo -e "${GREEN}>> created by Martin Skalicky"
 echo -e ">> GitHub → @maskalix\n${NC}"
 
-# Check if /cmnds-temp directory exists
-if [ -d "/cmnds-temp" ]; then
-    echo -e "${YELLOW}Removing existing /cmnds-temp directory...${NC}"
-    rm -rf /cmnds-temp
-fi
+# Temporary directory
+temp_dir="/cmnds-temp"
 
-# Check if /cmnds-temp directory exists or create it
-if [ ! -d "/cmnds-temp" ]; then
-    echo -e "${YELLOW}Creating /cmnds-temp directory...${NC}"
-    mkdir /cmnds-temp
+# Create /cmnds-temp directory if it doesn't exist
+if [ ! -d "$temp_dir" ]; then
+    echo -e "${YELLOW}Creating $temp_dir directory...${NC}"
+    mkdir "$temp_dir" || { echo "Failed to create $temp_dir directory."; exit 1; }
+else
+    echo -e "${YELLOW}Removing existing $temp_dir directory...${NC}"
+    rm -rf "$temp_dir" || { echo "Failed to remove $temp_dir directory."; exit 1; }
 fi
 
 # Change to /cmnds-temp directory
-cd /cmnds-temp || exit 1
+cd "$temp_dir" || { echo "Failed to change to $temp_dir directory."; exit 1; }
 
 # Download and execute install script
 display_header "${YELLOW}Downloading and executing install script${NC}"
 wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh && chmod +x install.sh && ./install.sh
 
+# Move back to parent directory
+cd - >/dev/null || { echo "Failed to change to parent directory."; exit 1; }
+
 # Remove /cmnds-temp directory
 display_header "${YELLOW}Installer cleaning up${NC}"
-cd .. && rm -rf /cmnds-temp
+rm -rf "$temp_dir" || echo "Failed to remove $temp_dir directory."
