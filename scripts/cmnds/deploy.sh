@@ -150,7 +150,7 @@ if ! command -v dialog &>/dev/null; then
 fi
 
 load_scripts
-read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
+read -rp $'\e[1;34m'"Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: "$'\e[0m' action
 case $action in
     c|C)
         # Run the function to manage commands
