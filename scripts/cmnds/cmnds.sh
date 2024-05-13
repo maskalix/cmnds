@@ -40,7 +40,11 @@ get_version() {
     else
         version="(unknown)"
     fi
-    echo -e "${BLUE}CMNDS version${NC}${GREEN} alpha${NC}${WHITE} $version ($script_path_without_cmnds)${NC}"
+    echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
+    echo -e "${GREEN}CMNDs update tool${NC}"
+    echo -e "${GREEN}>> created by Martin Skalicky"
+    echo -e ">> GitHub → @maskalix\n${NC}"
+    echo -e "${BLUE}alpha${NC}${WHITE} $version${NC}"
 }
 
 # If no arguments are provided, print version number and show help message
