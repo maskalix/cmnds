@@ -12,7 +12,7 @@ display_header() {
 }
 
 echo
-echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \\n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
+echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \ \n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
 echo -e "${GREEN}CMNDs update tool${NC}"
 echo -e "${GREEN}>> created by Martin Skalicky"
 echo -e ">> GitHub → @maskalix\n${NC}"
