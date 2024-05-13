@@ -83,7 +83,7 @@ if [ "$run_c" = true ] && [ "$run_u" = true ]; then
         docker compose up -d
         echo -e "${YELLOW}Docker Composed successfully!${NC}"
     else
-        echo "Error: '-c' and '-u' must be used after '-n [project_name] [directory_path]'"
+        echo -e "${YELLOW}Option '-c' and '-u' must be used after '-n [project_name]'${NC}"
         exit 1
     fi
 # If only -u is provided, execute docker compose up -d
@@ -93,7 +93,7 @@ elif [ "$run_u" = true ]; then
         docker compose up -d
         echo -e "${YELLOW}Docker Composed successfully!${NC}"
     else
-        echo "Error: '-u' must be used after '-n [project_name] [directory_path]'"
+        echo -e "${YELLOW}Option '-u' must be used after '-n [project_name]'${NC}"
         exit 1
     fi
 # If only -c is provided, execute cd and nano
@@ -102,7 +102,7 @@ elif [ "$run_c" = true ]; then
         cd "$dir/$project_name"
         nano "docker-compose.yml"
     else
-        echo "Error: '-c' must be used after '-n [project_name] [directory_path]'"
+        echo -e "${YELLOW}Option '-c' must be used after '-n [project_name]'${NC}"
         exit 1
     fi
 fi
