@@ -27,13 +27,13 @@ run_update() {
 # Function to get version number and path of the script
 get_version() {
     script_path=$(realpath "$0")
-    script_name=$(basename "$script_path")
+    script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
     if [ -f "../version" ]; then
         version="($(cat ../version))"
     else
         version="(unknown)"
     fi
-    echo "CMNDS version alpha $version ($script_name)"
+    echo "CMNDS version alpha $version ($script_path_without_cmnds)"
 }
 
 # If no arguments are provided, print version number and show help message
