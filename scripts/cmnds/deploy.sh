@@ -51,6 +51,25 @@ manage_commands() {
     local selected_scripts=()
     local initial_enabled=()
 
+    # Get list of scripts in SCRIPTS_DIR and its subfolders
+    while IFS= read -r -d '' script_path; do
+        script_name=$(basename "$script_path" .sh)
+        if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
+            initial_enabled+=( "$script_name" )
+        fi
+        script_list+=( "$script_path" )  # Store the actual path of the script
+    done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" -not -path "$COMMANDS_DIR/*" -print0)
+
+    # Prepare script list for dialog
+    for script_path in "${script_list[@]}"; do
+        script_name=$(basename "$script_path" .sh)
+        if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
+            enabled_scripts+=( "$script_name" "" on )
+        else
+            enabled_scripts+=( "$script_name" "" off )
+        fi
+    done
+
     # Add options to enable/disable all scripts
     local enable_disable_all=("Enable all" "" off)
     local disable_all=("Disable all" "" off)
@@ -138,16 +157,16 @@ case $action in
         manage_commands
         ;;
     e|E)
+        echo -e "Commands: all ${GREEN}enabled${NC}"
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
-            echo -e "Commands: all ${GREEN}enabled${NC}"
             enable_command "$script_name" "$script_path"
         done
         ;;
     d|D)
+        echo -e "Commands: all ${RED}disabled${NC}"
         for script_path in "${script_list[@]}"; do
             script_name=$(basename "$script_path" .sh)
-            echo -e "Commands: all ${RED}disabled${NC}"
             disable_command "$script_name"
         done
         ;;
