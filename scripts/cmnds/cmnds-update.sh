@@ -19,13 +19,13 @@ echo -e ">> GitHub → @maskalix\n${NC}"
 
 # Check if /cmnds-temp directory exists
 if [ -d "/cmnds-temp" ]; then
-    echo "${YELLOW}Removing existing /cmnds-temp directory...${NC}"
+    echo -e "${YELLOW}Removing existing /cmnds-temp directory...${NC}"
     rm -rf /cmnds-temp
 fi
 
 # Check if /cmnds-temp directory exists or create it
 if [ ! -d "/cmnds-temp" ]; then
-    echo "${YELLOW}Creating /cmnds-temp directory...${NC}"
+    echo -e "${YELLOW}Creating /cmnds-temp directory...${NC}"
     mkdir /cmnds-temp
 fi
 
