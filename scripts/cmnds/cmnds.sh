@@ -83,10 +83,7 @@ case "$command" in
     u)  run_update
         exit 0
         ;;
-    :)  echo "Option -$OPTARG requires an argument." >&2
-        exit 1
-        ;;
-    \?) echo "Invalid option: -$OPTARG" >&2
+    *) echo "Invalid option: -$OPTARG" >&2
         exit 1
         ;;
 esac
