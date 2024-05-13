@@ -66,8 +66,8 @@ while getopts ":n:v:crhuv:" opt; do
             exit 1
             ;;
         :)
-            echo "Option -$OPTARG requires an argument." 1>&2
-            show_help
+            echo -e "${YELLOW}Option -$OPTARG requires an argument.${NC}" 1>&2
+            echo -e "Usage: ${WHITE}prjkt ${YELLOW}-option ${BLUE}[project_name]${NC}"
             exit 1
             ;;
     esac
