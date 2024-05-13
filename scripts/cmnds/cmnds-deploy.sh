@@ -136,6 +136,8 @@ enable_command() {
     
     # Check if $script_name contains "cmnds"
     if [[ "$script_name" == *"cmnds"* ]]; then
+        chmod +x "$script_path"
+        ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
         return  # If it contains "cmnds", do nothing and return
     fi
 
