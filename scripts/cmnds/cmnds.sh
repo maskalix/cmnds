@@ -50,7 +50,7 @@ get_version() {
 # If no arguments are provided, print version number and show help message
 if [ $# -eq 0 ]; then
     get_version
-    show_help
+    echo -e "Run ${YELLOW}cmnds -h${NC} for help"
     exit 0
 fi
 
