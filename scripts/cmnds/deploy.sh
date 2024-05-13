@@ -12,17 +12,8 @@ make_scripts_executable() {
 }
 
 # Function to display menu and manage selected commands using dialog
-# Function to display menu and manage selected commands using dialog
-manage_commands() {
-    make_scripts_executable
 
-    local script_list=()
-    local script_name
-    local choice
-    local enabled_scripts=()
-    local selected_scripts=()
-    local initial_enabled=()
-
+load_scripts() {
     # Get list of scripts in SCRIPTS_DIR and its subfolders
     while IFS= read -r -d '' script_path; do
         script_name=$(basename "$script_path" .sh)
@@ -41,6 +32,17 @@ manage_commands() {
             enabled_scripts+=( "$script_name" "" off )
         fi
     done
+}
+
+manage_commands() {
+    make_scripts_executable
+
+    local script_list=()
+    local script_name
+    local choice
+    local enabled_scripts=()
+    local selected_scripts=()
+    local initial_enabled=()
 
     # Add options to enable/disable all scripts
     local enable_disable_all=("Enable all" "" off)
@@ -120,5 +122,29 @@ if ! command -v dialog &>/dev/null; then
     exit 1
 fi
 
-# Run the function to manage commands
-manage_commands
+load_scripts()
+read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
+case $action in
+    c|C)
+        # Run the function to manage commands
+        manage_commands
+        ;;
+    e|E)
+        for script_path in "${script_list[@]}"; do
+            script_name=$(basename "$script_path" .sh)
+            enable_command "$script_name" "$script_path"
+        done
+        echo "All commands enabled."
+        ;;
+    d|D)
+        for script_path in "${script_list[@]}"; do
+            script_name=$(basename "$script_path" .sh)
+            disable_command "$script_name"
+        done
+        echo "All commands disabled."
+        ;;
+    *)
+        echo "Invalid option. Exiting."
+        exit 1
+        ;;
+esac
