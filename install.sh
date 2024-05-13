@@ -1,131 +1,137 @@
 #!/bin/bash
 
- # Reset text color
-NC='\033[0m'           
+# Directory containing scripts
+SCRIPTS_DIR="/data/scripts/cmnds"
 
-# Error msg
-msg_error() {
-    RED='\033[0;31m'
-    echo -e "${RED}$1${NC}"
+# Directory to store command links
+COMMANDS_DIR="/data/scripts/cmnds/commands"
+
+# Define colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Function to make all scripts in SCRIPTS_DIR and its subfolders executable
+make_scripts_executable() {
+    find "$SCRIPTS_DIR" -type f -name "*.sh" -exec chmod +x {} +
 }
 
-# Success msg
-msg_success() {
-    GREEN='\033[0;32m'
-    echo -e "${GREEN}$1${NC}"
-}
-
-# Info msg
-msg_info() {
-    YELLOW='\033[1;33m'
-    echo -e "${YELLOW}$1${NC}"
-}
-
-# Other msg
-msg_other() {
-    LIGHT_PURPLE='\033[1;35m'
-    echo -e "${LIGHT_PURPLE}$1${NC}"
-}
-
-# Function to install dialog if not installed
-install_dialog() {
-    if ! command -v dialog &>/dev/null; then
-        msg_info "Installing dialog..."
-        # Check if the package manager is apt (Debian/Ubuntu)
-        if command -v apt &>/dev/null; then
-            sudo apt update
-            sudo apt install -y dialog
-        # Check if the package manager is yum (Red Hat/CentOS)
-        elif command -v yum &>/dev/null; then
-            sudo yum install -y dialog
-        # Check if the package manager is pacman (Arch Linux)
-        elif command -v pacman &>/dev/null; then
-            sudo pacman -Sy --noconfirm dialog
-        # If the package manager is not found, prompt the user to install dialog manually
-        else
-            msg_error "Error: Unable to determine the package manager. Please install dialog manually and try again."
-            exit 1
-        fi
-    fi
-}
-
-# Function to clone the project from GitHub
-clone_project() {
-    msg_info "Cloning project from GitHub into $SCRIPTS_DIR..."
-    git clone --depth 1 --filter=tree:0 https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR" > /dev/null 2>&1
-    cd "$SCRIPTS_DIR" || exit 1
-    git sparse-checkout set --no-cone scripts > /dev/null 2>&1
-    msg_success "Project cloned successfully."
-}
-
-# Function to initialize the project
-initialize_project() {
-    # Move the contents of the scripts folder to the parent directory
-    mv "$SCRIPTS_DIR/scripts"/* "$SCRIPTS_DIR"/
-    # Remove the now-empty scripts folder
-    rmdir "$SCRIPTS_DIR/scripts"
-    # Update deploy.sh with customized directories
-    sed -i "s|SCRIPTS_DIR=.*|SCRIPTS_DIR=\"$SCRIPTS_DIR\"|g" "$SCRIPTS_DIR/cmnds/deploy.sh"
-    sed -i "s|COMMANDS_DIR=.*|COMMANDS_DIR=\"$SCRIPTS_DIR/commands\"|g" "$SCRIPTS_DIR/cmnds/deploy.sh"
-    # Make deploy.sh executable
-    chmod +x "$SCRIPTS_DIR/cmnds/deploy.sh"
-    # Add $SCRIPTS_DIR/commands to ~/.bashrc if not already there
-    if ! grep -q "$SCRIPTS_DIR/commands" ~/.bashrc; then
-        echo "export PATH=\"$SCRIPTS_DIR/commands:\$PATH\"" >> ~/.bashrc
-    fi
-    # Source ~/.bashrc
-    source ~/.bashrc
-    msg_success "Project initialized successfully."
-}
-
-# Function to prompt user for SCRIPTS_DIR
-prompt_scripts_dir() {
-    read -rp "Enter preferred directory for scripts (default: /data/scripts/cmnds): " SCRIPTS_DIR
-    SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
-}
-
-# Function to create SCRIPTS_DIR if it doesn't exist
-create_scripts_dir() {
-    if [ -d "$SCRIPTS_DIR" ]; then
-        msg_other "Directory already exists: $SCRIPTS_DIR"
-        read -rp "${YELLOW}Do you want to update the script?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): " choice
-        case "$choice" in
-            [yY]|[yY][eE][sS])
-                msg_info "Deleting existing directory: $SCRIPTS_DIR"
-                rm -rf "$SCRIPTS_DIR"
-                mkdir -p "$SCRIPTS_DIR"
-                ;;
-            *)
-                msg_error "Exiting installation process."
-                exit 1
-                ;;
-        esac
+# Function to enable a command
+enable_command() {
+    local script_name="$1"
+    local script_path="$2"  # Fetch the actual path of the script from the argument
+    if [[ -f "$script_path" ]]; then
+        chmod +x "$script_path"
+        ln -s -f "$script_path" "$COMMANDS_DIR/$script_name"
+        echo -e "${GREEN}$script_name${NC}"
     else
-        msg_info "Creating directory: $SCRIPTS_DIR"
-        mkdir -p "$SCRIPTS_DIR"
+        echo -e "${YELLOW}$script_name${NC}"
     fi
 }
 
-
-# Function to run deploy.sh
-run_deploy() {
-    msg_info "Running deploy.sh..."
-    "$SCRIPTS_DIR/cmnds/deploy.sh"
-    msg_success "Commands deployed successfully."
-    msg_info "If commands isn't found, then run multiple times >> ${LIGHT_PURPLE}source ~/.bashrc${NC}"
+# Function to disable a command
+disable_command() {
+    local script_name="$1"
+    local command_path="$COMMANDS_DIR/$script_name"
+    if [[ -L "$command_path" ]]; then
+        rm -f "$command_path"
+        echo -e "${RED}$script_name${NC}"
+    else
+        echo -e "${YELLOW}$script_name${NC}"
+    fi
 }
 
-# Main function to execute installation process
-install_project() {
-    install_dialog
-    prompt_scripts_dir
-    create_scripts_dir
-    clone_project
-    initialize_project
-    run_deploy
-    source ~/.bashrc
-    msg_success "Installation completed successfully."
+# Function to manage commands
+manage_commands() {
+    make_scripts_executable
+
+    local script_list=()
+    local script_name
+    local choice
+    local enabled_scripts=()
+    local selected_scripts=()
+    local initial_enabled=()
+    local enabled_commands=()  # Store enabled commands
+    local disabled_commands=()  # Store disabled commands
+
+    # Get list of scripts in SCRIPTS_DIR and its subfolders
+    while IFS= read -r -d '' script_path; do
+        script_name=$(basename "$script_path" .sh)
+        if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
+            initial_enabled+=( "$script_name" )
+        fi
+        script_list+=( "$script_path" )  # Store the actual path of the script
+    done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" -not -path "$COMMANDS_DIR/*" -print0)
+
+    # Prepare script list for dialog
+    for script_path in "${script_list[@]}"; do
+        script_name=$(basename "$script_path" .sh)
+        if [[ -L "$COMMANDS_DIR/$script_name" ]]; then
+            enabled_scripts+=( "$script_name" "" on )
+            enabled_commands+=( "$script_name" )
+        else
+            enabled_scripts+=( "$script_name" "" off )
+            disabled_commands+=( "$script_name" )
+        fi
+    done
+
+    # Show dialog menu
+    choice=$(dialog --clear --keep-tite --checklist "Select scripts to enable/disable" 20 40 10 "${enabled_scripts[@]}" 2>&1 >/dev/tty)
+
+    # Check if dialog was canceled
+    if [[ $? -ne 0 ]]; then
+        echo "Dialog canceled. No changes were made."
+        exit 0
+    fi
+
+    # Convert dialog output to array
+    IFS=$'\n' read -rd '' -a selected_scripts <<< "$choice"
+
+    echo -e "Commands: ${GREEN}enabled${NC}, ${RED}disabled${NC}, ${YELLOW}not used${NC}"
+
+    # Manage selected commands
+    for script_path in "${script_list[@]}"; do
+        script_name=$(basename "$script_path" .sh)
+        if [[ " ${selected_scripts[@]} " =~ " $script_name " ]]; then
+            enable_command "$script_name" "$script_path"  # Pass the actual path of the script
+            enabled_commands+=( "$script_name" )
+            disabled_commands=("${disabled_commands[@]/$script_name}")
+        else
+            disable_command "$script_name"
+            disabled_commands+=( "$script_name" )
+            enabled_commands=("${enabled_commands[@]/$script_name}")
+        fi
+    done
+
+    # Refresh shell's cache
+    hash -r
 }
 
-# Run installation process
-install_project
+# Prompt user to choose action
+read -rp "Do you want to (c)hoose commands, (e)nable all commands, or (d)isable all commands? [c/e/d]: " action
+
+case $action in
+    c|C)
+        # Run the function to manage commands
+        manage_commands
+        ;;
+    e|E)
+        for script_path in "$SCRIPTS_DIR"/*.sh; do
+            script_name=$(basename "$script_path" .sh)
+            enable_command "$script_name" "$script_path"
+        done
+        echo "All commands enabled."
+        ;;
+    d|D)
+        for script_path in "$SCRIPTS_DIR"/*.sh; do
+            script_name=$(basename "$script_path" .sh)
+            disable_command "$script_name"
+        done
+        echo "All commands disabled."
+        ;;
+    *)
+        echo "Invalid option. Exiting."
+        exit 1
+        ;;
+esac
