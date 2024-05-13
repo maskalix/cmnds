@@ -11,17 +11,6 @@ NC='\033[0m'
 script_path=$(realpath "$0")
 script_path_without_cmnds=${script_path/cmnds\/cmnds.sh/}
 
-
-local auto_yes=0
-
-# Check if the command includes the '-y' flag
-if [[ "$1" == "-y" ]]; then
-    auto_yes=1
-    shift
-fi
-
-local command="$1"
-shift
 # Convert hyphens and remove leading spaces
 command="$(echo "$command" | sed 's/-/ /' | sed 's/^ *//')"
 
@@ -51,12 +40,22 @@ show_help() {
 
 # Function to list all scripts in the same directory as cmnds.sh
 list_commands() {
-    echo "Available commands:"
-    for file in $(dirname "$0")/*.sh; do
-        if [ "$file" != "$0" ]; then
-            echo "$(basename "$file" .sh)"
-        fi
+    COMMANDS_DIR="${script_path_without_cmnds}commands/"
+    
+    # Initialize the command list variable
+    command_list=""
+    
+    # Loop through each file in the directory
+    for file in "$COMMANDS_DIR"/*; do
+        # Extract the command name from the file path
+        command_name=$(basename "$file")
+        
+        # Add the command name to the list
+        command_list+="\n$command_name"
     done
+    
+    # Echo the command list as a table
+    echo -e "Command Name\n------------$command_list"
 }
 
 # Function to run cmnds-update
