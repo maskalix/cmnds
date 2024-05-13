@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # Function to display help information
 show_help() {
-    echo "Usage: ${WHITE}prjkt ${YELLOW}-option ${BLUE}[project_name]${NC}"
+    echo -e "Usage: ${WHITE}prjkt ${YELLOW}-option ${BLUE}[project_name]${NC}"
     echo ""
     echo "Options:"
     echo -e "${YELLOW}-n ${BLUE}[project_name]${NC}      Create a new project directory."
