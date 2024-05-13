@@ -56,6 +56,8 @@ clone_project() {
     msg_info "Cloning project from GitHub into $SCRIPTS_DIR..."
     git clone --depth 1 --filter=tree:0 https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR" > /dev/null 2>&1
     cd "$SCRIPTS_DIR" || exit 1
+    git log --format=%cd --date=format-local:"%Y-%m-%d %H:%M:%S" -1 > version
+    cd "$SCRIPTS_DIR" || exit 1
     git sparse-checkout set --no-cone scripts > /dev/null 2>&1
     msg_success "Project cloned successfully."
 }
