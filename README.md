@@ -17,6 +17,7 @@ wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh
 ## Using
 - using command `deploy` choose what scripts you want to enable (remember to put asterisk to deploy too, if you want to use it)
 - if you didn't activate `deploy`, simply go into the folder of installation and run `./deploy.sh`
+- **LIST OF COMMANDS <a href="https://github.com/maskalix/cmnds/blob/main/scripts/README.md">/scripts/README.md</a>**
 
 ## Updating 
 - using `deploy` enable `cmnds-update`
