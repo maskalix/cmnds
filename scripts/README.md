@@ -1,3 +1,5 @@
+# Commands
+
 | Category      | Command              | Description                                       | Options                                                                                     |
 |---------------|----------------------|---------------------------------------------------|--------------------------------------------------------------------------------------------|
 | **CMNDS**     | `cmnds [OPTIONS]`    | CMNDS Info                                        | `-a`: list all commands<br><br>`-u`: update<br><br>`-d`: deploy                             |
