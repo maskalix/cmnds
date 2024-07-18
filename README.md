@@ -6,7 +6,7 @@
 / /___ / /  / // /|  // /_/ /___/ / 
 \____//_/  /_//_/ |_//_____//____/
 
-Simply commands to ease using Linux server                            
+Simple commands to ease using Linux server                            
 ```                                
 
 ## Installation
