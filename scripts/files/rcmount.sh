@@ -88,6 +88,11 @@ show_mount_state() {
     done
 }
 
+edit() {
+    echo "Editing mounts file: ! AT OWN RISK !"
+    nano $RCMOUNT_FILE
+}
+
 # Main script execution
 case "$1" in
     update)
@@ -110,8 +115,11 @@ case "$1" in
         read_rcmount_file
         show_mount_state
         ;;
+    edit)
+        edit
+        ;;
     *)
-        echo "Usage: $0 {update|start|stop|restart|state}"
+        echo "Usage: $0 {update|start|stop|restart|state|edit}"
         exit 1
         ;;
 esac
