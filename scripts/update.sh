@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 # Function to perform the upgrade
 perform_upgrade() {
   echo -e "${BLUE}Upgrading packages...${NC}"
-  apt upgrade -y
+  apt upgrade -y 2>&1 | grep "^[WE]:"  # Show only errors and warnings
 
   # Check if docker-ce is in the list of upgradable packages
   if echo "$upgradable" | grep -q "docker-ce"; then
@@ -31,12 +31,10 @@ perform_upgrade() {
 echo -e "${BLUE}Updating package list...${NC}"
 apt update -qq
 
-# List upgradable packages
+# List upgradable packages in table format
 echo -e "${BLUE}Listing upgradable packages...${NC}"
-upgradable=$(apt list --upgradable)
-
-# Display upgradable packages
-echo "$upgradable"
+upgradable=$(apt list --upgradable 2>/dev/null | tail -n +2 | column -t)
+echo -e "$upgradable"
 
 # Check for -y option
 if [[ "$1" == "-y" ]]; then
