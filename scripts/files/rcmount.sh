@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration file
-RCMOUNT_FILE="rcmount"
+RCMOUNT_FILE="../files/rcmount"
 
 # Associative array to store remote mounts
 declare -A REMOTE_MOUNTS
