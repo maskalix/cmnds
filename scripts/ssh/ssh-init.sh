@@ -84,3 +84,9 @@ echo ""
 echo "Make sure to keep your private key secure and never share it."
 
 echo "Done."
+
+echo "!!! REMEMBER !!!"
+echo "recommended:"
+echo "For ROOT enable PermitRootLogin yes"
+echo "For SSH key login use PubkeyAuthentication yes"
+echo "PasswordAuthentication no; UsePAM yes"
