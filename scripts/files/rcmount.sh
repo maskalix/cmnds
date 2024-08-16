@@ -57,7 +57,7 @@ mount_remotes() {
             fi
 
             # Replace 'rclone' with the correct path to your rclone executable if needed
-            rclone mount "$remote" "$mount_path" --daemon &
+            rclone mount "$remote" "$mount_path" --allow-non-empty &
         else
             echo -e "Skipping $remote as it is not configured to be mounted."
         fi
