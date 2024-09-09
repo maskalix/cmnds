@@ -165,6 +165,8 @@ case "$1" in
 
         # Generate configurations from the configuration file
         while IFS=' ' read -r domain container certificate; do
+            # Skip lines starting with #
+            [[ "$domain" =~ ^#.*$ ]] && continue
             generate_nginx_conf "$domain" "$container" "$certificate"
         done < "$CONFIG_FILE"
         ;;
@@ -180,6 +182,8 @@ case "$1" in
 
         # Generate configurations from the configuration file
         while IFS=' ' read -r domain container certificate; do
+            # Skip lines starting with #
+            [[ "$domain" =~ ^#.*$ ]] && continue
             generate_nginx_conf "$domain" "$container" "$certificate"
         done < "$CONFIG_FILE"
 
@@ -211,7 +215,7 @@ case "$1" in
         restart_nginx
         ;;
     *)
-        echo "Usage: $0 {generate|reload|add|list|edit}"
+        echo "Usage: $0 {generate|reload|add|list|edit|restart}"
         exit 1
         ;;
 esac
