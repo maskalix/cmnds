@@ -2,7 +2,7 @@
 
 CONFIG_FILE="/revpro/site-configs.conf"
 CONF_DIR="/revpro/conf"
-LOG_DIR="/var/log/nginx"
+LOG_DIR="/revpro/logs"
 NGINX_CONF="/etc/nginx/nginx.conf"
 
 # Function to create log files
