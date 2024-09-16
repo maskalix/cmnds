@@ -35,11 +35,11 @@ generate_nginx_conf() {
 
     mkdir -p "$(dirname "$conf_file")"
 
-    # Determine if the container is using https or http
-    if [[ "$container" == https://* ]]; then
-        proxy_scheme=""
+    # Check if container uses 's:' and replace with 'https://'
+    if [[ "$container" == s:* ]]; then
+        container="${container/s:/https://}"
     else
-        proxy_scheme="http://"
+        container="http://$container"
     fi
 
     cat > "$conf_file" <<EOF
@@ -79,7 +79,7 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
-        proxy_pass $proxy_scheme$container;
+        proxy_pass $container;
     }
 }
 EOF
