@@ -30,6 +30,22 @@ fi
 # Convert comma-separated domains into an array
 IFS=',' read -ra DOMAINS <<< "$1"
 
+# Get system's hostname
+HOSTNAME=$(hostname)
+
+# Prompt for custom values if needed
+read -p "Enter country code (C) [default: CZ]: " C
+C=${C:-CZ}
+
+read -p "Enter state (ST) [default: Pilsen]: " ST
+ST=${ST:-Pilsen}
+
+read -p "Enter locality (L) [default: Pilsen]: " L
+L=${L:-Pilsen}
+
+# Use the system's hostname for Organization (O)
+O=$HOSTNAME
+
 # Prepare SAN entries for CSR config
 SAN_ENTRIES=""
 COUNTER=1
@@ -51,10 +67,10 @@ distinguished_name = dn
 req_extensions = req_ext
 
 [dn]
-C = CZ
-ST = Pilsen
-L = Pilsen
-O = Linelab
+C = $C
+ST = $ST
+L = $L
+O = $O
 CN = ${DOMAINS[0]}
 
 [req_ext]
