@@ -37,9 +37,9 @@ generate_nginx_conf() {
 
     # Determine if the container is using https or http
     if [[ "$container" == https://* ]]; then
-        proxy_scheme="https"
+        proxy_scheme=""
     else
-        proxy_scheme="http"
+        proxy_scheme="http://"
     fi
 
     cat > "$conf_file" <<EOF
@@ -79,7 +79,7 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
-        proxy_pass $proxy_scheme://$container;
+        proxy_pass $proxy_scheme$container;
     }
 }
 EOF
