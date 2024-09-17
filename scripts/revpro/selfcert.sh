@@ -46,6 +46,23 @@ L=${L:-Pilsen}
 # Use the system's hostname for Organization (O)
 O=$HOSTNAME
 
+# Prompt if the user wants to generate a root certificate
+read -p "Do you want to generate a root certificate as well? (y/N): " gen_root
+gen_root=${gen_root:-N}
+
+# If the user wants a root certificate, generate it
+if [[ "$gen_root" =~ ^[Yy]$ ]]; then
+  echo "Generating root certificate..."
+  # Generate root private key
+  openssl genrsa -out "$SAVE_DIR/rootCA.key" 4096
+  
+  # Generate root certificate
+  openssl req -x509 -new -nodes -key "$SAVE_DIR/rootCA.key" -sha256 -days 1024 -out "$SAVE_DIR/rootCA.pem" \
+  -subj "/C=$C/ST=$ST/L=$L/O=$O/CN=RootCA"
+
+  echo "Root certificate generated: rootCA.pem"
+fi
+
 # Prepare SAN entries for CSR config
 SAN_ENTRIES=""
 COUNTER=1
@@ -83,10 +100,20 @@ EOF
 # Generate private key and certificate signing request
 openssl req -new -nodes -newkey rsa:2048 -keyout "$SAVE_DIR/privkey.pem" -out "$SAVE_DIR/cert.csr" -config "$CSR_CONF"
 
-# Self-sign the certificate using the CSR
-openssl x509 -req -in "$SAVE_DIR/cert.csr" -signkey "$SAVE_DIR/privkey.pem" -out "$SAVE_DIR/cert.pem" -days 365 -extensions req_ext -extfile "$CSR_CONF"
+# If root certificate was generated, use it to sign the certificate
+if [[ "$gen_root" =~ ^[Yy]$ ]]; then
+  # Sign the CSR with the root certificate
+  openssl x509 -req -in "$SAVE_DIR/cert.csr" -CA "$SAVE_DIR/rootCA.pem" -CAkey "$SAVE_DIR/rootCA.key" -CAcreateserial \
+  -out "$SAVE_DIR/cert.pem" -days 365 -extensions req_ext -extfile "$CSR_CONF"
+  
+  # Notify the user to add rootCA.pem to trusted store
+  echo "Root certificate (rootCA.pem) has been created. Please add it to your system's or browser's trusted certificates."
+else
+  # Self-sign the certificate if no root certificate was generated
+  openssl x509 -req -in "$SAVE_DIR/cert.csr" -signkey "$SAVE_DIR/privkey.pem" -out "$SAVE_DIR/cert.pem" -days 365 -extensions req_ext -extfile "$CSR_CONF"
+fi
 
-# Create full chain file (in this case, it just contains the self-signed cert)
+# Create full chain file (in this case, it just contains the self-signed cert or root signed cert)
 cp "$SAVE_DIR/cert.pem" "$SAVE_DIR/fullchain.pem"
 
 # Clean up the CSR configuration file
@@ -95,3 +122,6 @@ rm -f "$CSR_CONF"
 # Notify the user
 echo "Certificate and key have been saved to $SAVE_DIR."
 echo "Files created: cert.pem, fullchain.pem, privkey.pem"
+if [[ "$gen_root" =~ ^[Yy]$ ]]; then
+  echo "Root CA files created: rootCA.pem, rootCA.key"
+fi
