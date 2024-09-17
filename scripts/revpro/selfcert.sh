@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR=$(dirname "$0")
+CONF_FILE="$SCRIPT_DIR/csr_config.conf"
+
 # Check for the -d flag for directory input
 while getopts "d:" opt; do
   case $opt in
@@ -30,46 +34,57 @@ fi
 # Convert comma-separated domains into an array
 IFS=',' read -ra DOMAINS <<< "$1"
 
-# Get system's hostname
-HOSTNAME=$(hostname)
+# Function to prompt for CSR field values
+function prompt_for_csr_values() {
+  read -p "Enter Country (C) [e.g., US]: " C
+  read -p "Enter State (ST) [e.g., California]: " ST
+  read -p "Enter Locality (L) [e.g., San Francisco]: " L
+  read -p "Enter Organization (O) [e.g., YourCompany]: " O
 
-# Prompt for custom values if needed
-read -p "Enter country code (C) [default: CZ]: " C
-C=${C:-CZ}
-
-read -p "Enter state (ST) [default: Pilsen]: " ST
-ST=${ST:-Pilsen}
-
-read -p "Enter locality (L) [default: Pilsen]: " L
-L=${L:-Pilsen}
-
-# Use the system's hostname for Organization (O)
-O=$HOSTNAME
-
-# Prompt if the user wants to generate a root certificate
-read -p "Do you want to generate a root certificate as well? (y/N): " gen_root
-gen_root=${gen_root:-N}
-
-# If the user wants a root certificate, generate it
-if [[ "$gen_root" =~ ^[Yy]$ ]]; then
-  echo "Generating root certificate..."
-  # Generate root private key
-  openssl genrsa -out "$SAVE_DIR/rootCA.key" 4096
+  # Default values if not provided
+  C=${C:-US}
+  ST=${ST:-"California"}
+  L=${L:-"San Francisco"}
+  O=${O:-"YourCompany"}
   
-  # Generate root certificate
-  openssl req -x509 -new -nodes -key "$SAVE_DIR/rootCA.key" -sha256 -days 1024 -out "$SAVE_DIR/rootCA.pem" \
-  -subj "/C=$C/ST=$ST/L=$L/O=$O/CN=RootCA"
+  # Save the values to the configuration file
+  cat <<EOF > "$CONF_FILE"
+C=$C
+ST=$ST
+L=$L
+O=$O
+EOF
+  echo "CSR configuration saved to $CONF_FILE."
+}
 
-  echo "Root certificate generated: rootCA.pem"
+# Load the configuration file if it exists
+if [[ -f "$CONF_FILE" ]]; then
+  source "$CONF_FILE"
+  echo "Loaded CSR configuration from $CONF_FILE."
+  echo "Country: $C, State: $ST, Locality: $L, Organization: $O"
+  read -p "Do you want to update these values? (y/N): " UPDATE_CONF
+  if [[ "$UPDATE_CONF" =~ ^[Yy]$ ]]; then
+    prompt_for_csr_values
+  fi
+else
+  # Prompt for CSR values if the config file does not exist
+  prompt_for_csr_values
 fi
+
+# Ask the user if they want a wildcard certificate
+read -p "Do you want a wildcard certificate for the provided domains? (y/N): " WILDCARD
 
 # Prepare SAN entries for CSR config
 SAN_ENTRIES=""
 COUNTER=1
+
 for DOMAIN in "${DOMAINS[@]}"; do
-  SAN_ENTRIES+="DNS.$COUNTER = $DOMAIN\n"
-  ((COUNTER++))
-  SAN_ENTRIES+="DNS.$COUNTER = *.$DOMAIN\n"
+  # If the user requested a wildcard certificate
+  if [[ "$WILDCARD" =~ ^[Yy]$ ]]; then
+    SAN_ENTRIES+="DNS.$COUNTER = *.$DOMAIN\n"
+  else
+    SAN_ENTRIES+="DNS.$COUNTER = $DOMAIN\n"
+  fi
   ((COUNTER++))
 done
 
@@ -100,20 +115,10 @@ EOF
 # Generate private key and certificate signing request
 openssl req -new -nodes -newkey rsa:2048 -keyout "$SAVE_DIR/privkey.pem" -out "$SAVE_DIR/cert.csr" -config "$CSR_CONF"
 
-# If root certificate was generated, use it to sign the certificate
-if [[ "$gen_root" =~ ^[Yy]$ ]]; then
-  # Sign the CSR with the root certificate
-  openssl x509 -req -in "$SAVE_DIR/cert.csr" -CA "$SAVE_DIR/rootCA.pem" -CAkey "$SAVE_DIR/rootCA.key" -CAcreateserial \
-  -out "$SAVE_DIR/cert.pem" -days 365 -extensions req_ext -extfile "$CSR_CONF"
-  
-  # Notify the user to add rootCA.pem to trusted store
-  echo "Root certificate (rootCA.pem) has been created. Please add it to your system's or browser's trusted certificates."
-else
-  # Self-sign the certificate if no root certificate was generated
-  openssl x509 -req -in "$SAVE_DIR/cert.csr" -signkey "$SAVE_DIR/privkey.pem" -out "$SAVE_DIR/cert.pem" -days 365 -extensions req_ext -extfile "$CSR_CONF"
-fi
+# Self-sign the certificate using the CSR
+openssl x509 -req -in "$SAVE_DIR/cert.csr" -signkey "$SAVE_DIR/privkey.pem" -out "$SAVE_DIR/cert.pem" -days 365 -extensions req_ext -extfile "$CSR_CONF"
 
-# Create full chain file (in this case, it just contains the self-signed cert or root signed cert)
+# Create full chain file (in this case, it just contains the self-signed cert)
 cp "$SAVE_DIR/cert.pem" "$SAVE_DIR/fullchain.pem"
 
 # Clean up the CSR configuration file
@@ -122,6 +127,20 @@ rm -f "$CSR_CONF"
 # Notify the user
 echo "Certificate and key have been saved to $SAVE_DIR."
 echo "Files created: cert.pem, fullchain.pem, privkey.pem"
-if [[ "$gen_root" =~ ^[Yy]$ ]]; then
-  echo "Root CA files created: rootCA.pem, rootCA.key"
+
+# Convert PEM to CRT for the certificate
+openssl x509 -outform der -in "$SAVE_DIR/cert.pem" -out "$SAVE_DIR/cert.crt"
+echo "PEM certificate has been converted to CRT format: cert.crt"
+
+# Ask if the user wants to generate a root certificate
+read -p "Do you want to generate a root certificate (for adding to trusted store)? (y/N): " GEN_ROOTCERT
+
+if [[ "$GEN_ROOTCERT" =~ ^[Yy]$ ]]; then
+  # Generate a root certificate
+  openssl req -x509 -new -nodes -keyout "$SAVE_DIR/rootCA.key" -out "$SAVE_DIR/rootCA.pem" -days 1024 -subj "/C=$C/ST=$ST/L=$L/O=$O/CN=$(hostname)"
+  echo "Root certificate (rootCA.pem) has been generated and saved to $SAVE_DIR."
+  
+  # Convert PEM to CRT for the root certificate
+  openssl x509 -outform der -in "$SAVE_DIR/rootCA.pem" -out "$SAVE_DIR/rootCA.crt"
+  echo "Root PEM certificate has been converted to CRT format: rootCA.crt"
 fi
