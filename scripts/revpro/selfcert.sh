@@ -137,7 +137,7 @@ read -p "Do you want to generate a root certificate (for adding to trusted store
 
 if [[ "$GEN_ROOTCERT" =~ ^[Yy]$ ]]; then
   # Generate a root certificate
-  openssl req -x509 -new -nodes -keyout "$SAVE_DIR/rootCA.key" -out "$SAVE_DIR/rootCA.pem" -days 1024 -subj "/C=$C/ST=$ST/L=$L/O=$O/CN=$(hostname)"
+  openssl req -x509 -new -nodes -keyout "$SAVE_DIR/rootCA.key" -out "$SAVE_DIR/rootCA.pem" -days 1024 -subj "/C=$C/ST=$ST/L=$L/O=$O/CN=${DOMAINS[0]}"
   echo "Root certificate (rootCA.pem) has been generated and saved to $SAVE_DIR."
   
   # Convert PEM to CRT for the root certificate
