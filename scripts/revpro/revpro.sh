@@ -4,6 +4,7 @@ CONFIG_FILE="/revpro/site-configs.conf"
 CONF_DIR="/revpro/conf"
 LOG_DIR="/revpro/logs"
 NGINX_CONF="/etc/nginx/nginx.conf"
+AUTHENTIK_PROXY_CONF="/etc/nginx/authentik-proxy.conf"  # Path to the special authentik proxy config
 
 # Store results for table summary
 summary_results=()
@@ -46,13 +47,18 @@ generate_nginx_conf() {
 
     mkdir -p "$(dirname "$conf_file")"
 
-    # Check if container uses 's:', 'a:', or 's:a:'/'a:s:'
+    local use_authentik_proxy=false
+
+    # Check if container uses 's:a:', 'a:s:', 's:', or 'a:'
     if [[ "$container" == s:a:* || "$container" == a:s:* ]]; then
         container="${container/s:a:/https://}"
+        container="${container/a:s:/https://}"
+        use_authentik_proxy=true
     elif [[ "$container" == s:* ]]; then
         container="${container/s:/https://}"
     elif [[ "$container" == a:* ]]; then
         container="${container/a:/http://}"
+        use_authentik_proxy=true
     else
         container="http://$container"
     fi
@@ -91,6 +97,16 @@ server {
     include /etc/nginx/ssl-ciphers.conf;
     include /etc/nginx/letsencrypt-acme-challenge.conf;
 
+EOF
+
+    # If using authentik proxy, include the authentik proxy configuration
+    if [ "$use_authentik_proxy" = true ]; then
+        echo "    # Authentik proxy configuration" >> "$conf_file"
+        echo "    include $AUTHENTIK_PROXY_CONF;" >> "$conf_file"
+    fi
+
+    # Continue writing the rest of the Nginx configuration
+    cat >> "$conf_file" <<EOF
     location / {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$http_connection;
@@ -101,7 +117,7 @@ server {
 EOF
 
     # Mark the config as successfully written
-    if [ -f "$conf_file" ];then
+    if [ -f "$conf_file" ]; then
         conf_status="✅"
     fi
 
@@ -187,6 +203,25 @@ edit_config() {
     nano "$CONFIG_FILE"
 }
 
+# Function to clean logs and configuration directories
+clean_directories() {
+    echo "Cleaning up $CONF_DIR and $LOG_DIR..."
+
+    # Remove and recreate the conf directory
+    if [ -d "$CONF_DIR" ]; then
+        rm -rf "$CONF_DIR"
+    fi
+    mkdir -p "$CONF_DIR"
+
+    # Remove and recreate the logs directory
+    if [ -d "$LOG_DIR" ]; then
+        rm -rf "$LOG_DIR"
+    fi
+    mkdir -p "$LOG_DIR"
+
+    echo "Both $CONF_DIR and $LOG_DIR have been cleaned and recreated."
+}
+
 # Main script logic
 case "$1" in
     generate)
@@ -250,6 +285,10 @@ case "$1" in
 
         add_site_config "$domain" "$address" "$certificate"
         ;;
+    clean)
+        # Clean logs and configuration directories
+        clean_directories
+        ;;
     list)
         # List all domains from the configuration file
         list_domains
@@ -261,11 +300,8 @@ case "$1" in
     restart)
         restart_nginx
         ;;
-    clean)
-        cleanup_old_configs
-        ;;
     *)
-        echo "Usage: $0 {generate|reload|add|list|edit|restart|clean}"
+        echo "Usage: $0 {generate|reload|add|clean|list|edit|restart}"
         exit 1
         ;;
 esac
