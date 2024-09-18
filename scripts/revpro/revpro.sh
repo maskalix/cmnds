@@ -36,23 +36,24 @@ generate_nginx_conf() {
 
     mkdir -p "$(dirname "$conf_file")"
 
-    # Set proxy variables for $forward_scheme, $server, and $port
+    # Define proxy variables
     if [[ "$container" == s:* ]]; then
         forward_scheme="https"
-        server="${container#s:}"  # Strip s: from container
-        port="${server##*:}"      # Extract the port
-        server="${server%%:*}"    # Extract the server
+        server="${container#s:}"
+        port="${server##*:}"
+        server="${server%%:*}"
     elif [[ "$container" == a:* || "$container" == a:s:* || "$container" == s:a:* ]]; then
         forward_scheme="https"
-        server="${container#a*:}" # Strip a: or s:a:
-        port="${server##*:}"      # Extract the port
-        server="${server%%:*}"    # Extract the server
+        server="${container#a*:}"
+        port="${server##*:}"
+        server="${server%%:*}"
     else
         forward_scheme="http"
         server="${container%%:*}"
         port="${container##*:}"
     fi
 
+    # Create configuration file
     cat > "$conf_file" <<EOF
 ############
 # $domain
@@ -86,12 +87,10 @@ server {
     include /etc/nginx/ssl-ciphers.conf;
     include /etc/nginx/letsencrypt-acme-challenge.conf;
 
-    # Proxy variables
+    # Define proxy variables
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
-    set \$proxy_url \$forward_scheme://\$server:\$port;
-
 EOF
 
     # Include authentik proxy if required
@@ -107,7 +106,7 @@ EOF
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
-        proxy_pass \$proxy_url;
+        proxy_pass $forward_scheme://$server:$port;
     }
 }
 EOF
