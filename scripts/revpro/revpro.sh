@@ -261,8 +261,11 @@ case "$1" in
     restart)
         restart_nginx
         ;;
+    clean)
+        cleanup_old_configs
+        ;;
     *)
-        echo "Usage: $0 {generate|reload|add|list|edit|restart}"
+        echo "Usage: $0 {generate|reload|add|list|edit|restart|clean}"
         exit 1
         ;;
 esac
