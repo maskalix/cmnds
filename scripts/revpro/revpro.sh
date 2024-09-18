@@ -130,7 +130,7 @@ EOF
     echo "}" >> "$conf_file"  # Close server block
 
     # Mark the config as successfully written
-    if [ -f "$conf_file" ]; then
+    if [ -f "$conf_file" ];then
         conf_status="✅"
     fi
 
@@ -196,6 +196,35 @@ reload_nginx() {
     docker compose exec -T reverseproxy nginx -c /etc/nginx/nginx.conf -s reload || echo "Failed to reload Nginx, please check the container status and logs."
 }
 
+# Function to restart Nginx
+restart_nginx() {
+    docker container restart reverseproxy
+    echo "Nginx restarted."
+}
+
+# Function to add a new site configuration from command-line arguments
+add_site_config() {
+    local domain=$1
+    local container=$2
+    local certificate=$3
+
+    # Create the new Nginx config for this domain
+    generate_nginx_conf "$domain" "$container" "$certificate"
+
+    # Reload Nginx to apply changes
+    reload_nginx
+}
+
+# Function to open the configuration file in a text editor (nano)
+edit_config() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo "Configuration file not found at $CONFIG_FILE"
+        exit 1
+    fi
+
+    nano "$CONFIG_FILE"
+}
+
 # Function to list all domains from the configuration file
 list_domains() {
     if [ ! -f "$CONFIG_FILE" ]; then
@@ -238,12 +267,28 @@ case "$1" in
         # Reload Nginx to apply changes
         reload_nginx
         ;;
+    restart)
+        # Restart Nginx
+        restart_nginx
+        ;;
+    add)
+        # Add new site configuration from command-line arguments
+        if [[ "$#" -ne 3 ]]; then
+            echo "Usage: $0 add <domain> <container> <certificate>"
+            exit 1
+        fi
+        add_site_config "$2" "$3" "$4"
+        ;;
+    edit)
+        # Open config file for editing
+        edit_config
+        ;;
     list)
         # List all domains from the configuration file
         list_domains
         ;;
     *)
-        echo "Usage: $0 {generate|reload|clean|list}"
+        echo "Usage: $0 {generate|clean|reload|restart|add|edit|list}"
         exit 1
         ;;
 esac
