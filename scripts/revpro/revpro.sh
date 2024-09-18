@@ -90,6 +90,7 @@ server {
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
+    set \$proxy_url \$forward_scheme://\$server:\$port;
 
 EOF
 
@@ -106,7 +107,7 @@ EOF
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
-        proxy_pass \$forward_scheme://\$server:\$port;
+        proxy_pass \$proxy_url;
     }
 }
 EOF
