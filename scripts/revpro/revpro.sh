@@ -26,7 +26,7 @@ create_log_files() {
         access_log_status="✅"
     fi
 
-    if [ -f "$LOG_DIR/${domain}_error.log" ]; then
+    if [ -f "$LOG_DIR/${domain}_error.log" ];then
         error_log_status="✅"
     else
         touch "$LOG_DIR/${domain}_error.log"
@@ -48,20 +48,27 @@ generate_nginx_conf() {
     mkdir -p "$(dirname "$conf_file")"
 
     local use_authentik_proxy=false
+    local forward_scheme="http"
+    local server=""
+    local port=""
 
-    # Check if container uses 's:a:', 'a:s:', 's:', or 'a:'
+    # Check if container uses 's:', 'a:', or 'a:s:'
     if [[ "$container" == s:a:* || "$container" == a:s:* ]]; then
-        container="${container/s:a:/https://}"
-        container="${container/a:s:/https://}"
+        container="${container/s:a:/}"
+        container="${container/a:s:/}"
+        forward_scheme="https"
         use_authentik_proxy=true
     elif [[ "$container" == s:* ]]; then
-        container="${container/s:/https://}"
+        container="${container/s:/}"
+        forward_scheme="https"
     elif [[ "$container" == a:* ]]; then
-        container="${container/a:/http://}"
+        container="${container/a:/}"
         use_authentik_proxy=true
-    else
-        container="http://$container"
     fi
+
+    # Extract server (container) and port from the container definition
+    server=$(echo "$container" | cut -d':' -f1)
+    port=$(echo "$container" | cut -d':' -f2)
 
     # Write the Nginx configuration file
     cat > "$conf_file" <<EOF
@@ -97,24 +104,30 @@ server {
     include /etc/nginx/ssl-ciphers.conf;
     include /etc/nginx/letsencrypt-acme-challenge.conf;
 
+    # Proxy variables
+    set \$forward_scheme $forward_scheme;
+    set \$server $server;
+    set \$port $port;
+
 EOF
 
     # If using authentik proxy, include the authentik proxy configuration
     if [ "$use_authentik_proxy" = true ]; then
         echo "    # Authentik proxy configuration" >> "$conf_file"
         echo "    include $AUTHENTIK_PROXY_CONF;" >> "$conf_file"
-    fi
-
-    # Continue writing the rest of the Nginx configuration
-    cat >> "$conf_file" <<EOF
+    else
+        # If not using authentik proxy, include default location block
+        cat >> "$conf_file" <<EOF
     location / {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
-        proxy_pass $container;
+        proxy_pass \$forward_scheme://\$server:\$port;
     }
-}
 EOF
+    fi
+
+    echo "}" >> "$conf_file"  # Close server block
 
     # Mark the config as successfully written
     if [ -f "$conf_file" ]; then
@@ -149,60 +162,6 @@ cleanup_old_configs() {
     done
 }
 
-# Function to add a site configuration directly from command-line arguments
-add_site_config() {
-    local domain=$1
-    local container=$2
-    local certificate=$3
-
-    # Create configuration file directly
-    generate_nginx_conf "$domain" "$container" "$certificate"
-
-    # Reload Nginx to apply changes
-    reload_nginx
-}
-
-# Function to reload Nginx inside the Docker container
-reload_nginx() {
-    echo "Reloading Nginx..."
-    
-    # Check the Nginx configuration syntax before reloading
-    docker compose exec -T reverseproxy nginx -t
-    if [ $? -ne 0 ]; then
-        echo "Nginx configuration test failed, please check the errors above."
-        return 1
-    fi
-
-    # Reload Nginx, specifying the config file explicitly if necessary
-    docker compose exec -T reverseproxy nginx -c /etc/nginx/nginx.conf -s reload || echo "Failed to reload Nginx, please check the container status and logs."
-}
-
-restart_nginx() {
-    docker container restart reverseproxy
-    echo "Nginx restarted"
-}
-
-# Function to list all domains from the configuration file
-list_domains() {
-    if [ ! -f "$CONFIG_FILE" ]; then
-        echo "Configuration file not found at $CONFIG_FILE"
-        exit 1
-    fi
-
-    echo "Listing all domains from $CONFIG_FILE:"
-    awk '{print $1}' "$CONFIG_FILE"
-}
-
-# Function to open the configuration file in a text editor
-edit_config() {
-    if [ ! -f "$CONFIG_FILE" ]; then
-        echo "Configuration file not found at $CONFIG_FILE"
-        exit 1
-    fi
-
-    nano "$CONFIG_FILE"
-}
-
 # Function to clean logs and configuration directories
 clean_directories() {
     echo "Cleaning up $CONF_DIR and $LOG_DIR..."
@@ -220,6 +179,32 @@ clean_directories() {
     mkdir -p "$LOG_DIR"
 
     echo "Both $CONF_DIR and $LOG_DIR have been cleaned and recreated."
+}
+
+# Function to reload Nginx inside the Docker container
+reload_nginx() {
+    echo "Reloading Nginx..."
+    
+    # Check the Nginx configuration syntax before reloading
+    docker compose exec -T reverseproxy nginx -t
+    if [ $? -ne 0 ]; then
+        echo "Nginx configuration test failed, please check the errors above."
+        return 1
+    fi
+
+    # Reload Nginx, specifying the config file explicitly if necessary
+    docker compose exec -T reverseproxy nginx -c /etc/nginx/nginx.conf -s reload || echo "Failed to reload Nginx, please check the container status and logs."
+}
+
+# Function to list all domains from the configuration file
+list_domains() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo "Configuration file not found at $CONFIG_FILE"
+        exit 1
+    fi
+
+    echo "Listing all domains from $CONFIG_FILE:"
+    awk '{print $1}' "$CONFIG_FILE"
 }
 
 # Main script logic
@@ -245,63 +230,20 @@ case "$1" in
             echo "$result"
         done
         ;;
-    reload)
-        # Clean up old configurations
-        cleanup_old_configs
-
-        # Check if CONFIG_FILE exists before attempting to parse it
-        if [ ! -f "$CONFIG_FILE" ]; then
-            echo "Configuration file not found at $CONFIG_FILE"
-            exit 1
-        fi
-
-        # Generate configurations from the configuration file
-        while IFS=$'\t ' read -r domain container certificate; do
-            # Skip lines starting with #
-            [[ "$domain" =~ ^#.*$ ]] && continue
-            generate_nginx_conf "$domain" "$container" "$certificate"
-        done < "$CONFIG_FILE"
-
-        # Reload Nginx to apply changes
-        reload_nginx
-
-        # Print the summary table
-        echo -e "\nDomain | Conf | Acc-log | Err-log"
-        echo "-------------------------------"
-        for result in "${summary_results[@]}"; do
-            echo "$result"
-        done
-        ;;
-    add)
-        # Add new site configuration from command-line arguments
-        if [[ "$#" -ne 4 ]]; then
-            echo "Usage: $0 add address:port domain.tld certdomain.tld"
-            exit 1
-        fi
-        
-        address=$2
-        domain=$3
-        certificate=$4
-
-        add_site_config "$domain" "$address" "$certificate"
-        ;;
     clean)
         # Clean logs and configuration directories
         clean_directories
+        ;;
+    reload)
+        # Reload Nginx to apply changes
+        reload_nginx
         ;;
     list)
         # List all domains from the configuration file
         list_domains
         ;;
-    edit)
-        # Open the configuration file in nano
-        edit_config
-        ;;
-    restart)
-        restart_nginx
-        ;;
     *)
-        echo "Usage: $0 {generate|reload|add|clean|list|edit|restart}"
+        echo "Usage: $0 {generate|reload|clean|list}"
         exit 1
         ;;
 esac
