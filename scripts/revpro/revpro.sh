@@ -191,8 +191,8 @@ list_domains() {
         exit 1
     fi
 
-    echo "Listing all domains from $CONFIG_FILE:"
-    awk '{print $1}' "$CONFIG_FILE"
+    echo "Listing all domains from $CONFIG_FILE (ignoring comments):"
+    awk '!/^#/ {print $1}' "$CONFIG_FILE"
 }
 
 # Function to open the configuration file in a text editor
