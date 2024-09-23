@@ -155,7 +155,7 @@ add_site_config() {
     local domain=$1
     local container=$2
     local certificate=$3
-
+    echo "$domain    $container    $certificate" >> $CONFIG_FILE
     # Create configuration file directly
     generate_nginx_conf "$domain" "$container" "$certificate"
 
