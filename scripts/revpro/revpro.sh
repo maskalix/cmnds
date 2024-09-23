@@ -111,9 +111,6 @@ EOF
 }
 EOF
     fi
-
-    echo "Configuration for $domain written to $conf_file"
-
     # Create log files for the domain
     create_log_files "$domain"
 
