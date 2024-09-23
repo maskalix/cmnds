@@ -115,9 +115,9 @@ EOF
     create_log_files "$domain"
 
     if [ -f "$conf_file" ]; then
-        conf_status="✅ $conf_file exists."
+        conf_status="✅"
     else
-        conf_status="❌ $conf_file does not exist."
+        conf_status="❌"
     fi
 
     echo "| $access_log_status | $error_log_status | $conf_status | $domain"
