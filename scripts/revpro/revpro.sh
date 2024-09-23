@@ -215,7 +215,7 @@ case "$1" in
         fi
 
         # Generate configurations from the configuration file
-        echo "ACC | ERR | CONF | Domain"
+        echo "| AC | ER | CF | Domain"
         while IFS=$'\t ' read -r domain container certificate; do
             # Skip lines starting with #
             [[ "$domain" =~ ^#.*$ ]] && continue
