@@ -114,7 +114,7 @@ EOF
     # Create log files for the domain
     create_log_files "$domain"
 
-    echo "$domain | $conf_file | $access_log_status | $error_log_status"
+    echo "$access_log_status | $error_log_status | $domain"
 }
 
 # Function to clean up old Nginx configurations and logs
