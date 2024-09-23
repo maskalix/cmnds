@@ -114,7 +114,13 @@ EOF
     # Create log files for the domain
     create_log_files "$domain"
 
-    echo "$access_log_status | $error_log_status | $domain"
+    if [ -f "$conf_file" ]; then
+        conf_status="✅ $conf_file exists."
+    else
+        conf_status="❌ $conf_file does not exist."
+    fi
+
+    echo "| $access_log_status | $error_log_status | $conf_status | $domain"
 }
 
 # Function to clean up old Nginx configurations and logs
@@ -209,7 +215,7 @@ case "$1" in
         fi
 
         # Generate configurations from the configuration file
-        echo "Domain | Conf | Acc-log | Err-log"
+        echo "ACC | ERR | CONF | Domain"
         while IFS=$'\t ' read -r domain container certificate; do
             # Skip lines starting with #
             [[ "$domain" =~ ^#.*$ ]] && continue
