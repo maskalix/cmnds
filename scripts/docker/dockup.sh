@@ -26,8 +26,9 @@ show_progress() {
         bar+=" "
     done
 
-    # Print the progress bar at the bottom of the screen
-    printf "\r[%-${bar_length}s] %d%%" "$bar" "$progress"
+    # Print the current image and progress bar
+    printf "\rChecking for updates on image: %s\n" "$current_image"
+    printf "[%-${bar_length}s] %d%%" "$bar" "$progress"
 }
 
 # Function to check for updates
@@ -36,23 +37,27 @@ check_updates() {
     echo -e "${CYAN}Checking for updates...${RESET}"
     local total_images=$(docker images --format "{{.Repository}}:{{.Tag}}" | wc -l)
     local current_image=0
-    
+
     # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         current_image=$((current_image + 1))
-        
-        # Clear previous output and print current image being checked
+
+        # Clear previous output
         printf "\033c" # Clear the screen
+        
+        # Display current image and initialize the progress bar
         echo -e "${YELLOW}Checking for updates on image: ${MAGENTA}$image...${RESET}"
         
         # Check for newer versions available
-        docker pull "$image" 2>&1 | grep "Downloaded newer image" > /dev/null
-        show_progress $current_image $total_images
-        
-        if [[ $? -eq 0 ]]; then
+        if docker pull "$image" 2>&1 | grep "Downloaded newer image" > /dev/null; then
             updates+=("$image")
         fi
+        
+        # Show progress
+        show_progress "$image" $current_image
+        sleep 1  # Simulate some delay for visibility
     done
+
     printf "\n"  # Move to the next line after the progress bar
     echo -e "${GREEN}Update check completed.${RESET}"
     
@@ -70,7 +75,11 @@ check_updates() {
 update_container() {
     local container=$1
     echo -e "${YELLOW}Updating container: ${MAGENTA}$container...${RESET}"
-    docker pull "$container" | grep "Downloaded newer image" || echo -e "${GREEN}$container is already up to date.${RESET}"
+    if docker pull "$container" | grep "Downloaded newer image" > /dev/null; then
+        echo -e "${GREEN}$container updated.${RESET}"
+    else
+        echo -e "${GREEN}$container is already up to date.${RESET}"
+    fi
 }
 
 # Function to update selected containers
@@ -89,8 +98,10 @@ update_selection() {
         printf "\033c" # Clear the screen
         echo -e "${YELLOW}Updating container: ${MAGENTA}$container...${RESET}"
         update_container "$container"
-        show_progress $current_container $total_containers
+        show_progress "$container" $current_container
+        sleep 1  # Simulate some delay for visibility
     done
+
     printf "\n"  # Move to the next line after the progress bar
     echo -e "${GREEN}Selected containers update completed.${RESET}"
 }
@@ -109,8 +120,10 @@ update_all_containers() {
         printf "\033c" # Clear the screen
         echo -e "${YELLOW}Updating image: ${MAGENTA}$image...${RESET}"
         update_container "$image"
-        show_progress $current_image $total_images
+        show_progress "$image" $current_image
+        sleep 1  # Simulate some delay for visibility
     done
+
     printf "\n"  # Move to the next line after the progress bar
     echo -e "${GREEN}All containers updated successfully.${RESET}"
 }
