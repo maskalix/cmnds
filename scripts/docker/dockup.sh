@@ -97,6 +97,7 @@ update_all_containers() {
 
     for image in $all_images; do
         current_image=$((current_image + 1))
+        echo -e "${YELLOW}Updating image: ${MAGENTA}$image...${RESET}"
         update_container "$image"
         show_progress $current_image $total_images
     done
