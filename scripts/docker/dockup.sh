@@ -40,8 +40,9 @@ check_updates() {
     # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         current_image=$((current_image + 1))
-        # Clear previous line and print current image being checked
-        printf "\033[K" # Clear the current line
+        
+        # Clear previous output and print current image being checked
+        printf "\033c" # Clear the screen
         echo -e "${YELLOW}Checking for updates on image: ${MAGENTA}$image...${RESET}"
         
         # Check for newer versions available
@@ -52,7 +53,8 @@ check_updates() {
             updates+=("$image")
         fi
     done
-    echo -e "\n${GREEN}Update check completed.${RESET}"
+    printf "\n"  # Move to the next line after the progress bar
+    echo -e "${GREEN}Update check completed.${RESET}"
     
     if [ ${#updates[@]} -eq 0 ]; then
         echo -e "${RED}No updates available.${RESET}"
@@ -82,10 +84,15 @@ update_selection() {
 
     for container in "${containers[@]}"; do
         current_container=$((current_container + 1))
+        
+        # Clear previous output and print current container being updated
+        printf "\033c" # Clear the screen
+        echo -e "${YELLOW}Updating container: ${MAGENTA}$container...${RESET}"
         update_container "$container"
         show_progress $current_container $total_containers
     done
-    echo -e "\n${GREEN}Selected containers update completed.${RESET}"
+    printf "\n"  # Move to the next line after the progress bar
+    echo -e "${GREEN}Selected containers update completed.${RESET}"
 }
 
 # Function to update all containers
@@ -97,16 +104,21 @@ update_all_containers() {
 
     for image in $all_images; do
         current_image=$((current_image + 1))
+        
+        # Clear previous output and print current image being updated
+        printf "\033c" # Clear the screen
         echo -e "${YELLOW}Updating image: ${MAGENTA}$image...${RESET}"
         update_container "$image"
         show_progress $current_image $total_images
     done
-    echo -e "\n${GREEN}All containers updated successfully.${RESET}"
+    printf "\n"  # Move to the next line after the progress bar
+    echo -e "${GREEN}All containers updated successfully.${RESET}"
 }
 
 # Function for console menu
 main_menu() {
     while true; do
+        printf "\033c"  # Clear the screen
         echo -e "${BLUE}========================${RESET}"
         echo -e "  ${CYAN}Docker Update Manager${RESET}  "
         echo -e "${BLUE}========================${RESET}"
@@ -140,7 +152,6 @@ main_menu() {
                 echo -e "${RED}Invalid option selected. Please try again.${RESET}"
                 ;;
         esac
-        echo ""
     done
 }
 
