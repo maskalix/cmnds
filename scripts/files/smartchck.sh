@@ -2,6 +2,13 @@
 
 # Script to check S.M.A.R.T status of disks
 
+# Define colors for output
+RED="\e[31m"
+GREEN="\e[32m"
+YELLOW="\e[33m"
+RESET="\e[0m"
+BOLD="\e[1m"
+
 # Function to install smartmontools
 install_smartmontools() {
     if command -v apt &> /dev/null; then
@@ -29,21 +36,23 @@ fi
 # Get a list of all disks
 disks=$(ls /dev/sd*)
 
-echo "Checking S.M.A.R.T status for the following disks:"
-echo "$disks"
+# Print header
+printf "${BOLD}%-15s %-10s %s${RESET}\n" "Disk" "Status" "Details"
+echo "-------------------------------------"
 
 # Loop through each disk and check S.M.A.R.T status
 for disk in $disks; do
-    echo "Checking $disk..."
-    smartctl -H $disk
-
-    if [ $? -ne 0 ]; then
-        echo "Failed to check S.M.A.R.T status for $disk. It may not support S.M.A.R.T."
+    status_output=$(smartctl -H $disk)
+    status=$(echo "$status_output" | grep "overall-health" | awk '{print $3}')
+    
+    if [[ "$status" == "PASSED" ]]; then
+        printf "%-15s ${GREEN}%-10s ${RESET}%s\n" "$disk" "$status" "$status_output"
+    elif [[ "$status" == "FAILED" ]]; then
+        printf "%-15s ${RED}%-10s ${RESET}%s\n" "$disk" "$status" "$status_output"
     else
-        echo "S.M.A.R.T status check complete for $disk."
+        printf "%-15s ${YELLOW}%-10s ${RESET}%s\n" "$disk" "$status" "$status_output"
     fi
-
-    echo "---------------------------"
 done
 
+echo "-------------------------------------"
 echo "S.M.A.R.T check completed."
