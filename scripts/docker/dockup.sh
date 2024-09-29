@@ -26,7 +26,7 @@ show_progress() {
         bar+=" "
     done
 
-    printf "\r[%-${bar_length}s] %d%%" "$bar" "$progress"
+    printf "\r[%-${bar_length}s] %d%%" "$bar" "$progress \n"
 }
 
 # Function to check for updates
