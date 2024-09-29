@@ -50,7 +50,15 @@ check_updates() {
         fi
     done
     echo -e "\n${GREEN}Update check completed.${RESET}"
-    echo "${updates[@]}"
+    
+    if [ ${#updates[@]} -eq 0 ]; then
+        echo -e "${RED}No updates available.${RESET}"
+    else
+        echo -e "${CYAN}Available updates:${RESET}"
+        for update in "${updates[@]}"; do
+            echo -e "${MAGENTA}$update${RESET}"
+        done
+    fi
 }
 
 # Function to update a specific container
@@ -106,19 +114,19 @@ main_menu() {
 
         case $choice in
             1)
-                updates=$(check_updates)
-                if [ -z "$updates" ]; then
-                    echo -e "${RED}No updates available.${RESET}"
-                else
-                    echo -e "${CYAN}Available updates:${RESET}"
-                    echo "$updates"
-                fi
+                check_updates
+                read -p "Press any key to continue... " -n1 -s
+                echo
                 ;;
             2)
                 update_selection
+                read -p "Press any key to continue... " -n1 -s
+                echo
                 ;;
             3)
                 update_all_containers
+                read -p "Press any key to continue... " -n1 -s
+                echo
                 ;;
             4)
                 echo -e "${GREEN}Exiting...${RESET}"
