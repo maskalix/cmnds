@@ -59,21 +59,6 @@ for disk in $disks; do
     else
         printf "%-15s | ${YELLOW}%-10s${RESET}\n" "$disk" "$status"
     fi
-
-    # Print SMART attributes
-    echo "SMART Attributes for $disk:"
-    echo -e "${BOLD}ID#  ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE${RESET}"
-    echo "---------------------------------------------------------------"
-    smartctl -A $disk | grep -E '^[[:space:]]*[0-9]+' | while read -r line; do
-        # Extract the attribute and its details
-        attribute_name=$(echo "$line" | awk '{print $2}')
-        if [[ "$line" == *"Pre-fail"* ]]; then
-            printf "${YELLOW}%s${RESET}\n" "$line"
-        elif [[ "$line" == *"Old_age"* ]]; then
-            printf "${RESET}%s${RESET}\n" "$line"
-        fi
-    done
-    echo "---------------------------------------------------------------"
 done
 
 echo "S.M.A.R.T check completed."
