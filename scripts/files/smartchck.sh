@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to check S.M.A.R.T status of disks and display results with scores
+# Script to check S.M.A.R.T status of disks and display results
 
 # Define colors for output
 RED="\e[31m"
@@ -37,8 +37,8 @@ fi
 disks=$(ls /dev/sd*)
 
 # Print header
-echo -e "${BOLD}Disk          | Status    | Score${RESET}"
-echo "-----------------------------------------"
+echo -e "${BOLD}Disk          | Status${RESET}"
+echo "------------------------------"
 
 # Loop through each disk and check S.M.A.R.T status
 for disk in $disks; do
@@ -51,44 +51,15 @@ for disk in $disks; do
         status="UNKNOWN"
     fi
 
-    # Initialize score and max score
-    score=100
-    max_score=100
-
-    # Get specific SMART attributes for scoring
-    reallocated=$(smartctl -A $disk | grep 'Reallocated_Sector_Ct' | awk '{print $10}')
-    pending=$(smartctl -A $disk | grep 'Current_Pending_Sector' | awk '{print $10}')
-    hours=$(smartctl -A $disk | grep 'Power_On_Hours' | awk '{print $10}')
-
-    # Calculate score based on S.M.A.R.T attributes
-    if [ -n "$reallocated" ]; then
-        score=$((score - reallocated / 10))
-    fi
-
-    if [ -n "$pending" ]; then
-        score=$((score - pending * 5))
-    fi
-
-    if [ -n "$hours" ]; then
-        score=$((score + hours / 100))
-    fi
-
-    # Ensure score does not exceed 100 and does not drop below 0
-    if [ "$score" -gt 100 ]; then
-        score=100
-    elif [ "$score" -lt 0 ]; then
-        score=0
-    fi
-
-    # Print the health status and score
+    # Print the health status
     if [[ "$status" == "PASSED" ]]; then
-        printf "%-15s | ${GREEN}%-10s${RESET} | %d/%d\n" "$disk" "$status" "$score" "$max_score"
+        printf "%-15s | ${GREEN}%-10s${RESET}\n" "$disk" "$status"
     elif [[ "$status" == "FAILED" ]]; then
-        printf "%-15s | ${RED}%-10s${RESET} | %d/%d\n" "$disk" "$status" "$score" "$max_score"
+        printf "%-15s | ${RED}%-10s${RESET}\n" "$disk" "$status"
     else
-        printf "%-15s | ${YELLOW}%-10s${RESET} | %d/%d\n" "$disk" "$status" "$score" "$max_score"
+        printf "%-15s | ${YELLOW}%-10s${RESET}\n" "$disk" "$status"
     fi
 done
 
-echo "-----------------------------------------"
+echo "------------------------------"
 echo "S.M.A.R.T check completed."
