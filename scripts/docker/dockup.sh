@@ -1,37 +1,17 @@
 #!/bin/bash
 
-# Function to install Zenity
-install_zenity() {
-    echo "Zenity not found. Installing..."
-    if command -v apt &> /dev/null; then
-        sudo apt update
-        sudo apt install -y zenity
-    elif command -v dnf &> /dev/null; then
-        sudo dnf install -y zenity
-    elif command -v yum &> /dev/null; then
-        sudo yum install -y zenity
-    elif command -v pacman &> /dev/null; then
-        sudo pacman -S --noconfirm zenity
-    else
-        echo "Package manager not supported. Please install Zenity manually."
-        exit 1
-    fi
-}
-
-# Check for Zenity
-if ! command -v zenity &> /dev/null; then
-    install_zenity
-fi
-
 # Function to check for updates
 check_updates() {
+    updates=()
+    # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         # Check for newer versions available
-        local latest=$(docker pull "$image" | grep "Downloaded newer image" | wc -l)
+        local latest=$(docker pull "$image" 2>&1 | grep "Downloaded newer image" | wc -l)
         if [ "$latest" -eq 1 ]; then
-            echo "$image"
+            updates+=("$image")
         fi
     done
+    echo "${updates[@]}"
 }
 
 # Function to update a specific container
@@ -41,63 +21,64 @@ update_container() {
     docker pull "$container"
 }
 
-# Function to get user selection and perform updates
+# Function to update selected containers
 update_selection() {
-    local selected_containers=$(zenity --list --checklist \
-        --title="Select Docker Containers to Update" \
-        --column="Update" --column="Container" \
-        $(docker images --format "false|{{.Repository}}:{{.Tag}}" | sed 's/|/ FALSE /g'))
-
-    if [ "$selected_containers" ]; then
-        IFS='|' read -ra containers <<< "$selected_containers"
-        for container in "${containers[@]}"; do
-            update_container "$container"
-        done
-        zenity --info --text="Selected containers updated."
-    else
-        zenity --error --text="No containers selected."
-    fi
+    echo "Available Docker Containers:"
+    docker images --format "{{.Repository}}:{{.Tag}}"
+    
+    read -p "Enter the containers to update (separated by space): " -a containers
+    for container in "${containers[@]}"; do
+        update_container "$container"
+    done
 }
 
-# Function for GUI options
-main_menu() {
-    choice=$(zenity --list --title="Docker Update Manager" \
-        --column="Action" \
-        "Check for Updates" \
-        "Update Selected Containers" \
-        "Update All Containers" \
-        "Exit")
+# Function to update all containers
+update_all_containers() {
+    all_images=$(docker images --format "{{.Repository}}:{{.Tag}}")
+    for image in $all_images; do
+        update_container "$image"
+    done
+    echo "All containers updated."
+}
 
-    case $choice in
-        "Check for Updates")
-            updates=$(check_updates)
-            if [ -z "$updates" ]; then
-                zenity --info --text="No updates available."
-            else
-                zenity --info --text="Available updates:\n$updates"
-            fi
-            main_menu
-            ;;
-        "Update Selected Containers")
-            update_selection
-            main_menu
-            ;;
-        "Update All Containers")
-            all_images=$(docker images --format "{{.Repository}}:{{.Tag}}")
-            for image in $all_images; do
-                update_container "$image"
-            done
-            zenity --info --text="All containers updated."
-            main_menu
-            ;;
-        "Exit")
-            exit 0
-            ;;
-        *)
-            zenity --error --text="Invalid option selected."
-            main_menu
-            ;;
-    esac
+# Function for console menu
+main_menu() {
+    while true; do
+        echo "========================"
+        echo "  Docker Update Manager  "
+        echo "========================"
+        echo "1. Check for Updates"
+        echo "2. Update Selected Containers"
+        echo "3. Update All Containers"
+        echo "4. Exit"
+        read -p "Select an option [1-4]: " choice
+
+        case $choice in
+            1)
+                updates=$(check_updates)
+                if [ -z "$updates" ]; then
+                    echo "No updates available."
+                else
+                    echo "Available updates:"
+                    echo "$updates"
+                fi
+                ;;
+            2)
+                update_selection
+                ;;
+            3)
+                update_all_containers
+                ;;
+            4)
+                echo "Exiting..."
+                exit 0
+                ;;
+            *)
+                echo "Invalid option selected. Please try again."
+                ;;
+        esac
+        echo ""
+    done
 }
 
 # Start the main menu
