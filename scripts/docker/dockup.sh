@@ -26,7 +26,8 @@ show_progress() {
         bar+=" "
     done
 
-    printf "\r[%-${bar_length}s] %d%%" "$bar" "$progress \n"
+    # Print the progress bar at the bottom of the screen
+    printf "\r[%-${bar_length}s] %d%%" "$bar" "$progress"
 }
 
 # Function to check for updates
@@ -39,6 +40,9 @@ check_updates() {
     # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         current_image=$((current_image + 1))
+        # Clear previous lines and print current image being checked
+        printf "\033[1A" # Move cursor up one line
+        printf "\033[K" # Clear the line
         echo -e "${YELLOW}Checking for updates on image: ${MAGENTA}$image...${RESET}"
         
         # Check for newer versions available
