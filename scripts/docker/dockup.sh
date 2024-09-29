@@ -13,32 +13,40 @@ RESET='\033[0m'
 show_progress() {
     local current=$1
     local total=$2
-    local progress=$((current * 100 / total))
-    local bar_length=50  # Length of the progress bar
-    local filled_length=$((progress * bar_length / 100))
-    local bar=""
+    if (( total > 0 )); then
+        local progress=$((current * 100 / total))
+        local bar_length=50  # Length of the progress bar
+        local filled_length=$((progress * bar_length / 100))
+        local bar=""
 
-    # Create the progress bar
-    for ((i=0; i<filled_length; i++)); do
-        bar+="#"
-    done
-    for ((i=filled_length; i<bar_length; i++)); do
-        bar+=" "
-    done
+        # Create the progress bar
+        for ((i=0; i<filled_length; i++)); do
+            bar+="#"
+        done
+        for ((i=filled_length; i<bar_length; i++)); do
+            bar+=" "
+        done
 
-    # Print the current image and progress bar
-    printf "\rChecking for updates on image: %s\n" "$current_image"
-    printf "[%-${bar_length}s] %d%%" "$bar" "$progress"
+        # Print the current image and progress bar
+        printf "\rChecking for updates on image: %s\n" "$current_image"
+        printf "[%-${bar_length}s] %d%%" "$bar" "$progress"
+    fi
 }
 
 # Function to check for updates
 check_updates() {
     updates=()
     echo -e "${CYAN}Checking for updates...${RESET}"
+    
+    # Get the list of Docker images
     local total_images=$(docker images --format "{{.Repository}}:{{.Tag}}" | wc -l)
+    if (( total_images == 0 )); then
+        echo -e "${RED}No Docker images found.${RESET}"
+        return
+    fi
+
     local current_image=0
 
-    # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         current_image=$((current_image + 1))
 
@@ -54,7 +62,7 @@ check_updates() {
         fi
         
         # Show progress
-        show_progress "$image" $current_image
+        show_progress "$current_image" "$total_images"
         sleep 1  # Simulate some delay for visibility
     done
 
@@ -89,6 +97,12 @@ update_selection() {
     
     read -p "Enter the containers to update (separated by space): " -a containers
     local total_containers=${#containers[@]}
+    
+    if (( total_containers == 0 )); then
+        echo -e "${RED}No containers selected for update.${RESET}"
+        return
+    fi
+
     local current_container=0
 
     for container in "${containers[@]}"; do
@@ -98,7 +112,7 @@ update_selection() {
         printf "\033c" # Clear the screen
         echo -e "${YELLOW}Updating container: ${MAGENTA}$container...${RESET}"
         update_container "$container"
-        show_progress "$container" $current_container
+        show_progress "$current_container" "$total_containers"
         sleep 1  # Simulate some delay for visibility
     done
 
@@ -110,6 +124,12 @@ update_selection() {
 update_all_containers() {
     all_images=$(docker images --format "{{.Repository}}:{{.Tag}}")
     local total_images=$(echo "$all_images" | wc -l)
+    
+    if (( total_images == 0 )); then
+        echo -e "${RED}No Docker images found.${RESET}"
+        return
+    fi
+
     local current_image=0
     echo -e "${CYAN}Updating all containers...${RESET}"
 
@@ -120,7 +140,7 @@ update_all_containers() {
         printf "\033c" # Clear the screen
         echo -e "${YELLOW}Updating image: ${MAGENTA}$image...${RESET}"
         update_container "$image"
-        show_progress "$image" $current_image
+        show_progress "$current_image" "$total_images"
         sleep 1  # Simulate some delay for visibility
     done
 
