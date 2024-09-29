@@ -73,8 +73,10 @@ for disk in $disks; do
         score=$((score + hours / 100))
     fi
 
-    # Ensure score does not drop below 0
-    if [ "$score" -lt 0 ]; then
+    # Ensure score does not exceed 100 and does not drop below 0
+    if [ "$score" -gt 100 ]; then
+        score=100
+    elif [ "$score" -lt 0 ]; then
         score=0
     fi
 
