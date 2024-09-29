@@ -1,5 +1,28 @@
 #!/bin/bash
 
+# Function to install Zenity
+install_zenity() {
+    echo "Zenity not found. Installing..."
+    if command -v apt &> /dev/null; then
+        sudo apt update
+        sudo apt install -y zenity
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y zenity
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y zenity
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S --noconfirm zenity
+    else
+        echo "Package manager not supported. Please install Zenity manually."
+        exit 1
+    fi
+}
+
+# Check for Zenity
+if ! command -v zenity &> /dev/null; then
+    install_zenity
+fi
+
 # Function to check for updates
 check_updates() {
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
