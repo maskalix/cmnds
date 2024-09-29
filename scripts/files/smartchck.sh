@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to check S.M.A.R.T status of disks and display attributes with scores
+# Script to check S.M.A.R.T status of disks and display results with scores
 
 # Define colors for output
 RED="\e[31m"
@@ -36,7 +36,7 @@ fi
 # Get a list of all disks and partitions
 disks=$(ls /dev/sd*)
 
-# Print header for overall health status and scores
+# Print header
 echo -e "${BOLD}Disk          | Status    | Score${RESET}"
 echo "-----------------------------------------"
 
@@ -46,61 +46,47 @@ for disk in $disks; do
     status_output=$(smartctl -H $disk 2>&1)
     status=$(echo "$status_output" | grep -i "SMART overall-health" | awk '{print $6}')
 
-    # Check if status is found, else default to 'Unknown'
+    # Default value to 'UNKNOWN' if status not found
     if [ -z "$status" ]; then
         status="UNKNOWN"
     fi
 
-    # Calculate score
-    score=100  # Start with a base score
+    # Initialize score and max score
+    score=100
+    max_score=100
 
-    # Check SMART attributes for the current disk
-    attributes=$(smartctl -A $disk | grep -E 'Reallocated_Sector_Ct|Current_Pending_Sector|Power_On_Hours')
+    # Get specific SMART attributes for scoring
+    reallocated=$(smartctl -A $disk | grep 'Reallocated_Sector_Ct' | awk '{print $10}')
+    pending=$(smartctl -A $disk | grep 'Current_Pending_Sector' | awk '{print $10}')
+    hours=$(smartctl -A $disk | grep 'Power_On_Hours' | awk '{print $10}')
 
-    while read -r line; do
-        attribute_name=$(echo "$line" | awk '{print $2}')
-        value=$(echo "$line" | awk '{print $10}')
-        
-        case "$attribute_name" in
-            "Reallocated_Sector_Ct")
-                score=$((score - value / 10))  # Example adjustment; scale as needed
-                ;;
-            "Current_Pending_Sector")
-                score=$((score - value * 5))  # More severe impact for pending sectors
-                ;;
-            "Power_On_Hours")
-                score=$((score + value / 100))  # Positive impact
-                ;;
-        esac
-    done <<< "$attributes"
+    # Calculate score based on S.M.A.R.T attributes
+    if [ -n "$reallocated" ]; then
+        score=$((score - reallocated / 10))
+    fi
 
-    # Ensure score is not below zero
+    if [ -n "$pending" ]; then
+        score=$((score - pending * 5))
+    fi
+
+    if [ -n "$hours" ]; then
+        score=$((score + hours / 100))
+    fi
+
+    # Ensure score does not drop below 0
     if [ "$score" -lt 0 ]; then
         score=0
     fi
 
     # Print the health status and score
     if [[ "$status" == "PASSED" ]]; then
-        printf "%-15s | ${GREEN}%-10s${RESET} | %d\n" "$disk" "$status" "$score"
+        printf "%-15s | ${GREEN}%-10s${RESET} | %d/%d\n" "$disk" "$status" "$score" "$max_score"
     elif [[ "$status" == "FAILED" ]]; then
-        printf "%-15s | ${RED}%-10s${RESET} | %d\n" "$disk" "$status" "$score"
+        printf "%-15s | ${RED}%-10s${RESET} | %d/%d\n" "$disk" "$status" "$score" "$max_score"
     else
-        printf "%-15s | ${YELLOW}%-10s${RESET} | %d\n" "$disk" "$status" "$score"
+        printf "%-15s | ${YELLOW}%-10s${RESET} | %d/%d\n" "$disk" "$status" "$score" "$max_score"
     fi
-
-    # Print SMART attributes
-    echo "SMART Attributes for $disk:"
-    echo -e "${BOLD}ID#  ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE${RESET}"
-    echo "---------------------------------------------------------------"
-    smartctl -A $disk | grep -E '^[[:space:]]*[0-9]+' | while read -r line; do
-        # Extract the attribute and its details
-        if [[ "$line" == *"Pre-fail"* ]]; then
-            printf "${YELLOW}%s${RESET}\n" "$line"
-        elif [[ "$line" == *"Old_age"* ]]; then
-            printf "${RESET}%s${RESET}\n" "$line"
-        fi
-    done
-    echo "---------------------------------------------------------------"
 done
 
+echo "-----------------------------------------"
 echo "S.M.A.R.T check completed."
