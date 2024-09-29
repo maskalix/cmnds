@@ -37,22 +37,22 @@ fi
 disks=$(ls /dev/sd*)
 
 # Print header
-printf "${BOLD}%-15s %-10s %s${RESET}\n" "Disk" "Status" "Details"
-echo "-------------------------------------"
+echo -e "${BOLD}Disk          | Status${RESET}"
+echo "-------------------------"
 
 # Loop through each disk and check S.M.A.R.T status
 for disk in $disks; do
     status_output=$(smartctl -H $disk)
     status=$(echo "$status_output" | grep "overall-health" | awk '{print $3}')
-    
+
     if [[ "$status" == "PASSED" ]]; then
-        printf "%-15s ${GREEN}%-10s ${RESET}%s\n" "$disk" "$status" "$status_output"
+        printf "%-15s | ${GREEN}%-10s${RESET}\n" "$disk" "$status"
     elif [[ "$status" == "FAILED" ]]; then
-        printf "%-15s ${RED}%-10s ${RESET}%s\n" "$disk" "$status" "$status_output"
+        printf "%-15s | ${RED}%-10s${RESET}\n" "$disk" "$status"
     else
-        printf "%-15s ${YELLOW}%-10s ${RESET}%s\n" "$disk" "$status" "$status_output"
+        printf "%-15s | ${YELLOW}%-10s${RESET}\n" "$disk" "$status"
     fi
 done
 
-echo "-------------------------------------"
+echo "-------------------------"
 echo "S.M.A.R.T check completed."
