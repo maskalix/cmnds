@@ -40,16 +40,15 @@ check_updates() {
     # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         current_image=$((current_image + 1))
-        # Clear previous lines and print current image being checked
-        printf "\033[1A" # Move cursor up one line
-        printf "\033[K" # Clear the line
+        # Clear previous line and print current image being checked
+        printf "\033[K" # Clear the current line
         echo -e "${YELLOW}Checking for updates on image: ${MAGENTA}$image...${RESET}"
         
         # Check for newer versions available
-        local latest=$(docker pull "$image" 2>&1 | grep "Downloaded newer image" | wc -l)
+        docker pull "$image" 2>&1 | grep "Downloaded newer image" > /dev/null
         show_progress $current_image $total_images
         
-        if [ "$latest" -eq 1 ]; then
+        if [[ $? -eq 0 ]]; then
             updates+=("$image")
         fi
     done
