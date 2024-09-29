@@ -7,7 +7,15 @@ show_progress() {
     local progress=$((current * 100 / total))
     local bar_length=50  # Length of the progress bar
     local filled_length=$((progress * bar_length / 100))
-    local bar=$(printf "%-${bar_length}s" "#" | sed "s/ /#/g; s/#/=/g; s/=/ /$filled_length; s/=/=/g")
+    local bar=""
+
+    # Create the progress bar
+    for ((i=0; i<filled_length; i++)); do
+        bar+="#"
+    done
+    for ((i=filled_length; i<bar_length; i++)); do
+        bar+=" "
+    done
 
     printf "\r[%-${bar_length}s] %d%%" "$bar" "$progress"
 }
@@ -22,10 +30,12 @@ check_updates() {
     # Get the list of Docker images
     docker images --format "{{.Repository}}:{{.Tag}}" | while read -r image; do
         current_image=$((current_image + 1))
-        echo "Checking $image..."
+        echo "Checking for updates on image: $image..."
+        
         # Check for newer versions available
         local latest=$(docker pull "$image" 2>&1 | grep "Downloaded newer image" | wc -l)
         show_progress $current_image $total_images
+        
         if [ "$latest" -eq 1 ]; then
             updates+=("$image")
         fi
@@ -37,7 +47,7 @@ check_updates() {
 # Function to update a specific container
 update_container() {
     local container=$1
-    echo "Updating $container..."
+    echo "Updating container: $container..."
     docker pull "$container" | grep "Downloaded newer image" || echo "$container is already up to date."
 }
 
