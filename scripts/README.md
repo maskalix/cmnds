@@ -34,3 +34,6 @@
 - recommended (not needed) is to create /data/misc where inside ./project-name it will create project data (docker compose files etc.)
 ## update
 - it updates & upgrades all packages with optional docker restoration (for cases where you have custom docker deamon.js - so it stops docker, copies back your modified and starts it again) - you need file /data/scripts/docker-recover.sh
+
+## other commands
+- to add to the list: dockup, smartchck
