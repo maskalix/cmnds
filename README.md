@@ -8,12 +8,17 @@
 
 Simple commands to ease using Linux server                            
 ```                                
-
+# IMPORTANT
+- always read <a href="https://github.com/maskalix/cmnds/blob/main/scripts/README.md">/scripts/README.md</a>, where are important informations about usage of each command etc.
+- between releases/tags is published 100% working, tho old release of cmnds; if you want to use the new one, use command higher to install it
+- i don't plan to make cmnds available to be installed from any package manager such as apt
+- script can overwrite some of your commands - USE AT OWN RISK
+- asking for feature? => create an issue
+- cmnds "installs" itself into PATH, after removing it (simply just remove all it's folders - will automate it in the future) clean its record here too
 ## Installation
 ```bash
 wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
 ```
-
 ## Using
 ### For base-user (non-root)
 - run `sudo su && cmnds-nonroot`
