@@ -1,3 +1,5 @@
+**As of now it is highly recommended to NOT change cmnds installation folder (def. /data/scripts/cmnds), can cause errors - scripts are now in rework to load everything from variables, tho, still not completely, will be published in stable release 1.0**
+
 # Commands
 
 | Category      | Command              | Description                                       | Options                                                                                     |
@@ -22,3 +24,13 @@
 |               | `perf`               | Show PC performance                              |                                                                                            |
 |               | `update`             | Update tasks                                     | `apt update + upgrade + restore Docker (if available)`                                         |
 |               | `ssh-init`             | Prepare everything for SSH connection to server                                    |                                         |
+
+
+
+# Currently working on automatizing installation and initialization for all tools
+## revpro
+- you need to create folder /revpro
+## prjkt
+- recommended (not needed) is to create /data/misc where inside ./project-name it will create project data (docker compose files etc.)
+## update
+- it updates & upgrades all packages with optional docker restoration (for cases where you have custom docker deamon.js - so it stops docker, copies back your modified and starts it again) - you need file /data/scripts/docker-recover.sh
