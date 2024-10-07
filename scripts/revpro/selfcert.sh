@@ -49,15 +49,15 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Set Variables
-ROOT_CA_DIR="$HOME/myCA"
-ROOT_CA_KEY="$ROOT_CA_DIR/rootCA.key"
-ROOT_CA_CRT="$ROOT_CA_DIR/rootCA.crt"
+LE_DIR="/etc/letsencrypt/live/$DOMAIN"
+ROOT_CA_KEY="/etc/letsencrypt/rootCA.key"
+ROOT_CA_CRT="/etc/letsencrypt/rootCA.crt"
 DAYS_ROOT=1024
 DAYS_SERVER=$((YEARS * 365))
 
-# Create Root CA (only done once)
-mkdir -p "$ROOT_CA_DIR"
-cd "$ROOT_CA_DIR" || exit
+# Create directories if they do not exist
+mkdir -p "$LE_DIR"
+mkdir -p "/etc/letsencrypt"
 
 # Step 1: Create Root Key
 if [[ ! -f "$ROOT_CA_KEY" ]]; then
@@ -75,9 +75,9 @@ fi
 # Function to create server certificate
 create_server_cert() {
     local DOMAIN="$1"
-    local KEY="$DOMAIN.key"
-    local CSR="$DOMAIN.csr"
-    local CRT="$DOMAIN.crt"
+    local KEY="$LE_DIR/$DOMAIN.key"
+    local CSR="$LE_DIR/$DOMAIN.csr"
+    local CRT="$LE_DIR/$DOMAIN.crt"
 
     # Step 3: Create the Certificate Key
     echo "Creating Certificate Key for $DOMAIN..."
