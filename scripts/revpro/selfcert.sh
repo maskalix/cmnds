@@ -1,74 +1,111 @@
 #!/bin/bash
 
-# Usage: ./selfcert.sh -d domain.tld -d *.domain.tld --CA --years Y
-# Description: This script generates a CA certificate and uses it to sign
-#              HTTPS certificates for specified domains.
-
-# Default values
-CA_DIR="/revpro/ca"
-DAYS=365
-GENERATE_CA=false
-DOMAINS=()
-
-# Parse command line arguments
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -d) 
-            shift
-            DOMAINS+=("$1")
-            ;;
-        --CA) 
-            GENERATE_CA=true
-            ;;
-        --years) 
-            shift
-            DAYS=$((365 * "$1"))
-            ;;
-        *) 
-            echo "Unknown parameter passed: $1"
-            exit 1
-            ;;
-    esac
-    shift
-done
-
-# Check if at least one domain is provided
-if [ ${#DOMAINS[@]} -eq 0 ]; then
-    echo "Error: At least one domain must be specified with -d"
+# Check for the required arguments
+if [[ $# -lt 5 ]]; then
+    echo "Usage: $0 -d <domain.tld> -d <*.domain.tld> --years <validity_years> --country <country_code> --state <state> --organization <organization_name>"
     exit 1
 fi
 
-# Create the CA directory if it does not exist
-mkdir -p "$CA_DIR"
+# Initialize variables
+DOMAIN=""
+WILDCARD_DOMAIN=""
+YEARS=""
+COUNTRY=""
+STATE=""
+ORGANIZATION=""
 
-# Step 1: Generate CA Certificate if requested
-if [ "$GENERATE_CA" = true ]; then
-    echo "Generating CA key..."
-    openssl ecparam -name prime256v1 -genkey -noout -out "$CA_DIR/ca.key"
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -d)
+            if [[ -z "$DOMAIN" ]]; then
+                DOMAIN="$2"
+            else
+                WILDCARD_DOMAIN="$2"
+            fi
+            shift 2
+            ;;
+        --years)
+            YEARS="$2"
+            shift 2
+            ;;
+        --country)
+            COUNTRY="$2"
+            shift 2
+            ;;
+        --state)
+            STATE="$2"
+            shift 2
+            ;;
+        --organization)
+            ORGANIZATION="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
-    echo "Creating CA certificate..."
-    openssl req -x509 -new -nodes -key "$CA_DIR/ca.key" -sha256 -days $DAYS \
-        -subj "/C=CZ/ST=Czech Republic/L=Pilsen/O=$HOSTNAME" \
-        -out "$CA_DIR/ca.pem" \
-        -extensions v3_ca -config <(cat /etc/ssl/openssl.cnf <(printf "[v3_ca]\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth"))
+# Set Variables
+ROOT_CA_DIR="$HOME/myCA"
+ROOT_CA_KEY="$ROOT_CA_DIR/rootCA.key"
+ROOT_CA_CRT="$ROOT_CA_DIR/rootCA.crt"
+DAYS_ROOT=1024
+DAYS_SERVER=$((YEARS * 365))
 
-    echo "CA certificate generated at $CA_DIR/ca.pem"
+# Create Root CA (only done once)
+mkdir -p "$ROOT_CA_DIR"
+cd "$ROOT_CA_DIR" || exit
+
+# Step 1: Create Root Key
+if [[ ! -f "$ROOT_CA_KEY" ]]; then
+    echo "Creating Root Key..."
+    openssl genrsa -des3 -out "$ROOT_CA_KEY" 4096
 fi
 
-# Step 2: Generate Domain Certificate
-echo "Generating EC key for domain certificates..."
-mkdir -p /etc/letsencrypt/live/${DOMAINS[0]}
-openssl ecparam -name prime256v1 -genkey -noout -out "/etc/letsencrypt/live/${DOMAINS[0]}/privkey.pem"
+# Step 2: Create and Self-Sign the Root Certificate
+if [[ ! -f "$ROOT_CA_CRT" ]]; then
+    echo "Creating and Self-Signing Root Certificate..."
+    openssl req -x509 -new -nodes -key "$ROOT_CA_KEY" -sha256 -days "$DAYS_ROOT" -out "$ROOT_CA_CRT" \
+        -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=Root CA"
+fi
 
-echo "Creating certificate signing request (CSR)..."
-openssl req -new -key "/etc/letsencrypt/live/${DOMAINS[0]}/privkey.pem" -out "/etc/letsencrypt/live/${DOMAINS[0]}/domain.csr" \
-    -subj "/C=CZ/ST=Czech Republic/L=Pilsen/O=$HOSTNAME" \
-    -extensions req_ext -config <(cat /etc/ssl/openssl.cnf <(printf "[req_ext]\nsubjectAltName=DNS:%s\n" "${DOMAINS[*]}"))
+# Function to create server certificate
+create_server_cert() {
+    local DOMAIN="$1"
+    local KEY="$DOMAIN.key"
+    local CSR="$DOMAIN.csr"
+    local CRT="$DOMAIN.crt"
 
-echo "Signing domain certificate with CA..."
-openssl x509 -req -in "/etc/letsencrypt/live/${DOMAINS[0]}/domain.csr" -CA "$CA_DIR/ca.pem" -CAkey "$CA_DIR/ca.key" -CAcreateserial \
-    -out "/etc/letsencrypt/live/${DOMAINS[0]}/fullchain.pem" -days $DAYS -sha256 \
-    -extfile <(printf "keyUsage=digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:%s\n" "${DOMAINS[*]}")
+    # Step 3: Create the Certificate Key
+    echo "Creating Certificate Key for $DOMAIN..."
+    openssl genrsa -out "$KEY" 2048
 
-echo "Domain certificate generated and saved at /etc/letsencrypt/live/${DOMAINS[0]}/fullchain.pem"
-echo "Private key saved at /etc/letsencrypt/live/${DOMAINS[0]}/privkey.pem"
+    # Step 4: Create the Signing Request (CSR)
+    echo "Creating Signing Request (CSR) for $DOMAIN..."
+    openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=$DOMAIN" -out "$CSR"
+
+    # Step 5: Verify the CSR's Content
+    echo "Verifying CSR content for $DOMAIN..."
+    openssl req -in "$CSR" -noout -text
+
+    # Step 6: Generate the Certificate using the CSR and Root CA
+    echo "Generating Certificate for $DOMAIN..."
+    openssl x509 -req -in "$CSR" -CA "$ROOT_CA_CRT" -CAkey "$ROOT_CA_KEY" -CAcreateserial -out "$CRT" -days "$DAYS_SERVER" -sha256
+
+    # Step 7: Verify the Certificate's Content
+    echo "Verifying Certificate content for $DOMAIN..."
+    openssl x509 -in "$CRT" -text -noout
+
+    echo "Certificate for $DOMAIN created successfully!"
+}
+
+# Create server certificates for the specified domains
+create_server_cert "$DOMAIN"
+if [[ -n "$WILDCARD_DOMAIN" ]]; then
+    create_server_cert "$WILDCARD_DOMAIN"
+fi
+
+echo "All tasks completed."
