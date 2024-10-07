@@ -72,9 +72,10 @@ if [[ ! -f "$ROOT_CA_CRT" ]]; then
         -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=Root CA"
 fi
 
-# Function to create server certificate
-create_server_cert() {
+# Function to create combined server certificate
+create_combined_cert() {
     local DOMAIN="$1"
+    local WILDCARD="$2"
     local KEY="$LE_DIR/$DOMAIN.key"
     local CSR="$LE_DIR/$DOMAIN.csr"
     local CRT="$LE_DIR/$DOMAIN.crt"
@@ -83,9 +84,10 @@ create_server_cert() {
     echo "Creating Certificate Key for $DOMAIN..."
     openssl genrsa -out "$KEY" 2048
 
-    # Step 4: Create the Signing Request (CSR)
-    echo "Creating Signing Request (CSR) for $DOMAIN..."
-    openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=$DOMAIN" -out "$CSR"
+    # Step 4: Create the Signing Request (CSR) with SAN
+    echo "Creating Signing Request (CSR) for $DOMAIN and $WILDCARD..."
+    openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=$DOMAIN" \
+        -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "\n[SAN]\nsubjectAltName=DNS:$DOMAIN,DNS:$WILDCARD")) -out "$CSR"
 
     # Step 5: Verify the CSR's Content
     echo "Verifying CSR content for $DOMAIN..."
@@ -99,13 +101,10 @@ create_server_cert() {
     echo "Verifying Certificate content for $DOMAIN..."
     openssl x509 -in "$CRT" -text -noout
 
-    echo "Certificate for $DOMAIN created successfully!"
+    echo "Combined Certificate for $DOMAIN and $WILDCARD created successfully!"
 }
 
-# Create server certificates for the specified domains
-create_server_cert "$DOMAIN"
-if [[ -n "$WILDCARD_DOMAIN" ]]; then
-    create_server_cert "$WILDCARD_DOMAIN"
-fi
+# Create a combined certificate for the specified domains
+create_combined_cert "$DOMAIN" "$WILDCARD_DOMAIN"
 
 echo "All tasks completed."
