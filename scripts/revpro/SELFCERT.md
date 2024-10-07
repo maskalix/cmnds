@@ -28,7 +28,7 @@ A. Generating a CA Certificate
 To generate a self-signed CA certificate, use the command:
 
 ```bash
-./selfcert.sh -d linelab.gate -d *.linelab.gate --CA --years 10
+./selfcert.sh -d domain.tld -d *.domain.tld --CA --years 10
 -d: Specifies the domain names for which the certificate is valid. You can add multiple -d flags for additional domains or subdomains.
 --CA: Indicates that you want to create a Certificate Authority (CA) certificate.
 --years: Specifies the validity period for the certificate in years.
@@ -37,11 +37,11 @@ B. Generating Server Certificates
 To generate a server certificate, run the following command:
 
 ```bash
-./selfcert.sh -d linelab.gate -d *.linelab.gate --years 3
+./selfcert.sh -d domain.tld -d *.domain.tld --years 3
 --years: Defines the validity period for the server certificate in years.
 ```
 Step 4: Verify Certificate Generation
-After running the script, check the /etc/letsencrypt/live/linelab.gate/ directory for the generated files:
+After running the script, check the /etc/letsencrypt/live/domain.tld/ directory for the generated files:
 
 privkey.pem: The private key.
 fullchain.pem: The self-signed certificate (or CA certificate).
@@ -49,14 +49,14 @@ Trusting the Certificate Across Your Network
 Step 1: Copy the CA Certificate to All Machines
 Locate the CA Certificate:
 
-If you generated a CA certificate, it will be located in /etc/letsencrypt/live/linelab.gate/fullchain.pem.
+If you generated a CA certificate, it will be located in /etc/letsencrypt/live/domain.tld/fullchain.pem.
 
 Copy the Certificate to Each Client Machine:
 
 You can use scp, rsync, or a USB drive to copy the fullchain.pem file to each machine in your network. For example, using scp:
 
 ```bash
-scp /etc/letsencrypt/live/linelab.gate/fullchain.pem USER@CLIENT_IP:/path/to/destination
+scp /etc/letsencrypt/live/domain.tld/fullchain.pem USER@CLIENT_IP:/path/to/destination
 ```
 Replace USER with the actual username and CLIENT_IP with the IP address of the client machine.
 
@@ -78,7 +78,7 @@ Step 2: Install the CA Certificate on Client Machines
     - Copy the fullchain.pem to /usr/local/share/ca-certificates/:
 
     ```bash
-    sudo cp fullchain.pem /usr/local/share/ca-certificates/linelab.gate.crt
+    sudo cp fullchain.pem /usr/local/share/ca-certificates/domain.tld.crt
     ```
     - Update the CA certificates:
 
@@ -86,7 +86,7 @@ Step 2: Install the CA Certificate on Client Machines
     sudo update-ca-certificates
     ```
 Step 3: Test Your Configuration
-- Open a Web Browser on a client machine and navigate to https://linelab.gate.
+- Open a Web Browser on a client machine and navigate to https://domain.tld.
 - Ensure that the site loads without certificate warnings.
 
 
