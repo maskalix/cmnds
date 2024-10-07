@@ -76,9 +76,9 @@ fi
 create_combined_cert() {
     local DOMAIN="$1"
     local WILDCARD="$2"
-    local KEY="$LE_DIR/$DOMAIN.key"
-    local CSR="$LE_DIR/$DOMAIN.csr"
-    local CRT="$LE_DIR/$DOMAIN.crt"
+    local KEY="$LE_DIR/privkey.pem"
+    local CSR="$LE_DIR/certificate.csr"
+    local CRT="$LE_DIR/fullchain.pem"
 
     # Step 3: Create the Certificate Key
     echo "Creating Certificate Key for $DOMAIN..."
