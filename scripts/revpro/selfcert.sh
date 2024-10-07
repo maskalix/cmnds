@@ -59,7 +59,6 @@ cat > "$CONFIG_FILE" <<EOL
 [ req ]
 distinguished_name = req_distinguished_name
 req_extensions     = req_ext
-x509_extensions    = v3_ca
 prompt             = no
 
 [ req_distinguished_name ]
@@ -78,10 +77,22 @@ for domain in "${DOMAIN_LIST[@]}"; do
     i=$((i+1))
 done
 
+# Add v3_ca extension if --CA is specified
+if [ "$CA_FLAG" -eq 1 ]; then
+    cat >> "$CONFIG_FILE" <<EOL
+
+[ v3_ca ]
+basicConstraints = critical,CA:TRUE
+keyUsage = critical, keyCertSign, cRLSign
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+EOL
+fi
+
 # Generate the certificate request and sign the certificate
 if [ "$CA_FLAG" -eq 1 ]; then
     echo "Generating a CA certificate..."
-    openssl req -x509 -new -key "$KEY_FILE" -days "$DAYS" -out "$CERT_FILE" -config "$CONFIG_FILE"
+    openssl req -x509 -new -key "$KEY_FILE" -days "$DAYS" -out "$CERT_FILE" -config "$CONFIG_FILE" -extensions v3_ca
 else
     echo "Generating self-signed certificate..."
     openssl req -new -key "$KEY_FILE" -out "$CERT_DIR/ec.csr" -config "$CONFIG_FILE"
