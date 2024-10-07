@@ -1,112 +1,74 @@
 #!/bin/bash
 
+# Usage: ./selfcert.sh -d domain.tld -d *.domain.tld --CA --years Y
+# Description: This script generates a CA certificate and uses it to sign
+#              HTTPS certificates for specified domains.
+
 # Default values
+CA_DIR="/revpro/ca"
 DAYS=365
-CA_FLAG=0
-DOMAIN_LIST=()
-YEARS=0
+GENERATE_CA=false
+DOMAINS=()
 
-# Function to display help message
-usage() {
-    echo "Usage: $0 [-d domain.tld] [-d *.domain.tld] [--CA] [--days N] [--years Y]"
-    echo "  -d domain     : specify domain names for certificate (multiple domains allowed)"
-    echo "  --CA          : generate a CA certificate"
-    echo "  --days N      : number of days the certificate will be valid (default: 365)"
-    echo "  --years Y     : number of years the certificate will be valid (overrides --days)"
-    exit 1
-}
-
-# Parse arguments
+# Parse command line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -d) DOMAIN_LIST+=("$2"); shift ;;
-        --CA) CA_FLAG=1 ;;
-        --days) DAYS="$2"; shift ;;
-        --years) YEARS="$2"; shift ;;
-        *) usage ;;
+        -d) 
+            shift
+            DOMAINS+=("$1")
+            ;;
+        --CA) 
+            GENERATE_CA=true
+            ;;
+        --years) 
+            shift
+            DAYS=$((365 * "$1"))
+            ;;
+        *) 
+            echo "Unknown parameter passed: $1"
+            exit 1
+            ;;
     esac
     shift
 done
 
 # Check if at least one domain is provided
-if [ "${#DOMAIN_LIST[@]}" -eq 0 ]; then
-    echo "Error: At least one domain (-d) must be specified."
-    usage
+if [ ${#DOMAINS[@]} -eq 0 ]; then
+    echo "Error: At least one domain must be specified with -d"
+    exit 1
 fi
 
-# Calculate days if years is provided
-if [ "$YEARS" -gt 0 ]; then
-    DAYS=$((YEARS * 365))
+# Create the CA directory if it does not exist
+mkdir -p "$CA_DIR"
+
+# Step 1: Generate CA Certificate if requested
+if [ "$GENERATE_CA" = true ]; then
+    echo "Generating CA key..."
+    openssl ecparam -name prime256v1 -genkey -noout -out "$CA_DIR/ca.key"
+
+    echo "Creating CA certificate..."
+    openssl req -x509 -new -nodes -key "$CA_DIR/ca.key" -sha256 -days $DAYS \
+        -subj "/C=CZ/ST=Czech Republic/L=Pilsen/O=$HOSTNAME" \
+        -out "$CA_DIR/ca.pem" \
+        -extensions v3_ca -config <(cat /etc/ssl/openssl.cnf <(printf "[v3_ca]\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth"))
+
+    echo "CA certificate generated at $CA_DIR/ca.pem"
 fi
 
-# Set the first domain as the main domain for filenames
-MAIN_DOMAIN="${DOMAIN_LIST[0]}"
-CERT_DIR="/etc/letsencrypt/live/$MAIN_DOMAIN"
-KEY_FILE="$CERT_DIR/privkey.pem"
-CERT_FILE="$CERT_DIR/fullchain.pem"
-CONFIG_FILE="$CERT_DIR/openssl.cnf"
+# Step 2: Generate Domain Certificate
+echo "Generating EC key for domain certificates..."
+mkdir -p /etc/letsencrypt/live/${DOMAINS[0]}
+openssl ecparam -name prime256v1 -genkey -noout -out "/etc/letsencrypt/live/${DOMAINS[0]}/privkey.pem"
 
-# Create directories if they don't exist
-mkdir -p "$CERT_DIR"
+echo "Creating certificate signing request (CSR)..."
+openssl req -new -key "/etc/letsencrypt/live/${DOMAINS[0]}/privkey.pem" -out "/etc/letsencrypt/live/${DOMAINS[0]}/domain.csr" \
+    -subj "/C=CZ/ST=Czech Republic/L=Pilsen/O=$HOSTNAME" \
+    -extensions req_ext -config <(cat /etc/ssl/openssl.cnf <(printf "[req_ext]\nsubjectAltName=DNS:%s\n" "${DOMAINS[*]}"))
 
-# Generate Elliptic Curve key
-echo "Generating EC key..."
-openssl ecparam -genkey -name prime256v1 -out "$KEY_FILE"
+echo "Signing domain certificate with CA..."
+openssl x509 -req -in "/etc/letsencrypt/live/${DOMAINS[0]}/domain.csr" -CA "$CA_DIR/ca.pem" -CAkey "$CA_DIR/ca.key" -CAcreateserial \
+    -out "/etc/letsencrypt/live/${DOMAINS[0]}/fullchain.pem" -days $DAYS -sha256 \
+    -extfile <(printf "keyUsage=digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:%s\n" "${DOMAINS[*]}")
 
-# Create OpenSSL config file for SAN (Subject Alternative Name)
-echo "Creating OpenSSL configuration..."
-cat > "$CONFIG_FILE" <<EOL
-[ req ]
-distinguished_name = req_distinguished_name
-req_extensions     = req_ext
-prompt             = no
-
-[ req_distinguished_name ]
-CN = $MAIN_DOMAIN
-
-[ req_ext ]
-subjectAltName = @alt_names
-
-[ alt_names ]
-EOL
-
-# Add domains to the SAN section
-i=1
-for domain in "${DOMAIN_LIST[@]}"; do
-    echo "DNS.$i = $domain" >> "$CONFIG_FILE"
-    i=$((i+1))
-done
-
-# Add v3_ca extension if --CA is specified
-if [ "$CA_FLAG" -eq 1 ]; then
-    cat >> "$CONFIG_FILE" <<EOL
-
-[ v3_ca ]
-basicConstraints = critical,CA:TRUE
-keyUsage = critical, keyCertSign, cRLSign
-subjectKeyIdentifier = hash
-authorityKeyIdentifier = keyid:always,issuer
-EOL
-else
-    # For server certificates (non-CA), we need the correct key usage and extended key usage
-    cat >> "$CONFIG_FILE" <<EOL
-
-[ v3_req ]
-basicConstraints = CA:FALSE
-keyUsage = digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth
-EOL
-fi
-
-# Generate the certificate request and sign the certificate
-if [ "$CA_FLAG" -eq 1 ]; then
-    echo "Generating a CA certificate..."
-    openssl req -x509 -new -key "$KEY_FILE" -days "$DAYS" -out "$CERT_FILE" -config "$CONFIG_FILE" -extensions v3_ca
-else
-    echo "Generating self-signed certificate..."
-    openssl req -new -key "$KEY_FILE" -out "$CERT_DIR/ec.csr" -config "$CONFIG_FILE"
-    openssl x509 -req -in "$CERT_DIR/ec.csr" -signkey "$KEY_FILE" -days "$DAYS" -out "$CERT_FILE" -extfile "$CONFIG_FILE" -extensions v3_req
-    rm "$CERT_DIR/ec.csr"
-fi
-
-echo "Certificate generated and saved in $CERT_DIR."
+echo "Domain certificate generated and saved at /etc/letsencrypt/live/${DOMAINS[0]}/fullchain.pem"
+echo "Private key saved at /etc/letsencrypt/live/${DOMAINS[0]}/privkey.pem"
