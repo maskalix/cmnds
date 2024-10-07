@@ -1,5 +1,5 @@
 #!/bin/bash
-# version beta2.0
+
 # Default values
 DAYS=365
 CA_FLAG=0
@@ -87,6 +87,15 @@ keyUsage = critical, keyCertSign, cRLSign
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 EOL
+else
+    # For server certificates (non-CA), we need the correct key usage and extended key usage
+    cat >> "$CONFIG_FILE" <<EOL
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+EOL
 fi
 
 # Generate the certificate request and sign the certificate
@@ -96,7 +105,7 @@ if [ "$CA_FLAG" -eq 1 ]; then
 else
     echo "Generating self-signed certificate..."
     openssl req -new -key "$KEY_FILE" -out "$CERT_DIR/ec.csr" -config "$CONFIG_FILE"
-    openssl x509 -req -in "$CERT_DIR/ec.csr" -signkey "$KEY_FILE" -days "$DAYS" -out "$CERT_FILE" -extfile "$CONFIG_FILE" -extensions req_ext
+    openssl x509 -req -in "$CERT_DIR/ec.csr" -signkey "$KEY_FILE" -days "$DAYS" -out "$CERT_FILE" -extfile "$CONFIG_FILE" -extensions v3_req
     rm "$CERT_DIR/ec.csr"
 fi
 
