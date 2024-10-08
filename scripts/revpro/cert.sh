@@ -23,16 +23,22 @@ usage() {
 
 # Function to check if the domain is reachable over SSL
 check_connection() {
-    echo | openssl s_client -connect "$1:443" -servername "$1" -timeout 5 2>&1 | grep -q "CONNECTED"
+    # Capture the output of the openssl command
+    output=$(echo | openssl s_client -connect "$1:443" -servername "$1" -timeout 5 2>&1)
+    # Check if the connection was successful
+    echo "$output" | grep -q "CONNECTED"
     return $?
 }
 
 # Function to check SSL connection without ERR_SSL_* errors
 check_ssl_no_error() {
-    if check_connection "$1"; then
+    output=$(check_connection "$1")
+    if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Success: SSL connection to $1 is established without ERR_SSL_* errors.${RESET}"
     else
-        echo -e "${RED}❌ Error: Could not establish an SSL connection to $1. Possible ERR_SSL_* issue or unreachable domain.${RESET}"
+        echo -e "${RED}❌ Error: Could not establish an SSL connection to $1.${RESET}"
+        echo -e "${CYAN}Details:${RESET}"
+        echo "$output"
         exit 1
     fi
 }
