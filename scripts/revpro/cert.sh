@@ -82,51 +82,46 @@ if [ -z "$domain" ]; then
     usage
 fi
 
-# Check if the SSL connection is successful before other actions
-if ! check_connection "$domain"; then
-    echo -e "${RED}❌ Error: Could not establish an SSL connection to $domain. Possible ERR_SSL_* issue or unreachable domain.${RESET}"
-    exit 1
-fi
-
-# Perform actions based on the flags provided
-
-# SSL connection check (-g)
+# Check if the SSL connection is successful only if -g is set
 if [ "$ssl_check_flag" = true ]; then
     check_ssl_no_error "$domain"
     echo ""
-fi
+else
+    # If -g is not set, just attempt to retrieve the certificate info without checking the connection
+    echo -e "${BLUE}🔍 Fetching SSL certificate information for $domain...${RESET}"
 
-# Show certificate expiry (-e)
-if [ "$show_expiry" = true ]; then
-    echo -e "${BLUE}🔍 Certificate expiry date for $domain:${RESET}"
-    get_cert_info "$domain" "-dates"
-    echo ""
-fi
+    # Show certificate expiry (-e)
+    if [ "$show_expiry" = true ]; then
+        echo -e "${BLUE}🔍 Certificate expiry date for $domain:${RESET}"
+        get_cert_info "$domain" "-dates"
+        echo ""
+    fi
 
-# Show certificate issuer (-i)
-if [ "$show_issuer" = true ]; then
-    echo -e "${BLUE}🔍 Certificate issuer for $domain:${RESET}"
-    get_cert_info "$domain" "-issuer"
-    echo ""
-fi
+    # Show certificate issuer (-i)
+    if [ "$show_issuer" = true ]; then
+        echo -e "${BLUE}🔍 Certificate issuer for $domain:${RESET}"
+        get_cert_info "$domain" "-issuer"
+        echo ""
+    fi
 
-# Show certificate subject (-s)
-if [ "$show_subject" = true ]; then
-    echo -e "${BLUE}🔍 Certificate subject for $domain:${RESET}"
-    get_cert_info "$domain" "-subject"
-    echo ""
-fi
+    # Show certificate subject (-s)
+    if [ "$show_subject" = true ]; then
+        echo -e "${BLUE}🔍 Certificate subject for $domain:${RESET}"
+        get_cert_info "$domain" "-subject"
+        echo ""
+    fi
 
-# Show all certificate details (-a)
-if [ "$show_all" = true ]; then
-    echo -e "${BLUE}🔍 Full certificate details for $domain:${RESET}"
-    get_cert_info "$domain" "-text"
-    echo ""
-fi
+    # Show all certificate details (-a)
+    if [ "$show_all" = true ]; then
+        echo -e "${BLUE}🔍 Full certificate details for $domain:${RESET}"
+        get_cert_info "$domain" "-text"
+        echo ""
+    fi
 
-# Verify certificate chain (-v)
-if [ "$verify_cert_flag" = true ]; then
-    echo -e "${BLUE}🔍 Verifying certificate chain for $domain:${RESET}"
-    verify_cert "$domain"
-    echo ""
+    # Verify certificate chain (-v)
+    if [ "$verify_cert_flag" = true ]; then
+        echo -e "${BLUE}🔍 Verifying certificate chain for $domain:${RESET}"
+        verify_cert "$domain"
+        echo ""
+    fi
 fi
