@@ -32,6 +32,7 @@ check_connection() {
 
 # Function to check SSL connection without ERR_SSL_* errors
 check_ssl_no_error() {
+    # Capture the output from the connection check
     output=$(check_connection "$1")
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Success: SSL connection to $1 is established without ERR_SSL_* errors.${RESET}"
