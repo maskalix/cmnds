@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# version as of 2307
 # Check for the required arguments
 if [[ $# -lt 5 ]]; then
     echo "Usage: $0 -d <domain.tld> -d <*.domain.tld> --years <validity_years> --country <country_code> --state <state> --organization <organization_name>"
@@ -84,14 +84,10 @@ create_combined_cert() {
     echo "Creating Certificate Key for $DOMAIN..."
     openssl genrsa -out "$KEY" 2048
 
-    # Prepare SAN string
-    SAN_STRING="subjectAltName="
-    SAN_STRING+="DNS:$DOMAIN,DNS:$WILDCARD,DNS:panel.$DOMAIN"  # Add all necessary domains here.
-
     # Step 4: Create the Signing Request (CSR) with SAN
     echo "Creating Signing Request (CSR) for $DOMAIN and $WILDCARD..."
     openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=$DOMAIN" \
-        -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "\n[SAN]\n$SAN_STRING")) -out "$CSR"
+        -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "\n[SAN]\nsubjectAltName=DNS:$DOMAIN,DNS:$WILDCARD,DNS:panel.$DOMAIN")) -out "$CSR"
 
     # Step 5: Verify the CSR's Content
     echo "Verifying CSR content for $DOMAIN..."
