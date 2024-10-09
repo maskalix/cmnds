@@ -62,16 +62,7 @@ generate_nginx_conf() {
 # github.com/maskalix/cmnds
 ############
 
-server {
-    listen 80;
-    server_name $domain;
-
-    # Redirect HTTP to HTTPS
-    location / {
-        return 301 https://\$host\$request_uri;
-    }
-}
-
+# server listen 80 should be located inside nginx.conf as redirect for all domains... use HTTPS ;)
 server {
     listen 443 ssl;
     server_name $domain;
