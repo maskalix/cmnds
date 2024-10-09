@@ -2,7 +2,7 @@
 # version as of 2307
 # Check for the required arguments
 if [[ $# -lt 5 ]]; then
-    echo "Usage: $0 -d <domain.tld> -d <*.domain.tld> --years <validity_years> --country <country_code> --state <state> --organization <organization_name>"
+    echo "Usage: $0 -d <domain.tld> -d <*.domain.tld> --years <validity_years> --country <country_code> --state <state> --organization <organization_name> [--alt <alt_domain> ...]"
     exit 1
 fi
 
@@ -13,6 +13,7 @@ YEARS=""
 COUNTRY=""
 STATE=""
 ORGANIZATION=""
+ALT_DOMAINS=()
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -39,6 +40,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --organization)
             ORGANIZATION="$2"
+            shift 2
+            ;;
+        --alt)
+            ALT_DOMAINS+=("$2")
             shift 2
             ;;
         *)
@@ -86,8 +91,35 @@ create_combined_cert() {
 
     # Step 4: Create the Signing Request (CSR) with SAN
     echo "Creating Signing Request (CSR) for $DOMAIN and $WILDCARD..."
-    openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=$DOMAIN" \
-        -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "\n[SAN]\nsubjectAltName=DNS:$DOMAIN,DNS:$WILDCARD,DNS:panel.$DOMAIN")) -out "$CSR"
+    
+    # Prepare SAN entries
+    SAN_ENTRIES=("DNS:$DOMAIN" "DNS:$WILDCARD")
+    for alt in "${ALT_DOMAINS[@]}"; do
+        SAN_ENTRIES+=("DNS:$alt")
+    done
+
+    # Create a custom configuration for the CSR
+    CONFIG_FILE="$LE_DIR/csr_config.cnf"
+    {
+        echo "[req]"
+        echo "default_bits       = 2048"
+        echo "distinguished_name = req_distinguished_name"
+        echo "req_extensions     = req_ext"
+        echo "prompt             = no"
+        echo "[req_distinguished_name]"
+        echo "C = $COUNTRY"
+        echo "ST = $STATE"
+        echo "O = $ORGANIZATION"
+        echo "CN = $DOMAIN"
+        echo "[req_ext]"
+        echo "subjectAltName = @alt_names"
+        echo "[alt_names]"
+        for i in "${!SAN_ENTRIES[@]}"; do
+            echo "DNS.$((i + 1)) = ${SAN_ENTRIES[$i]}"
+        done
+    } > "$CONFIG_FILE"
+
+    openssl req -new -key "$KEY" -out "$CSR" -config "$CONFIG_FILE"
 
     # Step 5: Verify the CSR's Content
     echo "Verifying CSR content for $DOMAIN..."
@@ -95,7 +127,7 @@ create_combined_cert() {
 
     # Step 6: Generate the Certificate using the CSR and Root CA
     echo "Generating Certificate for $DOMAIN..."
-    openssl x509 -req -in "$CSR" -CA "$ROOT_CA_CRT" -CAkey "$ROOT_CA_KEY" -CAcreateserial -out "$CRT" -days "$DAYS_SERVER" -sha256
+    openssl x509 -req -in "$CSR" -CA "$ROOT_CA_CRT" -CAkey "$ROOT_CA_KEY" -CAcreateserial -out "$CRT" -days "$DAYS_SERVER" -sha256 -extfile "$CONFIG_FILE" -extensions req_ext
 
     # Step 7: Verify the Certificate's Content
     echo "Verifying Certificate content for $DOMAIN..."
