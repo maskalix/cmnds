@@ -13,18 +13,17 @@ YEARS=""
 COUNTRY=""
 STATE=""
 ORGANIZATION=""
-DOMAINS=()
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -d)
-            # Capture multiple domains
-            if [[ -n "$2" ]]; then
-                DOMAINS+=("$2")
-                shift
+            if [[ -z "$DOMAIN" ]]; then
+                DOMAIN="$2"
+            else
+                WILDCARD_DOMAIN="$2"
             fi
-            shift
+            shift 2
             ;;
         --years)
             YEARS="$2"
@@ -49,14 +48,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check that at least one domain has been specified
-if [[ ${#DOMAINS[@]} -eq 0 ]]; then
-    echo "Error: No domains specified."
-    exit 1
-fi
-
 # Set Variables
-LE_DIR="/etc/letsencrypt/live/${DOMAINS[0]}"
+LE_DIR="/etc/letsencrypt/live/$DOMAIN"
 ROOT_CA_KEY="/etc/letsencrypt/rootCA.key"
 ROOT_CA_CRT="/etc/letsencrypt/rootCA.crt"
 DAYS_ROOT=1024
@@ -81,45 +74,41 @@ fi
 
 # Function to create combined server certificate
 create_combined_cert() {
+    local DOMAIN="$1"
+    local WILDCARD="$2"
     local KEY="$LE_DIR/privkey.pem"
     local CSR="$LE_DIR/certificate.csr"
     local CRT="$LE_DIR/fullchain.pem"
-    
+
     # Step 3: Create the Certificate Key
-    echo "Creating Certificate Key for ${DOMAINS[*]}..."
+    echo "Creating Certificate Key for $DOMAIN..."
     openssl genrsa -out "$KEY" 2048
 
-    # Step 4: Create the Signing Request (CSR) with SAN
-    echo "Creating Signing Request (CSR) for ${DOMAINS[*]}..."
-    
     # Prepare SAN string
     SAN_STRING="subjectAltName="
-    for domain in "${DOMAINS[@]}"; do
-        SAN_STRING+="DNS:$domain,"
-    done
-    # Remove the last comma
-    SAN_STRING="${SAN_STRING%,}"
+    SAN_STRING+="DNS:$DOMAIN,DNS:$WILDCARD,DNS:panel.$DOMAIN"  # Add all necessary domains here.
 
-    # Create the CSR
-    openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=${DOMAINS[0]}" \
+    # Step 4: Create the Signing Request (CSR) with SAN
+    echo "Creating Signing Request (CSR) for $DOMAIN and $WILDCARD..."
+    openssl req -new -key "$KEY" -subj "/C=$COUNTRY/ST=$STATE/O=$ORGANIZATION/CN=$DOMAIN" \
         -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "\n[SAN]\n$SAN_STRING")) -out "$CSR"
 
     # Step 5: Verify the CSR's Content
-    echo "Verifying CSR content for ${DOMAINS[*]}..."
+    echo "Verifying CSR content for $DOMAIN..."
     openssl req -in "$CSR" -noout -text
 
     # Step 6: Generate the Certificate using the CSR and Root CA
-    echo "Generating Certificate for ${DOMAINS[*]}..."
+    echo "Generating Certificate for $DOMAIN..."
     openssl x509 -req -in "$CSR" -CA "$ROOT_CA_CRT" -CAkey "$ROOT_CA_KEY" -CAcreateserial -out "$CRT" -days "$DAYS_SERVER" -sha256
 
     # Step 7: Verify the Certificate's Content
-    echo "Verifying Certificate content for ${DOMAINS[*]}..."
+    echo "Verifying Certificate content for $DOMAIN..."
     openssl x509 -in "$CRT" -text -noout
 
-    echo "Combined Certificate for ${DOMAINS[*]} created successfully!"
+    echo "Combined Certificate for $DOMAIN and $WILDCARD created successfully!"
 }
 
 # Create a combined certificate for the specified domains
-create_combined_cert
+create_combined_cert "$DOMAIN" "$WILDCARD_DOMAIN"
 
 echo "All tasks completed."
