@@ -82,11 +82,27 @@ initialize_project() {
     msg_success "Project initialized successfully."
 }
 
-# Function to prompt user for SCRIPTS_DIR
 prompt_scripts_dir() {
-    echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
-    read -r SCRIPTS_DIR
-    SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
+    # Find the directory of the "cmnds" command
+    SCRIPT_DIR=$(dirname "$(command -v cmnds)")
+
+    # Get the path for the configuration file
+    MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+
+    # Read the CMNDS_INSTALL_FOLDER from the configuration file
+    CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
+
+    # Check if CMNDS_INSTALL_FOLDER exists and set SCRIPTS_DIR accordingly
+    if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
+        SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
+    else
+        echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+        read -r SCRIPTS_DIR
+        SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
+    fi
+
+    # Output the selected SCRIPTS_DIR
+    echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
 }
 
 # Function to create SCRIPTS_DIR if it doesn't exist
