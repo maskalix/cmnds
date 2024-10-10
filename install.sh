@@ -95,14 +95,15 @@ prompt_scripts_dir() {
     # Check if CMNDS_INSTALL_FOLDER exists and set SCRIPTS_DIR accordingly
     if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
         SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
+        echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable): $SCRIPTS_DIR${NC}"
     else
         echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
         read -r SCRIPTS_DIR
         SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
+        echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
     fi
 
     # Output the selected SCRIPTS_DIR
-    echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
 }
 
 # Function to create SCRIPTS_DIR if it doesn't exist
