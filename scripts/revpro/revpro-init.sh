@@ -8,6 +8,8 @@ CONF_DIR="$MAIN_FOLDER/conf"
 MANCONF_DIR="$MAIN_FOLDER/manconf"
 MISC_DIR="$MAIN_FOLDER/misc"
 
+echo $MAIN_FOLDER
+
 # Path to the template files (assuming it's one level up from the script's location)
 TEMPLATE_PATH="$SCRIPT_DIR/../revpro/template"
 
