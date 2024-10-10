@@ -110,13 +110,29 @@ prompt_scripts_dir() {
 create_scripts_dir() {
     if [ -d "$SCRIPTS_DIR" ]; then
         msg_other "Directory already exists: $SCRIPTS_DIR"
-        echo -e "${BLUE}Do you want to update the script?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
+        
+        echo -e "${BLUE}Do you want to update the script?${NC} It will delete the existing directory and create a new one, but keep the variables.conf file. (${GREEN}y${NC}/${RED}N${NC}): \c"
         read -r choice
+        
         case "$choice" in
             [yY]|[yY][eE][sS])
+                msg_info "Checking for existing variables.conf file..."
+                
+                # Check if variables.conf exists and move it out temporarily
+                if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
+                    mv "$SCRIPTS_DIR/cmnds/variables.conf" "$SCRIPTS_DIR/cmnds/variables.conf.bak"
+                    msg_info "Moved variables.conf to backup location."
+                fi
+                
                 msg_info "Deleting existing directory: $SCRIPTS_DIR"
                 rm -rf "$SCRIPTS_DIR"
                 mkdir -p "$SCRIPTS_DIR"
+                
+                # Restore variables.conf if it was backed up
+                if [ -f "$SCRIPTS_DIR/cmnds/variables.conf.bak" ]; then
+                    mv "$SCRIPTS_DIR/cmnds/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
+                    msg_info "Restored variables.conf from backup."
+                fi
                 ;;
             *)
                 msg_error "Exiting installation process."
@@ -128,7 +144,6 @@ create_scripts_dir() {
         mkdir -p "$SCRIPTS_DIR"
     fi
 }
-
 
 # Function to run cmnds-deploy.sh
 run_deploy() {
