@@ -130,6 +130,9 @@ create_scripts_dir() {
                 rm -rf "$SCRIPTS_DIR"
                 mkdir -p "$SCRIPTS_DIR"
                 
+                # Ensure the cmnds directory exists before restoring the file
+                mkdir -p "$SCRIPTS_DIR/cmnds"
+                
                 # Restore variables.conf if it was backed up
                 if [ -f "/cmnds-temp/variables.conf.bak" ]; then
                     mv "/cmnds-temp/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
@@ -137,13 +140,15 @@ create_scripts_dir() {
                 fi
                 ;;
             *)
-                msg_error "Exiting folder creating process."
+                msg_error "Exiting installation process."
                 exit 1
                 ;;
         esac
     else
         msg_info "Creating directory: $SCRIPTS_DIR"
         mkdir -p "$SCRIPTS_DIR"
+        # Create the cmnds directory in case it is needed later
+        mkdir -p "$SCRIPTS_DIR/cmnds"
     fi
 }
 
