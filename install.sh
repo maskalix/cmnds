@@ -120,8 +120,10 @@ create_scripts_dir() {
                 
                 # Check if variables.conf exists and move it out temporarily
                 if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
-                    mv "$SCRIPTS_DIR/cmnds/variables.conf" "$SCRIPTS_DIR/cmnds/variables.conf.bak"
-                    msg_info "Moved variables.conf to backup location."
+                    # Ensure /cmnds-temp directory exists
+                    mkdir -p "/cmnds-temp"
+                    mv "$SCRIPTS_DIR/cmnds/variables.conf" "/cmnds-temp/variables.conf.bak"
+                    msg_info "Moved variables.conf to /cmnds-temp/variables.conf.bak"
                 fi
                 
                 msg_info "Deleting existing directory: $SCRIPTS_DIR"
@@ -129,13 +131,13 @@ create_scripts_dir() {
                 mkdir -p "$SCRIPTS_DIR"
                 
                 # Restore variables.conf if it was backed up
-                if [ -f "$SCRIPTS_DIR/cmnds/variables.conf.bak" ]; then
-                    mv "$SCRIPTS_DIR/cmnds/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
-                    msg_info "Restored variables.conf from backup."
+                if [ -f "/cmnds-temp/variables.conf.bak" ]; then
+                    mv "/cmnds-temp/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
+                    msg_info "Restored variables.conf from /cmnds-temp."
                 fi
                 ;;
             *)
-                msg_error "Exiting installation process."
+                msg_error "Exiting folder creating process."
                 exit 1
                 ;;
         esac
