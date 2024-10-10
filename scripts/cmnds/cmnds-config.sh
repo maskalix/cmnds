@@ -42,7 +42,7 @@ write_config() {
     fi
     
     if grep -q "^${VAR_NAME}=" "$CONFIG_FILE"; then
-        sed -i "s/^${VAR_NAME}=.*/${VAR_NAME}=${NEW_VALUE}/" "$CONFIG_FILE"
+        sed -i "s|^${VAR_NAME}=.*|${VAR_NAME}=${NEW_VALUE}|" "$CONFIG_FILE"
     else
         echo "${VAR_NAME}=${NEW_VALUE}" >> "$CONFIG_FILE"
     fi
