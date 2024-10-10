@@ -54,7 +54,7 @@ setup_function() {
 
 # Open config file function
 open_function() {
-    CONFIG_FILE="$CONF_DIR/site-configs.conf"
+    CONFIG_FILE="$MAIN_FOLDER/site-configs.conf"
     if [ -f "$CONFIG_FILE" ]; then
         echo "Opening configuration file..."
         # You can replace this line with your preferred editor command (e.g., nano, vim)
