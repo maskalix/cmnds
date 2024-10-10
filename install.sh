@@ -118,10 +118,11 @@ create_scripts_dir() {
             [yY]|[yY][eE][sS])
                 msg_info "Checking for existing variables.conf file..."
                 
+                # Ensure /cmnds-temp directory exists
+                mkdir -p "/cmnds-temp"
+                
                 # Check if variables.conf exists and move it out temporarily
                 if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
-                    # Ensure /cmnds-temp directory exists
-                    mkdir -p "/cmnds-temp"
                     mv "$SCRIPTS_DIR/cmnds/variables.conf" "/cmnds-temp/variables.conf.bak"
                     msg_info "Moved variables.conf to /cmnds-temp/variables.conf.bak"
                 fi
@@ -138,6 +139,10 @@ create_scripts_dir() {
                     mv "/cmnds-temp/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
                     msg_info "Restored variables.conf from /cmnds-temp."
                 fi
+                
+                # Remove /cmnds-temp directory after restoring the file
+                rm -rf "/cmnds-temp"
+                msg_info "Removed temporary directory: /cmnds-temp"
                 ;;
             *)
                 msg_error "Exiting installation process."
