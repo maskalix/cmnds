@@ -45,7 +45,8 @@ setup_function() {
     if [ -d "$TEMPLATE_PATH" ]; then
         echo "Copying template files..."
         cp "$TEMPLATE_PATH/site-configs.conf" "$MAIN_FOLDER"  # Copy site-configs.conf to $MAIN_FOLDER
-        cp "$TEMPLATE_PATH/"* "$MISC_DIR" --exclude=site-configs.conf  # Copy other files to $MAIN_FOLDER/misc
+        # Copy other files to $MAIN_FOLDER/misc excluding site-configs.conf
+        find "$TEMPLATE_PATH" -maxdepth 1 -type f ! -name "site-configs.conf" -exec cp {} "$MISC_DIR" \;
         echo "Template files copied successfully."
     else
         echo "Template directory not found at $TEMPLATE_PATH. Please check the path."
