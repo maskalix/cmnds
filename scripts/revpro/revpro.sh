@@ -98,6 +98,9 @@ EOF
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
         proxy_pass $forward_scheme://$server:$port;
+        
+        # Include error handling
+        include /etc/nginx/includes/error_pages.conf;
     }
 }
 EOF
