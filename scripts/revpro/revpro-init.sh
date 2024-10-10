@@ -17,7 +17,7 @@ help_function() {
     echo ""
     echo "Commands:"
     echo "  open   Opens the configuration file located in $MAIN_FOLDER/site-configs.conf."
-    echo "  setup  Sets up the folder structure with a y/N prompt to delete existing content."
+    echo "  setup  Sets up/recreates (run only once! or if clean install) the folder structure with a y/N prompt to delete existing content."
     echo "  help   Displays this help text."
 }
 
