@@ -32,8 +32,8 @@ cmnds() {
     echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \ \n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
     echo -e "${GREEN}CMNDs installer tool${NC}"
     echo -e "${GREEN}>> created by Martin Skalicky"
-    echo -e ">> GitHub → @maskalix\n${NC}"
-    echo -e "alpha release"
+    echo -e ">> GitHub → @maskalix${NC}"
+    echo -e ">> alpha release\n"
 }
 
 # Function to install dialog if not installed
@@ -125,7 +125,7 @@ prompt_scripts_dir() {
     CMNDS_DIR=$(dirname "$(command -v cmnds)")
     if [[ -n "$CMNDS_DIR" ]]; then
         MANAGE_CONFIG="$CMNDS_DIR/cmnds-config"
-        echo "Managecfg: $CMNDS_DIR"
+        echo "CMNDScfg: $CMNDS_DIR"
         CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
 
         if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
