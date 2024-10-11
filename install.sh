@@ -1,33 +1,32 @@
 #!/bin/bash
 
- # Reset text color
-NC='\033[0m'           
+# Colors
+NC='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+LIGHT_PURPLE='\033[1;35m'
+BLUE='\e[1;34m'
 
 # Error msg
 msg_error() {
-    RED='\033[0;31m'
     echo -e "${RED}$1${NC}"
 }
 
 # Success msg
 msg_success() {
-    GREEN='\033[0;32m'
     echo -e "${GREEN}$1${NC}"
 }
 
 # Info msg
 msg_info() {
-    YELLOW='\033[1;33m'
     echo -e "${YELLOW}$1${NC}"
 }
 
 # Other msg
 msg_other() {
-    LIGHT_PURPLE='\033[1;35m'
     echo -e "${LIGHT_PURPLE}$1${NC}"
 }
-
-BLUE='\e[1;34m'
 
 # Function to install dialog if not installed
 install_dialog() {
@@ -95,7 +94,7 @@ prompt_scripts_dir() {
     # Check if CMNDS_INSTALL_FOLDER exists and set SCRIPTS_DIR accordingly
     if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
         SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
-        echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable): $SCRIPTS_DIR${NC}"
+        echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
     else
         echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
         read -r SCRIPTS_DIR
@@ -109,8 +108,7 @@ prompt_scripts_dir() {
 # Function to create SCRIPTS_DIR if it doesn't exist
 create_scripts_dir() {
     if [ -d "$SCRIPTS_DIR" ]; then
-        msg_other "Directory already exists: $SCRIPTS_DIR"
-        echo -e "${BLUE}Do you want to update the script?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
+        echo -e "${RED}Directory $SCRIPTS_DIR already exists! ${NC}${BLUE}Do you want to update the script and OVERWRITE the content?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
         read -r choice
         case "$choice" in
             [yY]|[yY][eE][sS])
