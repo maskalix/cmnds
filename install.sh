@@ -125,7 +125,7 @@ prompt_scripts_dir() {
     CMNDS_DIR=$(dirname "$(command -v cmnds)")
     if [[ -n "$CMNDS_DIR" ]]; then
         MANAGE_CONFIG="$CMNDS_DIR/cmnds-config"
-        echo "Managecfg: $MANAGE_CONFIG"
+        echo "Managecfg: $CMNDS_DIR"
         CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
 
         if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
