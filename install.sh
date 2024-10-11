@@ -108,7 +108,7 @@ prompt_scripts_dir() {
 # Function to create SCRIPTS_DIR if it doesn't exist
 create_scripts_dir() {
     if [ -d "$SCRIPTS_DIR" ]; then
-        echo -e "${RED}Directory $SCRIPTS_DIR already exists! ${NC}${BLUE}Do you want to update the script and OVERWRITE the content?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
+        echo -e "${RED}Directory $SCRIPTS_DIR already exists! ${NC}${BLUE}Do you want to update the script?${NC} Deletes existing directory and creates a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
         read -r choice
         case "$choice" in
             [yY]|[yY][eE][sS])
