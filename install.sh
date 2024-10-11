@@ -60,12 +60,16 @@ install_dialog() {
 # Function to clone the project from GitHub
 clone_project() {
     msg_info "Cloning project from GitHub into $SCRIPTS_DIR..."
-    git clone --depth 1 --filter=tree:0 https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR" > /dev/null 2>&1
-    cd "$SCRIPTS_DIR" || exit 1
-    git log --format=%cd --date=format-local:"%Y-%m-%d %H:%M:%S" -1 > version
-    cd "$SCRIPTS_DIR" || exit 1
-    git sparse-checkout set --no-cone scripts > /dev/null 2>&1
-    msg_success "Project cloned successfully."
+    if [ -d "$SCRIPTS_DIR" ]; then      
+        git clone --depth 1 --filter=tree:0 https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR" > /dev/null 2>&1
+        cd "$SCRIPTS_DIR" || exit 1
+        git log --format=%cd --date=format-local:"%Y-%m-%d %H:%M:%S" -1 > version
+        cd "$SCRIPTS_DIR" || exit 1
+        git sparse-checkout set --no-cone scripts > /dev/null 2>&1
+        msg_success "✔ Project cloned successfully."
+    else
+        msg_error "✖ Project cloning error"
+    fi
 }
 
 # Function to initialize the project
@@ -129,12 +133,12 @@ prompt_scripts_dir() {
     SCRIPT_DIR=$(dirname "$(command -v cmnds)")
     MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
 
-    if [[ -e "$MANAGE_CONFIG" ]]; then
+    if [ -e "$MANAGE_CONFIG" ]; then
        # Read the CMNDS_INSTALL_FOLDER from the configuration file
         CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
 
         # Check if CMNDS_INSTALL_FOLDER exists and set SCRIPTS_DIR accordingly
-        if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
+        if [ -n "$CMNDS_INSTALL_FOLDER" ]; then
             SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
             echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
         else
