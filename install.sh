@@ -81,47 +81,26 @@ initialize_project() {
     msg_success "Project initialized successfully."
 }
 
+# Function to create SCRIPTS_DIR if it doesn't exist
 create_scripts_dir() {
     if [ -d "$SCRIPTS_DIR" ]; then
-        echo -e "${RED}Directory $SCRIPTS_DIR already exists! ${NC}${BLUE}Do you want to update the script?${NC} Deletes existing directory and creates a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
+        msg_other "Directory already exists: $SCRIPTS_DIR"
+        echo -e "${BLUE}Do you want to update the script?${NC} It will delete the existing directory and create a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
         read -r choice
-        
         case "$choice" in
             [yY]|[yY][eE][sS])
-                msg_info "Checking for existing variables.conf file..."
-                
-                # Ensure /cmnds-temp directory exists
-                mkdir -p "/cmnds-temp"
-                
-                # Check if variables.conf exists and move it out temporarily
-                if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
-                    cp "$SCRIPTS_DIR/cmnds/variables.conf" "/cmnds-temp/variables.conf.bak"
-                    msg_info "Moved variables.conf to /cmnds-temp/variables.conf.bak"
-                fi
-                
                 msg_info "Deleting existing directory: $SCRIPTS_DIR"
                 rm -rf "$SCRIPTS_DIR"
                 mkdir -p "$SCRIPTS_DIR"
-                
-                # Ensure the cmnds directory exists before restoring the file
-                mkdir -p "$SCRIPTS_DIR/cmnds"
-                
-                # Restore variables.conf if it was backed up
-                if [ -f "/cmnds-temp/variables.conf.bak" ]; then
-                    mv "/cmnds-temp/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
-                    msg_info "Restored variables.conf from /cmnds-temp."
-                fi
                 ;;
             *)
-                msg_error "Exiting installation process. Goodbye! :x"
+                msg_error "Exiting installation process."
                 exit 1
                 ;;
         esac
     else
         msg_info "Creating directory: $SCRIPTS_DIR"
         mkdir -p "$SCRIPTS_DIR"
-        # Create the cmnds directory in case it is needed later
-        mkdir -p "$SCRIPTS_DIR/cmnds"
     fi
 }
 
