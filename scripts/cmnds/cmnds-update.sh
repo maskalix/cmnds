@@ -33,16 +33,7 @@ fi
 
 # Download and execute install script
 display_header "${YELLOW}Downloading and executing install script${NC}"
-wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $temp_dir && chmod +x $temp_dir/install.sh 
-if [ -e "$temp_dir/install.sh" ]; then
-    echo "Running script $temp_dir/install.sh"
-    $temp_dir/install.sh && rm $temp_dir/install.sh
-else
-    echo "Error downloading install script"
-fi
-
-# Move back to parent directory
-#cd - >/dev/null || { echo "Failed to change to parent directory."; exit 1; }
+wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $temp_dir && chmod +x $temp_dir/install.sh && $temp_dir/install.sh && rm $temp_dir/install.sh
 
 # Remove $temp_dir directory
 display_header "${YELLOW}Installer cleaning up${NC}"
