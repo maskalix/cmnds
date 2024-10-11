@@ -32,8 +32,7 @@ cmnds() {
     echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \ \n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
     echo -e "${GREEN}CMNDs installer tool${NC}"
     echo -e "${GREEN}>> created by Martin Skalicky"
-    echo -e ">> GitHub → @maskalix\n${NC}"    
-    msg_info "Version $VERSION"
+    echo -e ">> GitHub → @maskalix\n${NC}"
 }
 
 # Function to install dialog if not installed
@@ -158,6 +157,7 @@ run_deploy() {
 
 # Main function to execute installation process
 install_project() {
+    cmnds
     install_dialog
     prompt_scripts_dir
     create_scripts_dir
