@@ -126,7 +126,7 @@ prompt_scripts_dir() {
     SCRIPT_DIR=$(dirname "$(command -v cmnds)")
     MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
 
-    if [ -e "$MANAGE_CONFIG" ] && [ -n "$CMNDS_INSTALL_FOLDER" ]; then
+    if [ -f "$MANAGE_CONFIG" ] && [ -d "$CMNDS_INSTALL_FOLDER" ]; then
         SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
         echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
     else
