@@ -37,6 +37,7 @@ show_help() {
     echo -e "${YELLOW}-a${NC} : List all commands"
     echo -e "${YELLOW}-u${NC} : Update CMNDS"
     echo -e "${YELLOW}-d${NC} : Deploy CMNDS commands"
+    echo -e "${YELLOW}-c${NC} : CMNDS config - variables"
 }
 
 # Function to run cmnds-update
@@ -84,6 +85,10 @@ while getopts ":abcdefghijklmnopqrstuvwxyz" opt; do
             ;;
         d)
             cmnds-deploy
+            exit 0
+            ;;
+        c)    
+            cmnds-config
             exit 0
             ;;
         \?)
