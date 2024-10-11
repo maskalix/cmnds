@@ -125,26 +125,28 @@ create_scripts_dir() {
     fi
 }
 
-# Function to create SCRIPTS_DIR if it doesn't exist
-create_scripts_dir() {
-    if [ -d "$SCRIPTS_DIR" ]; then
-        echo -e "${RED}Directory $SCRIPTS_DIR already exists! ${NC}${BLUE}Do you want to update the script?${NC} Deletes existing directory and creates a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
-        read -r choice
-        case "$choice" in
-            [yY]|[yY][eE][sS])
-                msg_info "Deleting existing directory: $SCRIPTS_DIR"
-                rm -rf "$SCRIPTS_DIR"
-                mkdir -p "$SCRIPTS_DIR"
-                ;;
-            *)
-                msg_error "Exiting installation process."
-                exit 1
-                ;;
-        esac
+prompt_scripts_dir() {
+    # Find the directory of the "cmnds" command
+    SCRIPT_DIR=$(dirname "$(command -v cmnds)")
+
+    # Get the path for the configuration file
+    MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+
+    # Read the CMNDS_INSTALL_FOLDER from the configuration file
+    CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
+
+    # Check if CMNDS_INSTALL_FOLDER exists and set SCRIPTS_DIR accordingly
+    if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
+        SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
+        echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
     else
-        msg_info "Creating directory: $SCRIPTS_DIR"
-        mkdir -p "$SCRIPTS_DIR"
+        echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+        read -r SCRIPTS_DIR
+        SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
+        echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
     fi
+
+    # Output the selected SCRIPTS_DIR
 }
 
 # Function to run cmnds-deploy.sh
