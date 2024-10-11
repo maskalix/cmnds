@@ -18,9 +18,9 @@ echo -e "${GREEN}>> created by Martin Skalicky"
 echo -e ">> GitHub → @maskalix\n${NC}"
 
 # Temporary directory
-temp_dir="$HOME/cmnds-temp"
+temp_dir="$temp_dir"
 
-# Create $HOME/cmnds-temp directory if it doesn't exist
+# Create $temp_dir directory if it doesn't exist
 if [ -d "$temp_dir" ]; then
     echo -e "${YELLOW}Removing existing $temp_dir directory...${NC}"
     rm -rf "$temp_dir" || { echo "Failed to remove $temp_dir directory."; exit 1; }
@@ -33,11 +33,11 @@ fi
 
 # Download and execute install script
 display_header "${YELLOW}Downloading and executing install script${NC}"
-wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $temp_dir && chmod +x $temp_dir/install.sh && $temp_dir/install.sh
+wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $temp_dir && chmod +x $temp_dir/install.sh && $temp_dir/install.sh && rm $temp_dir/install.sh
 
 # Move back to parent directory
 cd - >/dev/null || { echo "Failed to change to parent directory."; exit 1; }
 
-# Remove $HOME/cmnds-temp directory
+# Remove $temp_dir directory
 display_header "${YELLOW}Installer cleaning up${NC}"
 rm -rf "$temp_dir" || echo "Failed to remove $temp_dir directory."
