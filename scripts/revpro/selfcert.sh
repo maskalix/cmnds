@@ -1,5 +1,10 @@
 #!/bin/bash
 # version as of 2307
+SCRIPT_DIR=$(dirname "$0")
+MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read_config CERTS)
+SUB_FOLDER=$(bash "$MANAGE_CONFIG" read_config CERTS_SUB)
+
 # Check for the required arguments
 if [[ $# -lt 5 ]]; then
     echo "Usage: $0 -d <domain.tld> -d <*.domain.tld> --years <validity_years> --country <country_code> --state <state> --organization <organization_name> [--alt <alt_domain> ...]"
@@ -54,15 +59,15 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Set Variables
-LE_DIR="/etc/letsencrypt/live/$DOMAIN"
-ROOT_CA_KEY="/etc/letsencrypt/rootCA.key"
-ROOT_CA_CRT="/etc/letsencrypt/rootCA.crt"
+LE_DIR="$SUB_FOLDER/$DOMAIN"
+ROOT_CA_KEY="$MAIN_FOLDER/../rootCA.key"
+ROOT_CA_CRT="$MAIN_FOLDER/../rootCA.crt"
 DAYS_ROOT=1024
 DAYS_SERVER=$((YEARS * 365))
 
 # Create directories if they do not exist
 mkdir -p "$LE_DIR"
-mkdir -p "/etc/letsencrypt"
+mkdir -p "$MAIN_FOLDER"
 
 # Step 1: Create Root Key
 if [[ ! -f "$ROOT_CA_KEY" ]]; then
