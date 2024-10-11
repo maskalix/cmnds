@@ -7,9 +7,9 @@ CONFIG_FILE="$SCRIPT_DIR/variables.conf"
 # Function to display usage/help message
 show_help() {
     echo "Usage:"
-    echo "  $0 read_config <VAR_NAME>     - Read the value of VAR_NAME from the config file."
-    echo "  $0 write_config <VAR_NAME> <VALUE> - Write or update VAR_NAME with VALUE in the config file."
-    echo "  $0 help                       - Show this help message."
+    echo "  cmnds-config read_config <VAR_NAME>     - Read the value of VAR_NAME from the config file."
+    echo "  cmnds-config write_config <VAR_NAME> <VALUE> - Write or update VAR_NAME with VALUE in the config file."
+    echo "  cmnds-config help                       - Show this help message."
 }
 
 # Function to read the variable value from the config file
