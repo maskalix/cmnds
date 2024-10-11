@@ -19,6 +19,9 @@ Simple commands to ease using Linux server
 ```bash
 wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
 ```
+```bash
+mkdir $HOME/cmnds-temp && wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $HOME/cmnds-temp && chmod +x $HOME/cmnds-temp/install.sh && $HOME/cmnds-temp/install.sh
+```
 ## Using
 ### For base-user (non-root)
 - run `sudo su && cmnds-nonroot`
