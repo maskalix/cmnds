@@ -1,8 +1,12 @@
 #!/bin/bash
 
-CONFIG_FILE="/revpro/site-configs.conf"
-CONF_DIR="/revpro/conf"
-LOG_DIR="/revpro/logs"
+SCRIPT_DIR=$(dirname "$0")
+MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read_config REVPRO)
+
+CONFIG_FILE="$MAIN_FOLDER/site-configs.conf"
+CONF_DIR="$MAIN_FOLDER/conf"
+LOG_DIR="$MAIN_FOLDER/logs"
 NGINX_CONF="/etc/nginx/nginx.conf"
 AUTH_PROXY_CONF="/etc/nginx/authentik-proxy.conf"
 
