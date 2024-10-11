@@ -98,7 +98,7 @@ create_scripts_dir() {
                 
                 # Check if variables.conf exists and move it out temporarily
                 if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
-                    cp $SCRIPTS_DIR/cmnds/variables.conf ~/variables.conf
+                    cp $SCRIPTS_DIR/cmnds/variables.conf $HOME/variables.conf
                     msg_info "variables.conf saved"
                 fi
                 
@@ -107,9 +107,9 @@ create_scripts_dir() {
                 mkdir -p "$SCRIPTS_DIR"
                 
                 # Restore variables.conf if it was backed up
-                if [ -f ~/variables.conf ]; then
+                if [ -f $HOME/variables.conf ]; then
                     mkdir "$SCRIPTS_DIR/cmnds"
-                    mv ~/variables.conf $SCRIPTS_DIR/cmnds/variables.conf
+                    mv $HOME/variables.conf $SCRIPTS_DIR/cmnds/variables.conf
                     msg_info "variables.conf restored"
                 fi
                 ;;
