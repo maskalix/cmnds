@@ -122,12 +122,14 @@ create_scripts_dir() {
 prompt_scripts_dir() {
     # Find the directory of the "cmnds" command
     SCRIPT_DIR=$(dirname "$(command -v cmnds)")
-    MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
-    CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
+    if [[ -n "$SCRIPT_DIR" ]]; then
+        MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+        CMNDS_INSTALL_FOLDER=$(bash "$MANAGE_CONFIG" read_config CMNDS_INSTALL_FOLDER)
 
-    if [ -f "$MANAGE_CONFIG" ] && [ -n "$CMNDS_INSTALL_FOLDER" ]; then
-        SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
-        echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
+        if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
+            SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
+            echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
+        fi
     else
         echo -e "⚠ ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
         read -r SCRIPTS_DIR
