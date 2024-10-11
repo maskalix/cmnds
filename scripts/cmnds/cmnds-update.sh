@@ -21,12 +21,14 @@ echo -e ">> GitHub → @maskalix\n${NC}"
 temp_dir="$HOME/cmnds-temp"
 
 # Create $HOME/cmnds-temp directory if it doesn't exist
-if [ ! -d "$temp_dir" ]; then
+if [ -d "$temp_dir" ]; then
+    echo -e "${YELLOW}Removing existing $temp_dir directory...${NC}"
+    rm -rf "$temp_dir" || { echo "Failed to remove $temp_dir directory."; exit 1; }
     echo -e "${YELLOW}Creating $temp_dir directory...${NC}"
     mkdir "$temp_dir" || { echo "Failed to create $temp_dir directory."; exit 1; }
 else
-    echo -e "${YELLOW}Removing existing $temp_dir directory...${NC}"
-    rm -rf "$temp_dir" || { echo "Failed to remove $temp_dir directory."; exit 1; }
+    echo -e "${YELLOW}Creating $temp_dir directory...${NC}"
+    mkdir "$temp_dir" || { echo "Failed to create $temp_dir directory."; exit 1; }
 fi
 
 # Change to $HOME/cmnds-temp directory
