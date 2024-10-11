@@ -33,6 +33,7 @@ cmnds() {
     echo -e "${GREEN}CMNDs installer tool${NC}"
     echo -e "${GREEN}>> created by Martin Skalicky"
     echo -e ">> GitHub → @maskalix\n${NC}"
+    echo -e "alpha release"
 }
 
 # Function to install dialog if not installed
