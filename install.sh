@@ -122,7 +122,11 @@ create_scripts_dir() {
 
 prompt_scripts_dir() {
     # Find the directory of the "cmnds" command
-    CMNDS_INSTALL_FOLDER=$(bash cmnds-config read_config CMNDS_INSTALL_FOLDER)
+    CMNDS_DIR=$(dirname "$(command -v cmnds)")
+    echo "CD: $CMNDS_DIR"
+    MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+    CMNDS_INSTALL_FOLDER=$(bash $CMNDS_DIR/cmnds-config read_config CMNDS_INSTALL_FOLDER)
+    echo "CIF: $CMNDS_INSTALL_FOLDER"
     if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
         echo "IF: $CMNDS_INSTALL_FOLDER"
         if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
