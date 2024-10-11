@@ -18,17 +18,17 @@ echo -e "${GREEN}>> created by Martin Skalicky"
 echo -e ">> GitHub → @maskalix\n${NC}"
 
 # Temporary directory
-temp_dir="$temp_dir"
+temp_dir="$HOME/cmnds-temp"
 
 # Create $temp_dir directory if it doesn't exist
 if [ -d "$temp_dir" ]; then
     echo -e "${YELLOW}Removing existing $temp_dir directory...${NC}"
-    rm -rf "$temp_dir" || { echo "Failed to remove $temp_dir directory."; exit 1; }
+    rm -rf $temp_dir || { echo "Failed to remove $temp_dir directory."; exit 1; }
     echo -e "${YELLOW}Creating $temp_dir directory...${NC}"
-    mkdir "$temp_dir" || { echo "Failed to create $temp_dir directory."; exit 1; }
+    mkdir $temp_dir || { echo "Failed to create $temp_dir directory."; exit 1; }
 else
     echo -e "${YELLOW}Creating $temp_dir directory...${NC}"
-    mkdir "$temp_dir" || { echo "Failed to create $temp_dir directory."; exit 1; }
+    mkdir $temp_dir || { echo "Failed to create $temp_dir directory."; exit 1; }
 fi
 
 # Download and execute install script
@@ -40,4 +40,4 @@ cd - >/dev/null || { echo "Failed to change to parent directory."; exit 1; }
 
 # Remove $temp_dir directory
 display_header "${YELLOW}Installer cleaning up${NC}"
-rm -rf "$temp_dir" || echo "Failed to remove $temp_dir directory."
+rm -rf $temp_dir || echo "Failed to remove $temp_dir directory."
