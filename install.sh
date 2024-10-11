@@ -89,12 +89,9 @@ create_scripts_dir() {
             [yY]|[yY][eE][sS])
                 msg_info "Checking for existing variables.conf file..."
                 
-                # Ensure /cmnds-temp directory exists
-                mkdir "/cmnds-temp"
-                
                 # Check if variables.conf exists and move it out temporarily
                 if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
-                    cp "$SCRIPTS_DIR/cmnds/variables.conf" "/cmnds-temp/variables.conf.bak"
+                    cp "$SCRIPTS_DIR/cmnds/variables.conf" "~/variables.conf.bak"
                     msg_info "variables.conf saved"
                 fi
                 
@@ -103,8 +100,8 @@ create_scripts_dir() {
                 mkdir -p "$SCRIPTS_DIR"
                 
                 # Restore variables.conf if it was backed up
-                if [ -f "/cmnds-temp/variables.conf.bak" ]; then
-                    mv "/cmnds-temp/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
+                if [ -f "~/variables.conf.bak" ]; then
+                    mv "~/variables.conf.bak" "$SCRIPTS_DIR/cmnds/variables.conf"
                     msg_info "variables.conf restored"
                 fi
                 ;;
