@@ -111,13 +111,6 @@ create_scripts_dir() {
                 msg_info "Deleting existing directory: $SCRIPTS_DIR"
                 rm -rf "$SCRIPTS_DIR"
                 mkdir -p "$SCRIPTS_DIR"
-                
-                # Restore variables.conf if it was backed up
-                if [ -f $HOME/variables.conf ]; then
-                    mkdir "$SCRIPTS_DIR/cmnds"
-                    mv $HOME/variables.conf $SCRIPTS_DIR/cmnds/variables.conf
-                    msg_info "variables.conf restored"
-                fi
                 ;;
             *)
                 msg_error "Exiting installation process. Goodbye! :x"
@@ -167,7 +160,12 @@ install_project() {
     run_deploy
     source ~/.bashrc
     msg_success "Installation completed successfully."
-    rm -rf "$HOME/cmnds-temp"
+    # Restore variables.conf if it was backed up
+    if [ -f $HOME/variables.conf ]; then
+        mkdir "$SCRIPTS_DIR/cmnds"
+        mv $HOME/variables.conf $SCRIPTS_DIR/cmnds/variables.conf
+        msg_info "variables.conf restored"
+    fi
 }
 
 # Run installation process
