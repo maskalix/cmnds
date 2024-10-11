@@ -42,7 +42,7 @@ else
 fi
 
 # Move back to parent directory
-cd - >/dev/null || { echo "Failed to change to parent directory."; exit 1; }
+#cd - >/dev/null || { echo "Failed to change to parent directory."; exit 1; }
 
 # Remove $temp_dir directory
 display_header "${YELLOW}Installer cleaning up${NC}"
