@@ -122,23 +122,23 @@ create_scripts_dir() {
 
 prompt_scripts_dir() {
     # Find the directory of the "cmnds" command
-    CMNDS_DIR=$(dirname "$(command -v cmnds)")
-    echo "CD: $CMNDS_DIR"
-    MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
-    CMNDS_INSTALL_FOLDER=$(bash $CMNDS_DIR/cmnds-config read_config CMNDS_INSTALL_FOLDER)
-    echo "CIF: $CMNDS_INSTALL_FOLDER"
-    if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
-        echo "IF: $CMNDS_INSTALL_FOLDER"
-        if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
-            SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
-            echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
-        fi
-    else
-        echo -e "⚠ ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
-        read -r SCRIPTS_DIR
-        SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
-        echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
-    fi
+    #CMNDS_DIR=$(dirname "$(command -v cmnds)")
+    #echo "CD: $CMNDS_DIR"
+    #MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
+    #CMNDS_INSTALL_FOLDER=$(bash $CMNDS_DIR/cmnds-config read_config CMNDS_INSTALL_FOLDER)
+    #echo "CIF: $CMNDS_INSTALL_FOLDER"
+    #if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
+     #   echo "IF: $CMNDS_INSTALL_FOLDER"
+      #  if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
+       #     SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
+        #    echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
+        #fi
+    #else
+    echo -e "⚠ ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+    read -r SCRIPTS_DIR
+    SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
+    echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
+    #fi
 
     # Output the selected SCRIPTS_DIR
 }
