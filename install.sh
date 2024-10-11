@@ -108,6 +108,7 @@ create_scripts_dir() {
                 
                 # Restore variables.conf if it was backed up
                 if [ -f ~/variables.conf ]; then
+                    mkdir "$SCRIPTS_DIR/cmnds"
                     mv ~/variables.conf $SCRIPTS_DIR/cmnds/variables.conf
                     msg_info "variables.conf restored"
                 fi
