@@ -165,6 +165,7 @@ install_project() {
     run_deploy
     source ~/.bashrc
     msg_success "Installation completed successfully."
+    rm -rf "$HOME/cmnds-temp"
 }
 
 # Run installation process
