@@ -8,6 +8,8 @@ YELLOW='\033[1;33m'
 LIGHT_PURPLE='\033[1;35m'
 BLUE='\e[1;34m'
 
+VERSION=git log --format=%cd --date=format-local:"%Y-%m-%d %H:%M:%S" -1 
+
 # Error msg
 msg_error() {
     echo -e "${RED}$1${NC}"
@@ -26,6 +28,14 @@ msg_info() {
 # Other msg
 msg_other() {
     echo -e "${LIGHT_PURPLE}$1${NC}"
+}
+
+cmnds() {
+    echo -e "${GREEN}   ________  ____   ______  _____\n  / ____/  |/  / | / / __ \/ ___/\n / /   / /|_/ /  |/ / / / /\__ \ \n/ /___/ /  / / /|  / /_/ /___/ /\n\____/_/  /_/_/ |_/_____//____/${NC}"
+    echo -e "${GREEN}CMNDs installer tool${NC}"
+    echo -e "${GREEN}>> created by Martin Skalicky"
+    echo -e ">> GitHub → @maskalix\n${NC}"    
+    msg_info "Version $VERSION"
 }
 
 # Function to install dialog if not installed
