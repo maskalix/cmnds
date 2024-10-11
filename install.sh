@@ -89,7 +89,7 @@ initialize_project() {
     fi
     # Source ~/.bashrc
     source ~/.bashrc
-    msg_success "Project initialized successfully."
+    msg_success "✔ Project initialized successfully."
 }
 
 create_scripts_dir() {
@@ -97,13 +97,11 @@ create_scripts_dir() {
         echo -e "${RED}Directory $SCRIPTS_DIR already exists! ${NC}${BLUE}Do you want to update the script?${NC} Deletes existing directory and creates a new one. (${GREEN}y${NC}/${RED}N${NC}): \c"
         read -r choice
         case "$choice" in
-            [yY]|[yY][eE][sS])
-                msg_info "Checking for existing variables.conf file..."
-                
+            [yY]|[yY][eE][sS])              
                 # Check if variables.conf exists and move it out temporarily
                 if [ -f "$SCRIPTS_DIR/cmnds/variables.conf" ]; then
                     cp $SCRIPTS_DIR/cmnds/variables.conf $HOME/variables.conf
-                    msg_info "variables.conf saved"
+                    msg_other "✔ variables.conf saved"
                 fi
                 
                 msg_info "Deleting existing directory: $SCRIPTS_DIR"
@@ -157,11 +155,11 @@ install_project() {
     initialize_project
     run_deploy
     source ~/.bashrc
-    msg_success "Installation completed successfully."
+    msg_success "✔ Installation completed successfully."
     # Restore variables.conf if it was backed up
     if [ -f $HOME/variables.conf ]; then
         mv $HOME/variables.conf $SCRIPTS_DIR/cmnds/variables.conf
-        msg_info "variables.conf restored"
+        msg_other "✔ variables.conf restored"
     fi
 }
 
