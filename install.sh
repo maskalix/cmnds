@@ -59,7 +59,7 @@ install_dialog() {
 
 # Function to clone the project from GitHub
 clone_project() {
-    msg_info "Cloning project from GitHub into $SCRIPTS_DIR..."
+    msg_info "⏲ Cloning project from GitHub into $SCRIPTS_DIR..."
     if [ -d "$SCRIPTS_DIR" ]; then      
         git clone --depth 1 --filter=tree:0 https://github.com/maskalix/cmnds.git "$SCRIPTS_DIR" > /dev/null 2>&1
         cd "$SCRIPTS_DIR" || exit 1
@@ -104,7 +104,7 @@ create_scripts_dir() {
                     msg_other "✔ variables.conf saved"
                 fi
                 
-                msg_info "Deleting existing directory: $SCRIPTS_DIR"
+                msg_info "⏲ Deleting existing directory: $SCRIPTS_DIR"
                 rm -rf "$SCRIPTS_DIR"
                 mkdir -p "$SCRIPTS_DIR"
                 ;;
@@ -114,7 +114,7 @@ create_scripts_dir() {
                 ;;
         esac
     else
-        msg_info "Creating directory: $SCRIPTS_DIR"
+        msg_info "⏲ Creating directory: $SCRIPTS_DIR"
         mkdir -p "$SCRIPTS_DIR"
     fi
 }
@@ -127,9 +127,9 @@ prompt_scripts_dir() {
 
     if [ -f "$MANAGE_CONFIG" ] && [ -n "$CMNDS_INSTALL_FOLDER" ]; then
         SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
-        echo -e "${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
+        echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
     else
-        echo -e "${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+        echo -e "⚠ ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
         read -r SCRIPTS_DIR
         SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
         echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
@@ -140,10 +140,10 @@ prompt_scripts_dir() {
 
 # Function to run cmnds-deploy.sh
 run_deploy() {
-    msg_info "Running cmnds-deploy.sh..."
+    msg_info "⏲ Running cmnds-deploy.sh..."
     "$SCRIPTS_DIR/cmnds/cmnds-deploy.sh"
-    msg_success "Commands deployed successfully."
-    msg_info "If commands isn't found, then run multiple times >> ${LIGHT_PURPLE}source ~/.bashrc${NC}"
+    msg_success "⏲ Commands deployed successfully."
+    msg_info "⚠ If commands isn't found, then run multiple times >> ${LIGHT_PURPLE}source ~/.bashrc${NC}"
 }
 
 # Main function to execute installation process
