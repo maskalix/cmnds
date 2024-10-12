@@ -10,34 +10,40 @@ Simple commands to ease using Linux server
 ```                                
 # IMPORTANT
 - always read <a href="https://github.com/maskalix/cmnds/blob/main/scripts/README.md">/scripts/README.md</a>, where are important informations about usage of each command etc.
-- between releases/tags is published 100% working, tho old release of cmnds; if you want to use the new one, use command higher to install it
 - i don't plan to make cmnds available to be installed from any package manager such as apt
 - script can overwrite some of your commands - USE AT OWN RISK
 - asking for feature? => create an issue
 - cmnds "installs" itself into PATH, after removing it (simply just remove all it's folders - will automate it in the future) clean its record here too
 ## Installation
-```bash
-wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
-```
-```bash
-mkdir $HOME/cmnds-temp && wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $HOME/cmnds-temp && chmod +x $HOME/cmnds-temp/install.sh && $HOME/cmnds-temp/install.sh && rm $HOME/cmnds-temp/install.sh
-```
+- Option 1: download install.sh and run it
+- **Option 2 (recommended)**:
+   ```bash
+   mkdir $HOME/cmnds-temp && wget --no-cache -q https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh -P $HOME/cmnds-temp && chmod +x $HOME/cmnds-temp/install.sh && $HOME/cmnds-temp/install.sh && rm $HOME/cmnds-temp/install.sh
+   ```
+- Option 3 (old):
+   ```bash
+   wget --no-cache https://raw.githubusercontent.com/maskalix/cmnds/main/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
+   ```
 ## Using
 ### For base-user (non-root)
-- run `sudo su && cmnds-nonroot`
-- next as root
+1. run `sudo su && cmnds-nonroot`
+2. same as root
 ### For root
-- using command `deploy` choose what scripts you want to enable (remember to put asterisk to deploy too, if you want to use it)
-- if you didn't activate `deploy`, simply go into the folder of installation and run `./deploy.sh`
-- **LIST OF COMMANDS <a href="https://github.com/maskalix/cmnds/blob/main/scripts/README.md">/scripts/README.md</a>**
+1. using command `cmnds -d` choose what scripts you want to enable *[(**c**)hoose/(**d**)isable all/(**e**)nable all]*
+   - remember to put asterisk to deploy too, if you want to use it
+  
+## List of commands
+   <a href="https://github.com/maskalix/cmnds/blob/main/scripts/README.md">/scripts/README.md</a>
 
 ## Updating 
-- using `deploy` enable `cmnds-update`
-- run `cmnds-update` and proceed in installation
+- run `cmnds -u` and proceed in installation
 
 ## Custom commands
 - feel free to add own commands into the root folder of CMNDS or into subdirectory
-- it must be in .sh format, then it will be registered by `deploy.sh` (`deploy`) command 
+- it must be in .sh format, then it will be registered by `cmnds -d` command
+- THEY WILL BE OVERWRITTEN BY UPDATING CMNDS!
+- i also recommend checking out my other repository with random scripts (mainly for Debian-based distros)
+   - https://github.com/maskalix/commands-pile
 
 ## Command not found
 - option 1
