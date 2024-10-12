@@ -106,6 +106,11 @@ create_combined_cert() {
     # Create a custom configuration for the CSR
     CONFIG_FILE="$LE_DIR/csr_config.cnf"
     {
+        echo "[req]"
+        echo "default_bits       = 4096"
+        echo "distinguished_name = req_distinguished_name"
+        echo "req_extensions     = req_ext"
+        echo "prompt             = no"
         echo "[req_distinguished_name]"
         echo "C = $COUNTRY"
         echo "ST = $STATE"
