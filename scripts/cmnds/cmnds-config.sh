@@ -1,6 +1,7 @@
 #!/bin/bash
 # Get the directory where this script is located
-SCRIPT_DIR=$(realpath "$(dirname "$0")/../cmnds")
+#SCRIPT_DIR=$(realpath "$(dirname "$0")/../cmnds")
+SCRIPT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../cmnds")
 # Path to the configuration file
 CONFIG_FILE="$SCRIPT_DIR/variables.conf"
 
