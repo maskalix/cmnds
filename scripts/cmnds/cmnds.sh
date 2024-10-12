@@ -88,6 +88,7 @@ while getopts ":abcdefghijklmnopqrstuvwxyz" opt; do
             exit 0
             ;;
         c)    
+            shift
             cmnds-config "$@"
             exit 0
             ;;
