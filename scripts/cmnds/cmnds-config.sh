@@ -7,13 +7,13 @@ CONFIG_FILE="$SCRIPT_DIR/variables.conf"
 # Function to display usage/help message
 show_help() {
     echo "Usage:"
-    echo "  cmnds-config read_config <VAR_NAME>     - Read the value of VAR_NAME from the config file."
-    echo "  cmnds-config write_config <VAR_NAME> <VALUE> - Write or update VAR_NAME with VALUE in the config file."
+    echo "  cmnds-config read <VAR_NAME>     - Read the value of VAR_NAME from the config file."
+    echo "  cmnds-config write <VAR_NAME> <VALUE> - Write or update VAR_NAME with VALUE in the config file."
     echo "  cmnds-config help                       - Show this help message."
 }
 
 # Function to read the variable value from the config file
-read_config() {
+read() {
     VAR_NAME=$1
     if [ -z "$VAR_NAME" ]; then
         echo "Error: No variable name provided for reading." >&2
@@ -31,7 +31,7 @@ read_config() {
 }
 
 # Function to write/update a variable in the config file
-write_config() {
+write() {
     VAR_NAME=$1
     NEW_VALUE=$2
     
@@ -59,11 +59,11 @@ COMMAND=$1
 shift # Shift arguments to access function parameters
 
 case "$COMMAND" in
-    read_config)
-        read_config "$@"
+    read)
+        read "$@"
         ;;
-    write_config)
-        write_config "$@"
+    write)
+        write "$@"
         ;;
     help)
         show_help
@@ -79,16 +79,16 @@ esac
 # Uncomment these to test the functions
 
 # Read a variable from the config file
-# read_config "VAR1"
+# read "VAR1"
 
 # Write a new value to a variable in the config file
-# write_config "VAR1" "new_value"
+# write "VAR1" "new_value"
 
-# Then call read_config again to confirm the update
-# read_config "VAR1"
+# Then call read again to confirm the update
+# read "VAR1"
 
 # Real example:
 #SCRIPT_DIR=$(dirname "$0")
 #MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config.sh"
-# VAR1=$(bash "$MANAGE_CONFIG" read_config VAR1)
-# bash "$MANAGE_CONFIG" write_config "VAR1" "new_value"
+# VAR1=$(bash "$MANAGE_CONFIG" read VAR1)
+# bash "$MANAGE_CONFIG" write "VAR1" "new_value"
