@@ -88,7 +88,7 @@ while getopts ":abcdefghijklmnopqrstuvwxyz" opt; do
             exit 0
             ;;
         c)    
-            cmnds-config
+            cmnds-config "$@"
             exit 0
             ;;
         \?)
