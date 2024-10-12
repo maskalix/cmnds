@@ -3,7 +3,7 @@
 # Define default folder structure
 SCRIPT_DIR=$(dirname "$0")
 MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
-MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read_config REVPRO) # Change this to your desired folder name
+MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read REVPRO) # Change this to your desired folder name
 CONF_DIR="$MAIN_FOLDER/conf"
 MANCONF_DIR="$MAIN_FOLDER/manconf"
 MISC_DIR="$MAIN_FOLDER/misc"
