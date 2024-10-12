@@ -10,6 +10,7 @@ show_help() {
     echo "Usage:"
     echo "  cmnds-config read <VAR_NAME>     - Read the value of VAR_NAME from the config file."
     echo "  cmnds-config write <VAR_NAME> <VALUE> - Write or update VAR_NAME with VALUE in the config file."
+    echo "  cmnds-config edit                       - Edit variables.conf."
     echo "  cmnds-config help                       - Show this help message."
 }
 
@@ -29,6 +30,10 @@ read() {
     else
         echo "Variable $VAR_NAME not found in $CONFIG_FILE" >&2
     fi
+}
+
+edit() {
+    nano $CONFIG_FILE
 }
 
 # Function to write/update a variable in the config file
@@ -65,6 +70,9 @@ case "$COMMAND" in
         ;;
     write)
         write "$@"
+        ;;
+    edit)
+        edit
         ;;
     help)
         show_help
