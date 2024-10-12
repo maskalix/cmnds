@@ -151,6 +151,8 @@ run_deploy() {
 
 # Main function to execute installation process
 install_project() {
+    export PATH=$PATH
+    source ~/.bashrc
     cmnds
     install_dialog
     prompt_scripts_dir
