@@ -4,9 +4,10 @@
 
 | Category      | Command              | Description                                       | Options                                                                                     |
 |---------------|----------------------|---------------------------------------------------|--------------------------------------------------------------------------------------------|
-| **CMNDS**     | `cmnds [OPTIONS]`    | CMNDS Info                                        | `-a`: list all commands<br><br>`-u`: update<br><br>`-d`: deploy                             |
+| **<a href="./cmnds">CMNDS</a>**     | `cmnds [OPTIONS]`    | CMNDS Info                                        | `-a`: list all commands<br><br>`-u`: update<br><br>`-d`: deploy                             |
 |               | `cmnds-deploy`       | deploy scripts                                    |                                                                                            |
 |               | `cmnds-update`       | update CMNDs                                      |                                                                                            |
+|               | `cmnds-config`       | variables                                      |                                                                                            |
 |               | `cmnds-nonroot`       | register CMNDs for non-root users                                   |                                                                                            |
 | **Docker**    | `bicomposed`         | docker compose up -d --build                      |                                                                                            |
 |               | `composed`           | docker compose up -d                              |                                                                                            |
