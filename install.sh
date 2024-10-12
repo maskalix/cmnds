@@ -122,23 +122,23 @@ create_scripts_dir() {
 
 prompt_scripts_dir() {
     # If command cmnds exists > find the directory of the "cmnds" command
-    if command -v cmnds >/dev/null 2>&1; then    
-        CMNDS_LOCATION=$(command -v cmnds)
+    if command -v cmnds-config >/dev/null 2>&1; then    
+        CMNDS_LOCATION=$(command -v cmnds-config)
         echo "CMDNS LOC: $CMNDS_LOCATION"
         CMNDS_DIR=$(dirname "$(command -v cmnds)")
         MANAGE_CONFIG="$CMNDS_DIR/cmnds-config"
         CMNDS_INSTALL_FOLDER=$(bash $CMNDS_DIR/cmnds-config read CMNDS_INSTALL_FOLDER)
         if [[ -n "$CMNDS_INSTALL_FOLDER" ]]; then
             SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
-            echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
+            echo -e "${BLUE}⚠ Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
         else
-            echo -e "⚠ ${RED}Variable CMNDS_INSTALL_FOLDER not present!${NC} ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+            echo -e "${RED}⚠ Variable CMNDS_INSTALL_FOLDER not present!${NC} ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
             read -r SCRIPTS_DIR
             SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
             echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
         fi
     else
-        echo -e "⚠ ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+        echo -e "${BLUE}⚠ Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
         read -r SCRIPTS_DIR
         SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
         echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
