@@ -132,7 +132,7 @@ prompt_scripts_dir() {
             SCRIPTS_DIR="$CMNDS_INSTALL_FOLDER"
             echo -e "⚠ ${BLUE}Using scripts directory (from CMNDS_INSTALL_FOLDER variable):${NC} $SCRIPTS_DIR"
         else
-            echo -e "⚠ ${BLUE}Variable CMNDS_INSTALL_FOLDER not present!/n Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
+            echo -e "⚠ ${RED}Variable CMNDS_INSTALL_FOLDER not present!${NC} ${BLUE}Enter preferred directory for scripts${NC} (default: /data/scripts/cmnds): \c"
             read -r SCRIPTS_DIR
             SCRIPTS_DIR=${SCRIPTS_DIR:-"/data/scripts/cmnds"}
             echo -e "${BLUE}Using scripts directory: $SCRIPTS_DIR${NC}"
@@ -149,7 +149,7 @@ prompt_scripts_dir() {
 run_deploy() {
     msg_info "◌ Running cmnds-deploy.sh..."
     "$SCRIPTS_DIR/cmnds/cmnds-deploy.sh"
-    msg_success "◌ Commands deployed successfully."
+    msg_success "✔ Commands deployed successfully."
     msg_info "⚠ If commands isn't found, then run multiple times >> ${LIGHT_PURPLE}source ~/.bashrc${NC}"
 }
 
