@@ -2,8 +2,8 @@
 # version as of 2307
 SCRIPT_DIR=$(dirname "$0")
 MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
-MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read_config CERTS)
-SUB_FOLDER=$(bash "$MANAGE_CONFIG" read_config CERTS_SUB)
+MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read CERTS)
+SUB_FOLDER=$(bash "$MANAGE_CONFIG" read CERTS_SUB)
 
 # Check for the required arguments
 if [[ $# -lt 5 ]]; then
