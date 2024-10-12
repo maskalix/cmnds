@@ -2,7 +2,7 @@
 
 SCRIPT_DIR=$(dirname "$0")
 MANAGE_CONFIG="$SCRIPT_DIR/cmnds-config"
-MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read_config REVPRO)
+MAIN_FOLDER=$(bash "$MANAGE_CONFIG" read REVPRO)
 
 CONFIG_FILE="$MAIN_FOLDER/site-configs.conf"
 CONF_DIR="$MAIN_FOLDER/conf"
