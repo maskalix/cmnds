@@ -38,6 +38,7 @@ show_help() {
     echo -e "${YELLOW}-u${NC} : Update CMNDS"
     echo -e "${YELLOW}-d${NC} : Deploy CMNDS commands"
     echo -e "${YELLOW}-c${NC} : CMNDS config - variables"
+    echo -e "${YELLOW}-n${NC} : CMNDS for nonroot (run only once)"
 }
 
 # Function to run cmnds-update
@@ -91,6 +92,9 @@ while getopts ":abcdefghijklmnopqrstuvwxyz" opt; do
             shift
             cmnds-config "$@"
             exit 0
+            ;;
+        n)
+            cmnds-nonroot
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
