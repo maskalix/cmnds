@@ -123,6 +123,8 @@ create_scripts_dir() {
 prompt_scripts_dir() {
     # If command cmnds exists > find the directory of the "cmnds" command
     if command -v cmnds >/dev/null 2>&1; then    
+        CMNDS_LOCATION=$(command -v cmnds)
+        echo "CMDNS LOC: $CMNDS_LOCATION"
         CMNDS_DIR=$(dirname "$(command -v cmnds)")
         MANAGE_CONFIG="$CMNDS_DIR/cmnds-config"
         CMNDS_INSTALL_FOLDER=$(bash $CMNDS_DIR/cmnds-config read CMNDS_INSTALL_FOLDER)
