@@ -59,6 +59,7 @@ if ! command -v speedtest &> /dev/null; then
     echo -e "${GREEN}Speedtest is not installed. Installing...${NC}"
     curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
     sudo apt-get install -y speedtest
+    speedtest --accept-gdpr &> /dev/null
 else
     echo -e "${YELLOW}speedtest is already installed.${NC}"
 fi
