@@ -52,8 +52,11 @@ fi
 
 # Check if speedtest is installed
 if ! command -v speedtest &> /dev/null; then
+    if ! command -v curl &> /dev/null; then
+         echo -e "${GREEN}curl is not installed. Installing...${NC}"
+        sudo apt-get install curl
+    fi
     echo -e "${GREEN}Speedtest is not installed. Installing...${NC}"
-    # Install Ookla speedtest
     curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
     sudo apt-get install -y speedtest
 else
