@@ -37,6 +37,13 @@ generate_nginx_conf() {
     local container=$2
     local certificate=$3
     local conf_file="$CONF_DIR/$domain.conf"
+    local local_only="false"
+
+    # Check if the domain starts with [L]
+    if [[ "$domain" == "[L]"* ]]; then
+        local_only="true"
+        domain="${domain:3}" # Remove the [L] prefix from the domain
+    fi
 
     mkdir -p "$(dirname "$conf_file")"
 
@@ -102,13 +109,25 @@ EOF
         proxy_set_header Connection \$http_connection;
         proxy_http_version 1.1;
         proxy_pass $forward_scheme://$server:$port;
-        
+EOF
+
+        # Include local-only access control if the [L] flag is set
+        if [[ "$local_only" == "true" ]]; then
+            cat >> "$conf_file" <<EOF
+        # Include access control rules from external file
+        include /etc/nginx/local;
+EOF
+        fi
+
+        # Closing location block and including error handling
+        cat >> "$conf_file" <<EOF
         # Include error handling
         include /etc/nginx/includes/error_pages.conf;
     }
 }
 EOF
     fi
+
     # Create log files for the domain
     create_log_files "$domain"
 
