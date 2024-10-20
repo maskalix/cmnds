@@ -48,14 +48,19 @@ generate_nginx_conf() {
     mkdir -p "$(dirname "$conf_file")"
 
     # Define proxy variables
-    if [[ "$container" == s:* ]]; then
+    if [[ "$container" == s:* && "$container" != *:a:* ]]; then
         forward_scheme="https"
         server="${container#s:}"
         port="${server##*:}"
         server="${server%%:*}"
-    elif [[ "$container" == a:* || "$container" == a:s:* || "$container" == s:a:* ]]; then
+    elif [[ "$container" == a:* && "$container" != *:s:* ]]; then
+        forward_scheme="http"
+        server="${container#a:}"
+        port="${server##*:}"
+        server="${server%%:*}"
+    elif [[ "$container" == *:a:* || "$container" == a:s:* || "$container" == s:a:* ]]; then
         forward_scheme="https"
-        server="${container#a*:}"
+        server="${container#*:}"
         port="${server##*:}"
         server="${server%%:*}"
     else
