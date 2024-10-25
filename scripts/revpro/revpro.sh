@@ -9,6 +9,7 @@ CONF_DIR="$MAIN_FOLDER/conf"
 LOG_DIR="$MAIN_FOLDER/logs"
 NGINX_CONF="/etc/nginx/nginx.conf"
 AUTH_PROXY_CONF="/etc/nginx/authentik-proxy.conf"
+ERROR_PAGE=$(bash "$MANAGE_CONFIG" read ERROR_PAGE)
 
 # Function to create log files
 create_log_files() {
@@ -128,6 +129,16 @@ EOF
         cat >> "$conf_file" <<EOF
         # Include error handling
         include /etc/nginx/includes/error_pages.conf;
+    }
+
+        # Define named location for error handling
+    location @error_handler {
+        internal;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+        add_header Pragma "no-cache";
+        add_header Expires "0";
+
+        return 301 $ERROR_PAGE/?error=$status&url=$host&protocol=https;
     }
 }
 EOF
