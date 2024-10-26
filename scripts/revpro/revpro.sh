@@ -78,9 +78,16 @@ generate_nginx_conf() {
 # DON'T EDIT DIRECTLY, revpro OVERWRITES THIS FILE!!!
 # github.com/maskalix/cmnds
 ############
-# Include the external geo configuration file
-include /etc/nginx/conf.d/local_access.conf;
+# Include the external geo configuration file if local_only is true
+EOF
 
+if [[ "$local_only" == "true" ]]; then
+    cat >> "$conf_file" <<EOF
+include /etc/nginx/local_access.conf;
+EOF
+fi
+
+cat >> "$conf_file" <<EOF
 # server listen 80 should be located inside nginx.conf as redirect for all domains... use HTTPS ;)
 server {
     listen 443 ssl;
