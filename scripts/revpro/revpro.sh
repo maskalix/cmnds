@@ -78,6 +78,8 @@ generate_nginx_conf() {
 # DON'T EDIT DIRECTLY, revpro OVERWRITES THIS FILE!!!
 # github.com/maskalix/cmnds
 ############
+# Include the external geo configuration file
+include /etc/nginx/conf.d/local_access.conf;
 
 # server listen 80 should be located inside nginx.conf as redirect for all domains... use HTTPS ;)
 server {
@@ -122,6 +124,11 @@ EOF
             cat >> "$conf_file" <<EOF
         # Include access control rules from external file
         include /etc/nginx/local;
+
+        if ($local_access = 0) {
+            # Use the @error_handler for external users
+            return 302 https://error.linelab.dev/?error=access_denied&url=$host&protocol=https;
+        }
 EOF
         fi
 
@@ -138,7 +145,7 @@ EOF
         add_header Pragma "no-cache";
         add_header Expires "0";
 
-        return 301 $ERROR_PAGE/?error=$status&url=$host&protocol=https;
+        return 302 $ERROR_PAGE/?error=$status&url=$host&protocol=https;
     }
 }
 EOF
