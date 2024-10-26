@@ -132,7 +132,7 @@ EOF
         # Include access control rules from external file
         include /etc/nginx/local;
 
-        if ($local_access = 0) {
+        if (\$local_access = 0) {
             # Use the @error_handler for external users
             return 302 https://error.linelab.dev/?error=access_denied&url=$host&protocol=https;
         }
