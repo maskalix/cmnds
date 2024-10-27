@@ -128,7 +128,7 @@ EOF
         # Closing location block and including error handling
         cat >> "$conf_file" <<EOF
         # Include error handling
-        include /etc/nginx/includes/error_pages.conf;
+        include /etc/nginx/error_pages.conf;
     }
 
         # Define named location for error handling
