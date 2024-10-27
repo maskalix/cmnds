@@ -12,6 +12,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       # Configuration files /revpro/misc (here written each separately, can be mounted as one folder)
       - /revpro/misc:/etc/nginx/includes
+      - /revpro/misc/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
       - "443:443"
