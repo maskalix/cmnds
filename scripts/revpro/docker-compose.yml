@@ -1,0 +1,47 @@
+services:
+  reverseproxy:
+    image: nginx:latest
+    container_name: reverseproxy
+    volumes:
+      # Site configs
+      - /revpro/conf:/etc/nginx/conf.d:ro
+      - /revpro/manconf:/etc/nginx/conf.man:ro
+      # Logs
+      - /revpro/logs:/revpro/logs
+      # Certificates
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      # Configuration files /revpro/misc (here written each separately, can be mounted as one folder)
+      - /revpro/misc/error_pages.conf:/etc/nginx/includes/error_pages.conf
+      - /revpro/misc/nginx.conf:/etc/nginx/nginx.conf
+      - /revpro/misc/ssl-ciphers.conf:/etc/nginx/ssl-ciphers.conf
+      - /revpro/misc/authentik-proxy.conf:/etc/nginx/authentik-proxy.conf:ro
+      - /revpro/misc/letsencrypt-acme-challenge.conf:/etc/nginx/letsencrypt-acme-challenge.conf
+      - /revpro/misc/proxy_params:/etc/nginx/proxy_params
+      - /revpro/misc/local:/etc/nginx/local
+      - /revpro/misc/error:/etc/nginx/error
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - reverseproxy
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  fail2ban:
+    image: linuxserver/fail2ban:latest
+    container_name: fail2ban
+    depends_on:
+      - reverseproxy
+    volumes:
+      - /revpro/logs:/var/log/nginx:ro
+      - /data/misc/fail2ban:/config
+    environment:
+      - TZ=Europe/Prague
+    networks:
+      - reverseproxy
+    restart: unless-stopped
+
+networks:
+  reverseproxy:
+    external: true
