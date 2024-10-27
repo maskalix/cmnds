@@ -8,7 +8,7 @@ CONFIG_FILE="$MAIN_FOLDER/site-configs.conf"
 CONF_DIR="$MAIN_FOLDER/conf"
 LOG_DIR="$MAIN_FOLDER/logs"
 NGINX_CONF="/etc/nginx/nginx.conf"
-AUTH_PROXY_CONF="/etc/nginx/authentik-proxy.conf"
+AUTH_PROXY_CONF="/etc/nginx/includes/authentik-proxy.conf"
 ERROR_PAGE=$(bash "$MANAGE_CONFIG" read ERROR_PAGE)
 
 # Function to create log files
@@ -92,8 +92,8 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/$certificate/privkey.pem;
 
     # Include optional configuration files
-    include /etc/nginx/ssl-ciphers.conf;
-    include /etc/nginx/letsencrypt-acme-challenge.conf;
+    include /etc/nginx/includes/ssl-ciphers.conf;
+    include /etc/nginx/includes/letsencrypt-acme-challenge.conf;
 
     # Define proxy variables
     set \$forward_scheme $forward_scheme;
@@ -121,14 +121,14 @@ EOF
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
         # Include access control rules from external file
-        include /etc/nginx/local;
+        include /etc/nginx/includes/local;
 EOF
         fi
 
         # Closing location block and including error handling
         cat >> "$conf_file" <<EOF
         # Include error handling
-        include /etc/nginx/error_pages.conf;
+        include /etc/nginx/includes/error_pages.conf;
     }
 
         # Define named location for error handling
