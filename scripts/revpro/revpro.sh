@@ -111,9 +111,7 @@ EOF
         # Default location block
         cat >> "$conf_file" <<EOF
     location / {
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection \$http_connection;
-        proxy_http_version 1.1;
+        include /etc/nginx/includes/proxy_params
         proxy_pass $forward_scheme://$server:$port;
 EOF
 
