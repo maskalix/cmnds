@@ -111,7 +111,7 @@ EOF
         # Default location block
         cat >> "$conf_file" <<EOF
     location / {
-        include /etc/nginx/includes/proxy_params
+        include /etc/nginx/includes/proxy_params;
         proxy_pass $forward_scheme://$server:$port;
 EOF
 
