@@ -24,7 +24,6 @@ show_help() {
     echo -e "${YELLOW}recreate, -rc, rc${NC}    Remove and recreate the project directory."
     echo -e "${YELLOW}update, -up, up${NC}            Update the project (runs update.sh or docker compose commands)."
     echo -e "${YELLOW}recreate, -recreate, r${NC}    Remove and recreate the project directory."
-    echo -e "${YELLOW}logs, -l, l${NC}              View logs of a running container."
     echo -e "${YELLOW}info, -i, i${NC}              Show information about the project and environment."
     echo -e "${YELLOW}help, -h, h${NC}              Display this help message."
 }
@@ -75,43 +74,6 @@ case "$command" in
             echo -e "${RED}Containers stopped successfully!${NC}"
         else
             echo -e "${RED}Operation cancelled.${NC}"
-        fi
-        ;;
-    logs | -l | l)
-        echo -e "${CYAN}📜 Viewing logs for a container...${NC}"
-        
-        # Extract the container_name from the docker-compose.yml if present
-        container_name=$(grep -oP '^\s*container_name:\s*\K.+' "$PROJECT_FOLDER/$project_name/docker-compose.yml")
-        # If container_name is found, use it
-        if [[ -n "$container_name" ]]; then
-            echo -e "${YELLOW}Showing logs for container: $container_name...${NC}"
-            docker container logs $container_name
-        else
-            # If container_name is not found, fall back to service names
-            echo -e "${YELLOW}No container_name specified, using service names...${NC}"
-            
-            # Get the list of container (service) names from docker-compose.yml
-            container_names=$(docker compose -f "$PROJECT_FOLDER/$project_name/docker-compose.yml" config --services)
-            
-            # Split the container names into an array
-            IFS=$'\n' read -rd '' -a container_array <<< "$container_names"
-            
-            # If there's only one container (service), show logs for it
-            if [ ${#container_array[@]} -eq 1 ]; then
-                echo -e "${YELLOW}Showing logs for ${container_array[0]}...${NC}"
-                docker container logs ${container_array[0]}
-            else
-                echo -e "${YELLOW}Multiple containers found. Please select a container:${NC}"
-                select container in "${container_array[@]}"; do
-                    if [[ -n "$container" ]]; then
-                        echo -e "${YELLOW}Showing logs for $container...${NC}"
-                        docker container logs $container
-                        break
-                    else
-                        echo -e "${YELLOW}Invalid selection. Please try again.${NC}"
-                    fi
-                done
-            fi
         fi
         ;;
     remove | -r | r)
