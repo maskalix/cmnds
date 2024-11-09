@@ -77,7 +77,6 @@ case "$command" in
             echo -e "${RED}Operation cancelled.${NC}"
         fi
         ;;
-    # Handle 'logs' flag (short -l, long logs)
     logs | -l | l)
         echo -e "${CYAN}📜 Viewing logs for a container...${NC}"
         read -rp "Enter project name to view logs: " project_name
@@ -112,7 +111,7 @@ case "$command" in
         else
             echo -e "${RED}Update cancelled.${NC}"
         fi
-    # Handle 'recreate' flag (short -r, long recreate)
+        ;;
     recreate | -rc | rc)
         echo -e "${CYAN}🌀 Recreating project...${NC}"
         read -rp "Are you sure you want to delete and recreate this project? (y/n): " confirm_recreate
