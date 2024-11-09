@@ -102,41 +102,62 @@ case "$1" in
         fi
         ;;
 
-    list)
+    list | -l | l)
         echo -e "${CYAN}Listing all projects...${NC}"
-        # Display table header
-        echo -e "+---------------------+--------------------+------------------+------------------+---------------------+"
-        echo -e "| ${WHITE}Project Name${NC}        | ${CYAN}Service Name${NC}       | ${MAGENTA}Image${NC}            | ${YELLOW}Status${NC}           | ${GREEN}Description${NC}         |"
-        echo -e "+---------------------+--------------------+------------------+------------------+---------------------+"
-
-        # Iterate over each project directory
+        echo "+---------------------+--------------------+------------------+------------------+---------------------+"
+        echo "| Project Name        | Service Name       | Image            | Status           | Description         |"
+        echo "+---------------------+--------------------+------------------+------------------+---------------------+"
+        
+        # Iterate over each project directory and extract service names and images
         find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
             project_name=$(basename "$project_dir")
-
-            # Extract description from .desc file (if available)
-            description=$(cat "$project_dir/.desc" 2>/dev/null || echo "No description available")
-
-            # Extract services and images from docker-compose.yml
-            services=$(grep -E '^\s*container_name:\s*|\s*image:\s*' "$project_dir/docker-compose.yml" | sed 's/^\s*//g' | awk '{print $1, $2}')
-
-            # Determine status (e.g., by checking if containers are running, stopped, or updating)
-            # This is an example. You can replace it with actual status detection logic.
-            status="🟢"  # Default to green (running)
-            if [[ "$status" == "🟢" ]]; then
-                status="🟢"   # Running
-            elif [[ "$status" == "🔴" ]]; then
-                status="🔴"   # Stopped
+            
+            # Check if docker-compose.yml exists in the project directory
+            if [[ -f "$project_dir/docker-compose.yml" ]]; then
+                echo -n "| $project_name "
+    
+                # Extract services and images
+                services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
+    
+                service_name=""
+                image_name=""
+                while read -r line; do
+                    if [[ $line =~ container_name: ]]; then
+                        service_name="${line#*: }"
+                    elif [[ $line =~ image: ]]; then
+                        image_name="${line#*: }"
+                    fi
+                done <<< "$services"
+    
+                # If we have both service and image
+                if [[ -n $service_name && -n $image_name ]]; then
+                    echo -n "| $service_name / $image_name "
+                else
+                    echo -n "| No service/image defined "
+                fi
+    
+                # Add a simple check for the status (docker ps)
+                container_status=$(docker ps --filter "name=$project_name" --format "{{.Status}}" || echo "stopped")
+                
+                if [[ $container_status == "stopped" ]]; then
+                    status="🔴"
+                else
+                    status="🟢"
+                fi
+                echo -n "| $status "
+    
+                # Check for description, assuming a default or comment in docker-compose.yml
+                description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
+                description=${description:-"No description available"}
+    
+                echo "| $description |"
+                echo "+---------------------+--------------------+------------------+------------------+---------------------+"
             else
-                status="🟠"   # Updating
+                echo "| $project_name | Missing docker-compose.yml |  | 🔴 | No description available |"
+                echo "+---------------------+--------------------+------------------+------------------+---------------------+"
             fi
-
-            # Print each project’s row in the table
-            echo -e "| ${WHITE}$project_name${NC}            | ${CYAN}$services${NC}           | ${MAGENTA}$services${NC}        | ${YELLOW}$status${NC}            | ${GREEN}$description${NC}           |"
         done
-        # Table footer
-        echo -e "+---------------------+--------------------+------------------+------------------+---------------------+"
-        ;;
-
+    ;;
     info | -i | i)
         echo -e "${CYAN}📊 Showing project information...${NC}"
         echo -e "${WHITE}Projects found:$(find "$PROJECT_FOLDER" -maxdepth 1 -type d | wc -l)${NC}"
