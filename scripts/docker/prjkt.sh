@@ -86,7 +86,7 @@ case "$command" in
         # If container_name is found, use it
         if [[ -n "$container_name" ]]; then
             echo -e "${YELLOW}Showing logs for container: $container_name...${NC}"
-            docker logs "$container_name" | less +G
+            docker container logs "$container_name" | less +G
         else
             # If container_name is not found, fall back to service names
             echo -e "${YELLOW}No container_name specified, using service names...${NC}"
@@ -100,15 +100,13 @@ case "$command" in
             # If there's only one container (service), show logs for it
             if [ ${#container_array[@]} -eq 1 ]; then
                 echo -e "${YELLOW}Showing logs for ${container_array[0]}...${NC}"
-                echo -e "docker logs "${container_array[0]}" | less +G"
-                docker logs "${container_array[0]}" | less +G
+                docker container logs "${container_array[0]}" | less +G
             else
                 echo -e "${YELLOW}Multiple containers found. Please select a container:${NC}"
                 select container in "${container_array[@]}"; do
                     if [[ -n "$container" ]]; then
                         echo -e "${YELLOW}Showing logs for $container...${NC}"
-                        echo -e "docker logs "${container_array[0]}" | less +G"
-                        docker logs "$container" | less +G
+                        docker container logs "$container" | less +G
                         break
                     else
                         echo -e "${YELLOW}Invalid selection. Please try again.${NC}"
