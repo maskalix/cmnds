@@ -143,11 +143,14 @@ case "$1" in
                 # Check for description
                 description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
     
+                # Escape dollar signs in description (for handling variables like $AUTHENTIK_IMAGE)
+                description_escaped="${description//\$/\\\$}"
+    
                 # Print the row (if description is empty, we leave the description cell blank)
-                if [[ -z $description ]]; then
+                if [[ -z $description_escaped ]]; then
                     printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name" "$service_name / $image_name" "$status" ""
                 else
-                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "$project_name" "$service_name / $image_name" "$status" "$description"
+                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "$project_name" "$service_name / $image_name" "$status" "$description_escaped"
                 fi
             else
                 # If docker-compose.yml doesn't exist, print "Missing" for service and image
@@ -156,6 +159,7 @@ case "$1" in
         done
         echo "+-$(printf '%-${max_project_name_len}s' "-")-+-$(printf '%-${max_service_name_len}s' "-")-+-$(printf '%-${max_image_name_len}s' "-")-+-$(printf '%-${max_status_len}s' "-")-+-$(printf '%-${max_description_len}s' "-")-+"
         ;;
+
     view | -v | v)
         echo -e "${CYAN}Opening docker-compose.yml...${NC}"
         read -rp "Enter project name to view its docker-compose.yml: " project_name
