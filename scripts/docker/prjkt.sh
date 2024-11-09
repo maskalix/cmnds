@@ -99,9 +99,12 @@ case "$1" in
                 # Check for description
                 description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
     
+                # Escape dollar signs in description (for handling variables like $AUTHENTIK_IMAGE)
+                description_escaped="${description//\$/\\\$}"
+    
                 # Update the max column width for description (only if description exists)
-                if [[ -n $description ]]; then
-                    max_description_len=$(($max_description_len > ${#description} ? $max_description_len : ${#description}))
+                if [[ -n $description_escaped ]]; then
+                    max_description_len=$(($max_description_len > ${#description_escaped} ? $max_description_len : ${#description_escaped}))
                 fi
             fi
         done
