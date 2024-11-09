@@ -89,13 +89,13 @@ case "$command" in
         # If there's only one container, show logs for it
         if [ ${#container_array[@]} -eq 1 ]; then
             echo -e "${YELLOW}Showing logs for ${container_array[0]}...${NC}"
-            docker logs "$container_array"
+            docker logs "$container_array" | less +G
         else
             echo -e "${YELLOW}Multiple containers found. Please select a container:${NC}"
             select container in "${container_array[@]}"; do
                 if [[ -n "$container" ]]; then
                     echo -e "${YELLOW}Showing logs for $container...${NC}"
-                    docker logs "$container"
+                    docker logs "$container" | less +G
                     break
                 else
                     echo -e "${YELLOW}Invalid selection. Please try again.${NC}"
