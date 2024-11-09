@@ -80,18 +80,24 @@ case "$command" in
     logs | -l | l)
         echo -e "${CYAN}📜 Viewing logs for a container...${NC}"
         
-        # If a container name is provided, use it
+        # Extract the container_name from the docker-compose.yml if present
+        container_name=$(grep -oP '^\s*container_name:\s*\K.+' "$PROJECT_FOLDER/$project_name/docker-compose.yml")
+        
+        # If container_name is found, use it
         if [[ -n "$container_name" ]]; then
-            echo -e "${YELLOW}Showing logs for $container_name...${NC}"
+            echo -e "${YELLOW}Showing logs for container: $container_name...${NC}"
             docker logs "$container_name" | less +G
         else
-            # Get the list of container names (services) from the docker-compose.yml in the project folder
+            # If container_name is not found, fall back to service names
+            echo -e "${YELLOW}No container_name specified, using service names...${NC}"
+            
+            # Get the list of container (service) names from docker-compose.yml
             container_names=$(docker compose -f "$PROJECT_FOLDER/$project_name/docker-compose.yml" config --services)
             
             # Split the container names into an array
             IFS=$'\n' read -rd '' -a container_array <<< "$container_names"
             
-            # If there's only one container, show logs for it
+            # If there's only one container (service), show logs for it
             if [ ${#container_array[@]} -eq 1 ]; then
                 echo -e "${YELLOW}Showing logs for ${container_array[0]}...${NC}"
                 docker logs "${container_array[0]}" | less +G
@@ -109,7 +115,6 @@ case "$command" in
             fi
         fi
         ;;
-
     remove | -r | r)
         echo -e "${CYAN}🗑️ Removing project...${NC}"
         read -rp "Are you sure you want to remove the project $project_name? (y/n): " confirm_remove
