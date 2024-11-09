@@ -21,6 +21,7 @@ show_help() {
     echo -e "${YELLOW}view, -v, v${NC}              View project docker-compose.yml."
     echo -e "${YELLOW}down, -d, d${NC}              Run docker compose down."
     echo -e "${YELLOW}remove, -r, r${NC}            Remove the specified project directory."
+    echo -e "${YELLOW}recreate, -rc, rc${NC}    Remove and recreate the project directory."
     echo -e "${YELLOW}update, -up, up${NC}            Update the project (runs update.sh or docker compose commands)."
     echo -e "${YELLOW}recreate, -recreate, r${NC}    Remove and recreate the project directory."
     echo -e "${YELLOW}logs, -l, l${NC}              View logs of a running container."
@@ -112,7 +113,7 @@ case "$command" in
             echo -e "${RED}Update cancelled.${NC}"
         fi
     # Handle 'recreate' flag (short -r, long recreate)
-    recreate|-recreate|r)
+    recreate | -rc | rc)
         echo -e "${CYAN}🌀 Recreating project...${NC}"
         read -rp "Are you sure you want to delete and recreate this project? (y/n): " confirm_recreate
         if [[ "$confirm_recreate" =~ ^[Yy]$ ]]; then
