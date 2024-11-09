@@ -123,40 +123,8 @@ for flag in "$@"; do
                     docker compose up -d
                     echo -e "${GREEN}✔️ Docker containers updated successfully!${NC}"
                 else
-                    echo -e "${CYAN}🛑 Update operation canceled.${NC}"
+                    echo -e "${CYAN}🛑 Docker update operation canceled.${NC}"
                 fi
-            fi
-            ;;
-        
-        # Handle 'recreate' flag
-        recreate|-recreate|r)
-            echo -e "${CYAN}⚠️ Removing and recreating project directory...${NC}"
-            read -rp "Enter the project name: " project_name
-            read -rp "Enter directory path (default: $dir): " custom_dir
-            dir=${custom_dir:-$dir}
-            read -rp "Are you sure you want to REMOVE and RECREATE $project_name? This will delete everything! (y/n): " confirm_recreate
-            if [[ $confirm_recreate == "y" || $confirm_recreate == "Y" ]]; then
-                rm -rf "$dir/$project_name"
-                mkdir -p "$dir/$project_name"
-                echo -e "${GREEN}✔️ Project '$project_name' recreated successfully!${NC}"
-            else
-                echo -e "${CYAN}🛑 Recreate operation canceled.${NC}"
-            fi
-            ;;
-        
-        # Handle 'logs' flag
-        logs|-l|l)
-            echo -e "${CYAN}📜 Viewing container logs...${NC}"
-            read -rp "Enter the project name: " project_name
-            read -rp "Enter directory path (default: $dir): " custom_dir
-            dir=${custom_dir:-$dir}
-            cd "$dir/$project_name" || exit
-            container_name=$(yq eval '.services | keys | .[0]' "$dir/$project_name/docker-compose.yml")
-            read -rp "Viewing logs for container: $container_name. Are you sure? (y/n): " confirm_logs
-            if [[ $confirm_logs == "y" || $confirm_logs == "Y" ]]; then
-                docker container logs "$container_name"
-            else
-                echo -e "${CYAN}🛑 Logs operation canceled.${NC}"
             fi
             ;;
         
@@ -167,9 +135,17 @@ for flag in "$@"; do
                 if [ -d "$project" ]; then
                     project_name=$(basename "$project")
                     echo -e "${YELLOW}Project: $project_name${NC}"
-                    container_names=$(yq eval '.services | keys' "$project/docker-compose.yml")
+                    
+                    # Get container names from docker-compose.yml using grep and sed
+                    container_names=$(grep -oP '^\s*container_name:.*' "$project/docker-compose.yml" | sed 's/.*container_name: "\(.*\)"/\1/')
+                    if [ -z "$container_names" ]; then
+                        # If no container_name, use service names instead
+                        container_names=$(grep -oP '^\s*services:\s*\K.*' "$project/docker-compose.yml" | sed 's/^\s*//')
+                    fi
+                    
+                    # Loop over container names and extract their images
                     for container in $container_names; do
-                        image=$(yq eval ".services.$container.image" "$project/docker-compose.yml")
+                        image=$(grep -oP "^\s*image:.*" "$project/docker-compose.yml" | sed 's/.*image: "\(.*\)"/\1/')
                         echo -e "  - ${BLUE}Service: $container${NC}, ${GREEN}Image: $image${NC}"
                     done
                 fi
@@ -179,13 +155,13 @@ for flag in "$@"; do
         # Handle 'info' flag
         info|-i|i)
             echo -e "${CYAN}ℹ️ Showing project info...${NC}"
-            project_count=$(find "$dir" -type d -maxdepth 1 | wc -l)
+            project_count=$(find "$dir" -maxdepth 1 -type d | wc -l)
             echo -e "${GREEN}Projects found: $project_count${NC}"
             echo -e "${YELLOW}Root folder: $dir${NC}"
             echo -e "${GREEN}Projects are located at: $PROJECT_FOLDER${NC}"
             ;;
         
-        # Help flag
+        # Handle 'help' flag
         help|-h|h)
             show_help
             ;;
