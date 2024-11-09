@@ -79,9 +79,29 @@ case "$command" in
         ;;
     logs | -l | l)
         echo -e "${CYAN}📜 Viewing logs for a container...${NC}"
-        read -rp "Enter project name to view logs: " project_name
-        read -rp "Enter container name or number: " container_name
-        docker container logs "$container_name"
+    
+        # Get the list of container names (services) from the docker-compose.yml in the project folder
+        container_names=$(docker compose -f "$PROJECT_FOLDER/$project_name/docker-compose.yml" config --services)
+        
+        # Split the container names into an array
+        IFS=$'\n' read -rd '' -a container_array <<< "$container_names"
+        
+        # If there's only one container, show logs for it
+        if [ ${#container_array[@]} -eq 1 ]; then
+            echo -e "${YELLOW}Showing logs for ${container_array[0]}...${NC}"
+            docker logs "$container_array"
+        else
+            echo -e "${YELLOW}Multiple containers found. Please select a container:${NC}"
+            select container in "${container_array[@]}"; do
+                if [[ -n "$container" ]]; then
+                    echo -e "${YELLOW}Showing logs for $container...${NC}"
+                    docker logs "$container"
+                    break
+                else
+                    echo -e "${YELLOW}Invalid selection. Please try again.${NC}"
+                fi
+            done
+        fi
         ;;
     remove | -r | r)
         echo -e "${CYAN}🗑️ Removing project...${NC}"
