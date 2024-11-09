@@ -24,7 +24,6 @@ show_help() {
     echo -e "${YELLOW}update, -u, u${NC}            Update the project (runs update.sh or docker compose commands)."
     echo -e "${YELLOW}recreate, -recreate, r${NC}    Remove and recreate the project directory."
     echo -e "${YELLOW}logs, -l, l${NC}              View logs of a running container."
-    echo -e "${YELLOW}list, -l, l${NC}              List all projects with services and Docker images."
     echo -e "${YELLOW}info, -i, i${NC}              Show information about the project and environment."
     echo -e "${YELLOW}help, -h, h${NC}              Display this help message."
 }
@@ -52,119 +51,6 @@ case "$1" in
             echo -e "${RED}Operation cancelled.${NC}"
         fi
         ;;
-    list | -l | l)
-        echo -e "${CYAN}Listing all projects...${NC}"
-    
-        # Initialize max column widths for each column (Project Name, Service Name, Status, Description)
-        max_project_name_len=0
-        max_service_name_len=0
-        max_status_len=0
-        max_description_len=0
-    
-        # Iterate over each project directory to determine the longest string in each column
-        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
-            project_name=$(basename "$project_dir")
-            
-            # Replace $ with ß in the project name
-            project_name_escaped="${project_name//\$/ß}"
-    
-            # Update the max column width for project name
-            max_project_name_len=$(($max_project_name_len > ${#project_name_escaped} ? $max_project_name_len : ${#project_name_escaped}))
-    
-            # Check if docker-compose.yml exists in the project directory
-            if [[ -f "$project_dir/docker-compose.yml" ]]; then
-                services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
-    
-                service_name=""
-                while read -r line; do
-                    if [[ $line =~ container_name: ]]; then
-                        service_name="${line#*: }"
-                        # Replace $ with ß in the service name
-                        service_name_escaped="${service_name//\$/ß}"
-                        # Update the max column width for service name
-                        max_service_name_len=$(($max_service_name_len > ${#service_name_escaped} ? $max_service_name_len : ${#service_name_escaped}))
-                    fi
-                done <<< "$services"
-    
-                # If service is defined, determine status
-                status="🟢"
-                container_status=$(docker ps --filter "name=$project_name" --format "{{.Status}}" || echo "stopped")
-                if [[ $container_status == "stopped" ]]; then
-                    status="🔴"
-                fi
-                # Update the max column width for status
-                max_status_len=$(($max_status_len > ${#status} ? $max_status_len : ${#status}))
-    
-                # Check for description
-                description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
-    
-                # Replace $ with ß in description (if any)
-                description_escaped="${description//\$/ß}"
-    
-                # Update the max column width for description (only if description exists)
-                if [[ -n $description_escaped ]]; then
-                    max_description_len=$(($max_description_len > ${#description_escaped} ? $max_description_len : ${#description_escaped}))
-                fi
-            fi
-        done
-    
-        # Add padding for the headers and columns to make sure they are equally spaced
-        padding=2  # Padding between columns
-    
-        # Calculate total width for the table based on maximum column lengths
-        total_width=$((max_project_name_len + max_service_name_len + max_status_len + max_description_len + 3 * padding))
-    
-        # Print header (removed Image column)
-        printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "Project Name" "Service Name" "Status" "Description"
-        echo "+-$(printf '%-${max_project_name_len}s' "-")-+-$(printf '%-${max_service_name_len}s' "-")-+-$(printf '%-${max_status_len}s' "-")-+-$(printf '%-${max_description_len}s' "-")-+"
-    
-        # Iterate again over the projects to print the table rows
-        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
-            project_name=$(basename "$project_dir")
-            
-            # Replace $ with ß in the project name
-            project_name_escaped="${project_name//\$/ß}"
-    
-            if [[ -f "$project_dir/docker-compose.yml" ]]; then
-                services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
-    
-                service_name=""
-                while read -r line; do
-                    if [[ $line =~ container_name: ]]; then
-                        service_name="${line#*: }"
-                        # Replace $ with ß in the service name
-                        service_name_escaped="${service_name//\$/ß}"
-                    fi
-                done <<< "$services"
-    
-                # If service is defined, determine status
-                status="🟢"
-                container_status=$(docker ps --filter "name=$project_name" --format "{{.Status}}" || echo "stopped")
-                if [[ $container_status == "stopped" ]]; then
-                    status="🔴"
-                fi
-    
-                # Check for description
-                description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
-    
-                # Replace $ with ß in description (if any)
-                description_escaped="${description//\$/ß}"
-    
-                # Print the row (if description is empty, we leave the description cell blank)
-                if [[ -z $description_escaped ]]; then
-                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_status_len}s | %s |\n" "$project_name_escaped" "$service_name_escaped" "$status" ""
-                else
-                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "$project_name_escaped" "$service_name_escaped" "$status" "$description_escaped"
-                fi
-            else
-                # If docker-compose.yml doesn't exist, print "Missing" for service
-                printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_status_len}s | %s |\n" "$project_name_escaped" "Missing" "🔴" ""
-            fi
-        done
-        echo "+-$(printf '%-${max_project_name_len}s' "-")-+-$(printf '%-${max_service_name_len}s' "-")-+-$(printf '%-${max_status_len}s' "-")-+-$(printf '%-${max_description_len}s' "-")-+"
-        ;;
-
-
     view | -v | v)
         echo -e "${CYAN}Opening docker-compose.yml...${NC}"
         read -rp "Enter project name to view its docker-compose.yml: " project_name
