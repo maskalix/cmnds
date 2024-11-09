@@ -82,11 +82,10 @@ case "$command" in
         
         # Extract the container_name from the docker-compose.yml if present
         container_name=$(grep -oP '^\s*container_name:\s*\K.+' "$PROJECT_FOLDER/$project_name/docker-compose.yml")
-        
+        echo -e "docker container logs $container_name | less +G"
         # If container_name is found, use it
         if [[ -n "$container_name" ]]; then
             echo -e "${YELLOW}Showing logs for container: $container_name...${NC}"
-            echo -e "docker container logs $container_name | less +G"
             docker container logs $container_name | less +G
         else
             # If container_name is not found, fall back to service names
