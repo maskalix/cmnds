@@ -66,8 +66,11 @@ case "$1" in
         find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
             project_name=$(basename "$project_dir")
             
+            # Replace $ with ß in the project name
+            project_name_escaped="${project_name//\$/ß}"
+    
             # Update the max column width for project name
-            max_project_name_len=$(($max_project_name_len > ${#project_name} ? $max_project_name_len : ${#project_name}))
+            max_project_name_len=$(($max_project_name_len > ${#project_name_escaped} ? $max_project_name_len : ${#project_name_escaped}))
     
             # Check if docker-compose.yml exists in the project directory
             if [[ -f "$project_dir/docker-compose.yml" ]]; then
@@ -78,12 +81,16 @@ case "$1" in
                 while read -r line; do
                     if [[ $line =~ container_name: ]]; then
                         service_name="${line#*: }"
+                        # Replace $ with ß in the service name
+                        service_name_escaped="${service_name//\$/ß}"
                         # Update the max column width for service name
-                        max_service_name_len=$(($max_service_name_len > ${#service_name} ? $max_service_name_len : ${#service_name}))
+                        max_service_name_len=$(($max_service_name_len > ${#service_name_escaped} ? $max_service_name_len : ${#service_name_escaped}))
                     elif [[ $line =~ image: ]]; then
                         image_name="${line#*: }"
+                        # Replace $ with ß in the image name
+                        image_name_escaped="${image_name//\$/ß}"
                         # Update the max column width for image name
-                        max_image_name_len=$(($max_image_name_len > ${#image_name} ? $max_image_name_len : ${#image_name}))
+                        max_image_name_len=$(($max_image_name_len > ${#image_name_escaped} ? $max_image_name_len : ${#image_name_escaped}))
                     fi
                 done <<< "$services"
     
@@ -99,8 +106,8 @@ case "$1" in
                 # Check for description
                 description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
     
-                # Escape dollar signs in description (for handling variables like $AUTHENTIK_IMAGE)
-                description_escaped="${description//\$/\\\$}"
+                # Replace $ with ß in description (if any)
+                description_escaped="${description//\$/ß}"
     
                 # Update the max column width for description (only if description exists)
                 if [[ -n $description_escaped ]]; then
@@ -123,6 +130,9 @@ case "$1" in
         find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
             project_name=$(basename "$project_dir")
             
+            # Replace $ with ß in the project name
+            project_name_escaped="${project_name//\$/ß}"
+    
             if [[ -f "$project_dir/docker-compose.yml" ]]; then
                 services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
     
@@ -131,8 +141,12 @@ case "$1" in
                 while read -r line; do
                     if [[ $line =~ container_name: ]]; then
                         service_name="${line#*: }"
+                        # Replace $ with ß in the service name
+                        service_name_escaped="${service_name//\$/ß}"
                     elif [[ $line =~ image: ]]; then
                         image_name="${line#*: }"
+                        # Replace $ with ß in the image name
+                        image_name_escaped="${image_name//\$/ß}"
                     fi
                 done <<< "$services"
     
@@ -146,18 +160,18 @@ case "$1" in
                 # Check for description
                 description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
     
-                # Escape dollar signs in description (for handling variables like $AUTHENTIK_IMAGE)
-                description_escaped="${description//\$/\\\$}"
+                # Replace $ with ß in description (if any)
+                description_escaped="${description//\$/ß}"
     
                 # Print the row (if description is empty, we leave the description cell blank)
                 if [[ -z $description_escaped ]]; then
-                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name" "$service_name / $image_name" "$status" ""
+                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name_escaped" "$service_name_escaped / $image_name_escaped" "$status" ""
                 else
-                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "$project_name" "$service_name / $image_name" "$status" "$description_escaped"
+                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "$project_name_escaped" "$service_name_escaped / $image_name_escaped" "$status" "$description_escaped"
                 fi
             else
                 # If docker-compose.yml doesn't exist, print "Missing" for service and image
-                printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name" "Missing" "Missing" "🔴" ""
+                printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name_escaped" "Missing" "Missing" "🔴" ""
             fi
         done
         echo "+-$(printf '%-${max_project_name_len}s' "-")-+-$(printf '%-${max_service_name_len}s' "-")-+-$(printf '%-${max_image_name_len}s' "-")-+-$(printf '%-${max_status_len}s' "-")-+-$(printf '%-${max_description_len}s' "-")-+"
