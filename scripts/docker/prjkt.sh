@@ -113,6 +113,7 @@ case "$command" in
                     fi
                 done
             fi
+            echo -e "docker logs "${container_array[0]}" | less +G"
         fi
         ;;
     remove | -r | r)
