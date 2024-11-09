@@ -52,7 +52,110 @@ case "$1" in
             echo -e "${RED}Operation cancelled.${NC}"
         fi
         ;;
-
+    list | -l | l)
+        echo -e "${CYAN}Listing all projects...${NC}"
+    
+        # Initialize max column widths for each column (Project Name, Service Name, Image, Status, Description)
+        max_project_name_len=0
+        max_service_name_len=0
+        max_image_name_len=0
+        max_status_len=0
+        max_description_len=0
+    
+        # Iterate over each project directory to determine the longest string in each column
+        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
+            project_name=$(basename "$project_dir")
+            
+            # Update the max column width for project name
+            max_project_name_len=$(($max_project_name_len > ${#project_name} ? $max_project_name_len : ${#project_name}))
+    
+            # Check if docker-compose.yml exists in the project directory
+            if [[ -f "$project_dir/docker-compose.yml" ]]; then
+                services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
+    
+                service_name=""
+                image_name=""
+                while read -r line; do
+                    if [[ $line =~ container_name: ]]; then
+                        service_name="${line#*: }"
+                        # Update the max column width for service name
+                        max_service_name_len=$(($max_service_name_len > ${#service_name} ? $max_service_name_len : ${#service_name}))
+                    elif [[ $line =~ image: ]]; then
+                        image_name="${line#*: }"
+                        # Update the max column width for image name
+                        max_image_name_len=$(($max_image_name_len > ${#image_name} ? $max_image_name_len : ${#image_name}))
+                    fi
+                done <<< "$services"
+    
+                # If service and image are both defined, determine status
+                status="🟢"
+                container_status=$(docker ps --filter "name=$project_name" --format "{{.Status}}" || echo "stopped")
+                if [[ $container_status == "stopped" ]]; then
+                    status="🔴"
+                fi
+                # Update the max column width for status
+                max_status_len=$(($max_status_len > ${#status} ? $max_status_len : ${#status}))
+    
+                # Check for description
+                description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
+    
+                # Update the max column width for description (only if description exists)
+                if [[ -n $description ]]; then
+                    max_description_len=$(($max_description_len > ${#description} ? $max_description_len : ${#description}))
+                fi
+            fi
+        done
+    
+        # Add padding for the headers and columns to make sure they are equally spaced
+        padding=2  # Padding between columns
+    
+        # Calculate total width for the table based on maximum column lengths
+        total_width=$((max_project_name_len + max_service_name_len + max_image_name_len + max_status_len + max_description_len + 4 * padding))
+    
+        # Print header
+        printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "Project Name" "Service Name" "Image" "Status" "Description"
+        echo "+-$(printf '%-${max_project_name_len}s' "-")-+-$(printf '%-${max_service_name_len}s' "-")-+-$(printf '%-${max_image_name_len}s' "-")-+-$(printf '%-${max_status_len}s' "-")-+-$(printf '%-${max_description_len}s' "-")-+"
+    
+        # Iterate again over the projects to print the table rows
+        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
+            project_name=$(basename "$project_dir")
+            
+            if [[ -f "$project_dir/docker-compose.yml" ]]; then
+                services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
+    
+                service_name=""
+                image_name=""
+                while read -r line; do
+                    if [[ $line =~ container_name: ]]; then
+                        service_name="${line#*: }"
+                    elif [[ $line =~ image: ]]; then
+                        image_name="${line#*: }"
+                    fi
+                done <<< "$services"
+    
+                # If service and image are both defined, determine status
+                status="🟢"
+                container_status=$(docker ps --filter "name=$project_name" --format "{{.Status}}" || echo "stopped")
+                if [[ $container_status == "stopped" ]]; then
+                    status="🔴"
+                fi
+    
+                # Check for description
+                description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
+    
+                # Print the row (if description is empty, we leave the description cell blank)
+                if [[ -z $description ]]; then
+                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name" "$service_name / $image_name" "$status" ""
+                else
+                    printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %-${max_description_len}s |\n" "$project_name" "$service_name / $image_name" "$status" "$description"
+                fi
+            else
+                # If docker-compose.yml doesn't exist, print "Missing" for service and image
+                printf "| %-${max_project_name_len}s | %-${max_service_name_len}s | %-${max_image_name_len}s | %-${max_status_len}s | %s |\n" "$project_name" "Missing" "Missing" "🔴" ""
+            fi
+        done
+        echo "+-$(printf '%-${max_project_name_len}s' "-")-+-$(printf '%-${max_service_name_len}s' "-")-+-$(printf '%-${max_image_name_len}s' "-")-+-$(printf '%-${max_status_len}s' "-")-+-$(printf '%-${max_description_len}s' "-")-+"
+        ;;
     view | -v | v)
         echo -e "${CYAN}Opening docker-compose.yml...${NC}"
         read -rp "Enter project name to view its docker-compose.yml: " project_name
@@ -102,62 +205,7 @@ case "$1" in
         fi
         ;;
 
-    list | -l | l)
-        echo -e "${CYAN}Listing all projects...${NC}"
-        echo "+---------------------+--------------------+------------------+------------------+---------------------+"
-        echo "| Project Name        | Service Name       | Image            | Status           | Description         |"
-        echo "+---------------------+--------------------+------------------+------------------+---------------------+"
-        
-        # Iterate over each project directory and extract service names and images
-        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
-            project_name=$(basename "$project_dir")
-            
-            # Check if docker-compose.yml exists in the project directory
-            if [[ -f "$project_dir/docker-compose.yml" ]]; then
-                echo -n "| $project_name "
-    
-                # Extract services and images
-                services=$(grep -E '^\s*(container_name|image):' "$project_dir/docker-compose.yml" | sed 's/^\s*//g')
-    
-                service_name=""
-                image_name=""
-                while read -r line; do
-                    if [[ $line =~ container_name: ]]; then
-                        service_name="${line#*: }"
-                    elif [[ $line =~ image: ]]; then
-                        image_name="${line#*: }"
-                    fi
-                done <<< "$services"
-    
-                # If we have both service and image
-                if [[ -n $service_name && -n $image_name ]]; then
-                    echo -n "| $service_name / $image_name "
-                else
-                    echo -n "| No service/image defined "
-                fi
-    
-                # Add a simple check for the status (docker ps)
-                container_status=$(docker ps --filter "name=$project_name" --format "{{.Status}}" || echo "stopped")
-                
-                if [[ $container_status == "stopped" ]]; then
-                    status="🔴"
-                else
-                    status="🟢"
-                fi
-                echo -n "| $status "
-    
-                # Check for description, assuming a default or comment in docker-compose.yml
-                description=$(grep -m 1 'description:' "$project_dir/docker-compose.yml" | sed 's/description: //g')
-                description=${description:-"No description available"}
-    
-                echo "| $description |"
-                echo "+---------------------+--------------------+------------------+------------------+---------------------+"
-            else
-                echo "| $project_name | Missing docker-compose.yml |  | 🔴 | No description available |"
-                echo "+---------------------+--------------------+------------------+------------------+---------------------+"
-            fi
-        done
-    ;;
+   
     info | -i | i)
         echo -e "${CYAN}📊 Showing project information...${NC}"
         echo -e "${WHITE}Projects found:$(find "$PROJECT_FOLDER" -maxdepth 1 -type d | wc -l)${NC}"
