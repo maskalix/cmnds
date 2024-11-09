@@ -13,7 +13,7 @@ PROJECT_FOLDER=$(bash cmnds-config read PRJKT_FOLDER)
 
 # Function to display help information
 show_help() {
-    echo -e "Usage: ${WHITE}prjkt ${YELLOW}[command] ${BLUE}[project_name]${NC}"
+    echo -e "Usage: ${WHITE}prjkt ${YELLOW}[project_name] ${BLUE}[command]${NC}"
     echo ""
     echo "Commands:"
     echo -e "${YELLOW}create, -c, c${NC}           Create a new project directory."
@@ -28,8 +28,17 @@ show_help() {
     echo -e "${YELLOW}help, -h, h${NC}              Display this help message."
 }
 
+# Ensure that both project_name and command are provided
+if [[ -z "$1" || -z "$2" ]]; then
+    echo -e "${RED}❌ Error: Project name and command are required.${NC}"
+    show_help
+    exit 1
+fi
+
+project_name="$1"
+command="$2"
 # Handle flags and commands
-case "$1" in
+case "$command" in
     create | -c | c)
         echo -e "${CYAN}Creating new project...${NC}"
         read -rp "Enter project name: " project_name
