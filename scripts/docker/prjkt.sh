@@ -100,12 +100,14 @@ case "$command" in
             # If there's only one container (service), show logs for it
             if [ ${#container_array[@]} -eq 1 ]; then
                 echo -e "${YELLOW}Showing logs for ${container_array[0]}...${NC}"
+                echo -e "docker logs "${container_array[0]}" | less +G"
                 docker logs "${container_array[0]}" | less +G
             else
                 echo -e "${YELLOW}Multiple containers found. Please select a container:${NC}"
                 select container in "${container_array[@]}"; do
                     if [[ -n "$container" ]]; then
                         echo -e "${YELLOW}Showing logs for $container...${NC}"
+                        echo -e "docker logs "${container_array[0]}" | less +G"
                         docker logs "$container" | less +G
                         break
                     else
@@ -113,7 +115,6 @@ case "$command" in
                     fi
                 done
             fi
-            echo -e "docker logs "${container_array[0]}" | less +G"
         fi
         ;;
     remove | -r | r)
