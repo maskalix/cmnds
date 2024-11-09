@@ -31,7 +31,7 @@ show_help() {
 
 # Handle flags and commands
 case "$1" in
-    create)
+    create | -c | c)
         echo -e "${CYAN}Creating new project...${NC}"
         read -rp "Enter project name: " project_name
         read -rp "Enter preferred directory (default: $PROJECT_FOLDER): " custom_dir
@@ -40,26 +40,8 @@ case "$1" in
             echo -e "${GREEN}Project '$project_name' created at $dir${NC}"
         }
         ;;
-    -c)
-        echo -e "${CYAN}Creating new project...${NC}"
-        read -rp "Enter project name: " project_name
-        read -rp "Enter preferred directory (default: $PROJECT_FOLDER): " custom_dir
-        dir=${custom_dir:-$PROJECT_FOLDER}
-        mkdir -p "$dir/$project_name" && {
-            echo -e "${GREEN}Project '$project_name' created at $dir${NC}"
-        }
-        ;;
-    c)
-        echo -e "${CYAN}Creating new project...${NC}"
-        read -rp "Enter project name: " project_name
-        read -rp "Enter preferred directory (default: $PROJECT_FOLDER): " custom_dir
-        dir=${custom_dir:-$PROJECT_FOLDER}
-        mkdir -p "$dir/$project_name" && {
-            echo -e "${GREEN}Project '$project_name' created at $dir${NC}"
-        }
-        ;;
-    
-    up)
+
+    up | -u | u)
         echo -e "${CYAN}Running docker compose up...${NC}"
         read -rp "Are you sure you want to start the containers for project $project_name? (y/n): " confirm_up
         if [[ "$confirm_up" =~ ^[Yy]$ ]]; then
@@ -70,46 +52,14 @@ case "$1" in
             echo -e "${RED}Operation cancelled.${NC}"
         fi
         ;;
-    -u)
-        echo -e "${CYAN}Running docker compose up...${NC}"
-        read -rp "Are you sure you want to start the containers for project $project_name? (y/n): " confirm_up
-        if [[ "$confirm_up" =~ ^[Yy]$ ]]; then
-            cd "$PROJECT_FOLDER/$project_name"
-            docker compose up -d
-            echo -e "${GREEN}Containers started successfully!${NC}"
-        else
-            echo -e "${RED}Operation cancelled.${NC}"
-        fi
-        ;;
-    u)
-        echo -e "${CYAN}Running docker compose up...${NC}"
-        read -rp "Are you sure you want to start the containers for project $project_name? (y/n): " confirm_up
-        if [[ "$confirm_up" =~ ^[Yy]$ ]]; then
-            cd "$PROJECT_FOLDER/$project_name"
-            docker compose up -d
-            echo -e "${GREEN}Containers started successfully!${NC}"
-        else
-            echo -e "${RED}Operation cancelled.${NC}"
-        fi
-        ;;
-    
-    view)
+
+    view | -v | v)
         echo -e "${CYAN}Opening docker-compose.yml...${NC}"
         read -rp "Enter project name to view its docker-compose.yml: " project_name
         nano "$PROJECT_FOLDER/$project_name/docker-compose.yml"
         ;;
-    -v)
-        echo -e "${CYAN}Opening docker-compose.yml...${NC}"
-        read -rp "Enter project name to view its docker-compose.yml: " project_name
-        nano "$PROJECT_FOLDER/$project_name/docker-compose.yml"
-        ;;
-    v)
-        echo -e "${CYAN}Opening docker-compose.yml...${NC}"
-        read -rp "Enter project name to view its docker-compose.yml: " project_name
-        nano "$PROJECT_FOLDER/$project_name/docker-compose.yml"
-        ;;
-    
-    down)
+
+    down | -d | d)
         echo -e "${CYAN}Running docker compose down...${NC}"
         read -rp "Are you sure you want to stop the containers for project $project_name? (y/n): " confirm_down
         if [[ "$confirm_down" =~ ^[Yy]$ ]]; then
@@ -120,30 +70,8 @@ case "$1" in
             echo -e "${RED}Operation cancelled.${NC}"
         fi
         ;;
-    -d)
-        echo -e "${CYAN}Running docker compose down...${NC}"
-        read -rp "Are you sure you want to stop the containers for project $project_name? (y/n): " confirm_down
-        if [[ "$confirm_down" =~ ^[Yy]$ ]]; then
-            cd "$PROJECT_FOLDER/$project_name"
-            docker compose down
-            echo -e "${RED}Containers stopped successfully!${NC}"
-        else
-            echo -e "${RED}Operation cancelled.${NC}"
-        fi
-        ;;
-    d)
-        echo -e "${CYAN}Running docker compose down...${NC}"
-        read -rp "Are you sure you want to stop the containers for project $project_name? (y/n): " confirm_down
-        if [[ "$confirm_down" =~ ^[Yy]$ ]]; then
-            cd "$PROJECT_FOLDER/$project_name"
-            docker compose down
-            echo -e "${RED}Containers stopped successfully!${NC}"
-        else
-            echo -e "${RED}Operation cancelled.${NC}"
-        fi
-        ;;
-    
-    remove)
+
+    remove | -r | r)
         echo -e "${CYAN}🗑️ Removing project...${NC}"
         read -rp "Are you sure you want to remove the project $project_name? (y/n): " confirm_remove
         if [[ "$confirm_remove" =~ ^[Yy]$ ]]; then
@@ -153,28 +81,8 @@ case "$1" in
             echo -e "${RED}Remove cancelled.${NC}"
         fi
         ;;
-    -r)
-        echo -e "${CYAN}🗑️ Removing project...${NC}"
-        read -rp "Are you sure you want to remove the project $project_name? (y/n): " confirm_remove
-        if [[ "$confirm_remove" =~ ^[Yy]$ ]]; then
-            rm -rf "$PROJECT_FOLDER/$project_name"
-            echo -e "${RED}Project '$project_name' removed.${NC}"
-        else
-            echo -e "${RED}Remove cancelled.${NC}"
-        fi
-        ;;
-    r)
-        echo -e "${CYAN}🗑️ Removing project...${NC}"
-        read -rp "Are you sure you want to remove the project $project_name? (y/n): " confirm_remove
-        if [[ "$confirm_remove" =~ ^[Yy]$ ]]; then
-            rm -rf "$PROJECT_FOLDER/$project_name"
-            echo -e "${RED}Project '$project_name' removed.${NC}"
-        else
-            echo -e "${RED}Remove cancelled.${NC}"
-        fi
-        ;;
-    
-    update)
+
+    update | -u | u)
         echo -e "${CYAN}📦 Attempting to update the project...${NC}"
         read -rp "Do you want to update this project? (y/n): " confirm_update
         if [[ "$confirm_update" =~ ^[Yy]$ ]]; then
@@ -193,120 +101,53 @@ case "$1" in
             echo -e "${RED}Update cancelled.${NC}"
         fi
         ;;
-    -u)
-        echo -e "${CYAN}📦 Attempting to update the project...${NC}"
-        read -rp "Do you want to update this project? (y/n): " confirm_update
-        if [[ "$confirm_update" =~ ^[Yy]$ ]]; then
-            if [[ -f "$PROJECT_FOLDER/$project_name/update.sh" ]]; then
-                bash "$PROJECT_FOLDER/$project_name/update.sh"
-                echo -e "${GREEN}Project updated via update.sh.${NC}"
-            else
-                echo -e "${CYAN}Running docker compose pull, down, up...${NC}"
-                cd "$PROJECT_FOLDER/$project_name"
-                docker compose pull
-                docker compose down
-                docker compose up -d
-                echo -e "${GREEN}Project updated successfully!${NC}"
-            fi
-        else
-            echo -e "${RED}Update cancelled.${NC}"
-        fi
-        ;;
-    u)
-        echo -e "${CYAN}📦 Attempting to update the project...${NC}"
-        read -rp "Do you want to update this project? (y/n): " confirm_update
-        if [[ "$confirm_update" =~ ^[Yy]$ ]]; then
-            if [[ -f "$PROJECT_FOLDER/$project_name/update.sh" ]]; then
-                bash "$PROJECT_FOLDER/$project_name/update.sh"
-                echo -e "${GREEN}Project updated via update.sh.${NC}"
-            else
-                echo -e "${CYAN}Running docker compose pull, down, up...${NC}"
-                cd "$PROJECT_FOLDER/$project_name"
-                docker compose pull
-                docker compose down
-                docker compose up -d
-                echo -e "${GREEN}Project updated successfully!${NC}"
-            fi
-        else
-            echo -e "${RED}Update cancelled.${NC}"
-        fi
-        ;;
-    
+
     list)
         echo -e "${CYAN}Listing all projects...${NC}"
-        # Iterate over each project directory and extract service names and images
+        # Display table header
+        echo -e "+---------------------+--------------------+------------------+------------------+---------------------+"
+        echo -e "| ${WHITE}Project Name${NC}        | ${CYAN}Service Name${NC}       | ${MAGENTA}Image${NC}            | ${YELLOW}Status${NC}           | ${GREEN}Description${NC}         |"
+        echo -e "+---------------------+--------------------+------------------+------------------+---------------------+"
+
+        # Iterate over each project directory
         find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
             project_name=$(basename "$project_dir")
-            echo -e "${GREEN}Project: $project_name${NC}"
-            # Extract services from docker-compose.yml
-            if [[ -f "$project_dir/docker-compose.yml" ]]; then
-                services=$(grep -E '^\s*container_name:\s*|\s*image:\s*' "$project_dir/docker-compose.yml" | sed 's/^\s*//g' | awk '{print $1, $2}')
-                echo "$services"
+
+            # Extract description from .desc file (if available)
+            description=$(cat "$project_dir/.desc" 2>/dev/null || echo "No description available")
+
+            # Extract services and images from docker-compose.yml
+            services=$(grep -E '^\s*container_name:\s*|\s*image:\s*' "$project_dir/docker-compose.yml" | sed 's/^\s*//g' | awk '{print $1, $2}')
+
+            # Determine status (e.g., by checking if containers are running, stopped, or updating)
+            # This is an example. You can replace it with actual status detection logic.
+            status="🟢"  # Default to green (running)
+            if [[ "$status" == "🟢" ]]; then
+                status="🟢"   # Running
+            elif [[ "$status" == "🔴" ]]; then
+                status="🔴"   # Stopped
             else
-                echo -e "${RED}No docker-compose.yml found.${NC}"
+                status="🟠"   # Updating
             fi
+
+            # Print each project’s row in the table
+            echo -e "| ${WHITE}$project_name${NC}            | ${CYAN}$services${NC}           | ${MAGENTA}$services${NC}        | ${YELLOW}$status${NC}            | ${GREEN}$description${NC}           |"
         done
+        # Table footer
+        echo -e "+---------------------+--------------------+------------------+------------------+---------------------+"
         ;;
-    -l)
-        echo -e "${CYAN}Listing all projects...${NC}"
-        # Iterate over each project directory and extract service names and images
-        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
-            project_name=$(basename "$project_dir")
-            echo -e "${GREEN}Project: $project_name${NC}"
-            # Extract services from docker-compose.yml
-            if [[ -f "$project_dir/docker-compose.yml" ]]; then
-                services=$(grep -E '^\s*container_name:\s*|\s*image:\s*' "$project_dir/docker-compose.yml" | sed 's/^\s*//g' | awk '{print $1, $2}')
-                echo "$services"
-            else
-                echo -e "${RED}No docker-compose.yml found.${NC}"
-            fi
-        done
-        ;;
-    l)
-        echo -e "${CYAN}Listing all projects...${NC}"
-        # Iterate over each project directory and extract service names and images
-        find "$PROJECT_FOLDER" -maxdepth 1 -type d | while read project_dir; do
-            project_name=$(basename "$project_dir")
-            echo -e "${GREEN}Project: $project_name${NC}"
-            # Extract services from docker-compose.yml
-            if [[ -f "$project_dir/docker-compose.yml" ]]; then
-                services=$(grep -E '^\s*container_name:\s*|\s*image:\s*' "$project_dir/docker-compose.yml" | sed 's/^\s*//g' | awk '{print $1, $2}')
-                echo "$services"
-            else
-                echo -e "${RED}No docker-compose.yml found.${NC}"
-            fi
-        done
-        ;;
-    
-    info)
+
+    info | -i | i)
         echo -e "${CYAN}📊 Showing project information...${NC}"
         echo -e "${WHITE}Projects found:$(find "$PROJECT_FOLDER" -maxdepth 1 -type d | wc -l)${NC}"
         echo -e "${WHITE}Root folder: $PROJECT_FOLDER${NC}"
         echo -e "${WHITE}Projects are located at: $PROJECT_FOLDER${NC}"
         ;;
-    -i)
-        echo -e "${CYAN}📊 Showing project information...${NC}"
-        echo -e "${WHITE}Projects found:$(find "$PROJECT_FOLDER" -maxdepth 1 -type d | wc -l)${NC}"
-        echo -e "${WHITE}Root folder: $PROJECT_FOLDER${NC}"
-        echo -e "${WHITE}Projects are located at: $PROJECT_FOLDER${NC}"
-        ;;
-    i)
-        echo -e "${CYAN}📊 Showing project information...${NC}"
-        echo -e "${WHITE}Projects found:$(find "$PROJECT_FOLDER" -maxdepth 1 -type d | wc -l)${NC}"
-        echo -e "${WHITE}Root folder: $PROJECT_FOLDER${NC}"
-        echo -e "${WHITE}Projects are located at: $PROJECT_FOLDER${NC}"
-        ;;
-    
-    help)
+
+    help | -h | h)
         show_help
         ;;
-    -h)
-        show_help
-        ;;
-    h)
-        show_help
-        ;;
-    
+
     *)
         echo -e "${RED}❌ Invalid option. Use -h or --help for usage.${NC}"
         show_help
