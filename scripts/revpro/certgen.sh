@@ -98,7 +98,7 @@ create_combined_cert() {
     # Prepare SAN entries
     SAN_ENTRIES=("DNS:$DOMAIN" "DNS:$WILDCARD")
     for alt in "${ALT_DOMAINS[@]}"; do
-        SAN_ENTRIES+=("DNS:$alt")
+        SAN_ENTRIES+=("$alt")
     done
 
     # Create a custom configuration for the CSR
