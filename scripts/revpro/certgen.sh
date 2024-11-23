@@ -96,7 +96,7 @@ create_combined_cert() {
     echo "Creating Signing Request (CSR) for $DOMAIN and $WILDCARD..."
     
     # Prepare SAN entries
-    SAN_ENTRIES=("DNS:$DOMAIN" "DNS:$WILDCARD")
+    SAN_ENTRIES=("$DOMAIN" "$WILDCARD")
     for alt in "${ALT_DOMAINS[@]}"; do
         SAN_ENTRIES+=("$alt")
     done
