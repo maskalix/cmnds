@@ -1,0 +1,9 @@
+# /etc/nginx/local/access
+# Allow localhost
+allow 127.0.0.1;
+# Allow local private networks
+allow 192.168.X.X/24;
+# Allow certain IP
+allow 101.XX.XXX.XX;
+# Deny all other external access
+deny all;
