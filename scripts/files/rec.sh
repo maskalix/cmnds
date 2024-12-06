@@ -38,7 +38,11 @@ rec() {
 
     # Execute the file if it's executable
     if [ -x "$1" ]; then
-        "./$1"
+        if [[ "$1" == */* ]]; then
+            "$1"
+        else
+            "./$1"
+        fi
     else
         echo "File \"$1\" is not executable. You may need to make it executable manually."
     fi
