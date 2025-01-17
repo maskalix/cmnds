@@ -51,4 +51,4 @@ Simple commands to ease using Linux server
 - option 2
    - close and reconnect to SSH
 ---
-© Martin Skalicky 2024
+© Martin Skalicky 2025
