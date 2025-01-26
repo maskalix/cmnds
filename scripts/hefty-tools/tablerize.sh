@@ -22,20 +22,22 @@ to_table() {
     }
   ')
 
-  # Format the input into a table
-  echo "$input" | awk -v widths="$column_widths" -v sep="$separator" '
-    BEGIN {
-      split(widths, w)
-      fmt = ""
-      for (i in w) fmt = fmt "%-" w[i] "s" sep
-      fmt = substr(fmt, 1, length(fmt) - 1) "\n"
-      print "Formatted Table:"
-      print "------------------------------------------"
-    }
+  # Convert the column widths to an array
+  IFS=' ' read -r -a widths <<< "$column_widths"
+
+  # Generate the format string dynamically
+  format_string=""
+  for width in "${widths[@]}"; do
+    format_string+="%-${width}s$separator"
+  done
+  format_string=${format_string%$separator} # Remove trailing separator
+
+  # Print the formatted table
+  echo "Formatted Table:"
+  echo "------------------------------------------"
+  echo "$input" | awk -v fmt="$format_string" -v sep="$separator" '
     {
-      args = ""
-      for (i = 1; i <= NF; i++) args = args sprintf(fmt, $i)
-      print args
+      printf fmt "\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
     }
   '
 }
