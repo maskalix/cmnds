@@ -1,14 +1,16 @@
 #!/bin/bash
 
-# Function to format list output into a clean table
 to_table() {
   local input
   local separator='|' # Separator for table columns
 
-  # Read input into a variable
+  # Read the input
   input=$(cat)
 
-  # Calculate the column widths
+  # Extract the header row to determine the number of columns
+  header=$(echo "$input" | head -n 1)
+
+  # Calculate column widths dynamically
   column_widths=$(echo "$input" | awk '
     {
       for (i = 1; i <= NF; i++) {
@@ -20,7 +22,7 @@ to_table() {
     }
   ')
 
-  # Format each line into a fixed-width table
+  # Format the input into a table
   echo "$input" | awk -v widths="$column_widths" -v sep="$separator" '
     BEGIN {
       split(widths, w)
@@ -31,7 +33,9 @@ to_table() {
       print "------------------------------------------"
     }
     {
-      printf fmt, $1, $2, $3, $4, $5, $6, $7
+      args = ""
+      for (i = 1; i <= NF; i++) args = args sprintf(fmt, $i)
+      print args
     }
   '
 }
