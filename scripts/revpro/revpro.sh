@@ -281,7 +281,7 @@ case "$1" in
             [[ "$domain" =~ ^#.*$ ]] && continue
             generate_nginx_conf "$domain" "$container" "$certificate"
         done < "$CONFIG_FILE"
-        reload_nginx
+        restart_nginx
         ;;
     add)
         # Add new site configuration from command-line arguments
