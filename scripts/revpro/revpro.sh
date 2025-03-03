@@ -255,23 +255,6 @@ case "$1" in
         done < "$CONFIG_FILE"
         ;;
     reload)
-        # Clean up old configurations
-        cleanup_old_configs
-        
-        # Check if CONFIG_FILE exists before attempting to parse it
-        if [ ! -f "$CONFIG_FILE" ]; then
-            echo "Configuration file not found at $CONFIG_FILE"
-            exit 1
-        fi
-
-        # Generate configurations from the configuration file
-        echo "Domain | Conf | Acc-log | Err-log"
-        while IFS=$'\t ' read -r domain container certificate; do
-            # Skip lines starting with #
-            [[ "$domain" =~ ^#.*$ ]] && continue
-            generate_nginx_conf "$domain" "$container" "$certificate"
-        done < "$CONFIG_FILE"
-
         # Reload Nginx to apply changes
         reload_nginx
         ;;
@@ -281,6 +264,24 @@ case "$1" in
         ;;
     restart)
         restart_nginx
+        ;;
+    regenerate)
+        clean_directories
+        # Check if CONFIG_FILE exists before attempting to parse it
+        if [ ! -f "$CONFIG_FILE" ]; then
+            echo "Configuration file not found at $CONFIG_FILE"
+            exit 1
+        fi
+
+        # Generate configurations from the configuration file
+        echo "| AC | ER | CF | Domain"
+        echo "-----------------------"
+        while IFS=$'\t ' read -r domain container certificate; do
+            # Skip lines starting with #
+            [[ "$domain" =~ ^#.*$ ]] && continue
+            generate_nginx_conf "$domain" "$container" "$certificate"
+        done < "$CONFIG_FILE"
+        reload_nginx
         ;;
     add)
         # Add new site configuration from command-line arguments
@@ -299,7 +300,7 @@ case "$1" in
         list_domains
         ;;
     *)
-        echo "Usage: $0 {generate|clean|reload|restart|add|edit|list}"
+        echo "Usage: $0 {generate|clean|reload|restart|regenerate|add|edit|list}"
         exit 1
         ;;
 esac
