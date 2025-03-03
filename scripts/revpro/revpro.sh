@@ -129,7 +129,7 @@ EOF
 
     # Create log files for the domain
     create_log_files "$domain"
-    echo "🕸️ $domain"
+    echo "🕸️  $domain"
 }
 
 # Function to clean up old Nginx configurations and logs
