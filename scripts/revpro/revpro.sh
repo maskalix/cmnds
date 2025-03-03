@@ -231,6 +231,8 @@ case "$1" in
             # Skip lines starting with #
             [[ "$domain" =~ ^#.*$ ]] && continue
             generate_nginx_conf "$domain" "$container" "$certificate"
+        echo "-----------------------"
+        echo "✅ Configs generated"
         done < "$CONFIG_FILE"
         ;;
     reload)
