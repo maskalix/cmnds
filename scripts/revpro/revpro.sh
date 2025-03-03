@@ -10,6 +10,7 @@ LOG_DIR="$MAIN_FOLDER/logs"
 NGINX_CONF="/etc/nginx/nginx.conf"
 AUTH_PROXY_CONF="/etc/nginx/includes/authentik-proxy.conf"
 ERROR_PAGE=$(bash "$MANAGE_CONFIG" read ERROR_PAGE)
+CERTS_SUB=$(bash "$MANAGE_CONFIG" read CERTS_SUB)
 
 # Function to create log files
 create_log_files() {
@@ -73,8 +74,8 @@ server {
     error_log $LOG_DIR/${domain}_error.log;
 
     # SSL settings
-    ssl_certificate /etc/letsencrypt/live/$certificate/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$certificate/privkey.pem;
+    ssl_certificate $CERTS_SUB/$certificate/fullchain.pem;
+    ssl_certificate_key $CERTS_SUB/$certificate/privkey.pem;
 
     # Include optional configuration files
     include /etc/nginx/includes/ssl-ciphers.conf;
