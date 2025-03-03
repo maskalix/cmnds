@@ -13,23 +13,8 @@ ERROR_PAGE=$(bash "$MANAGE_CONFIG" read ERROR_PAGE)
 
 # Function to create log files
 create_log_files() {
-    if [ ! -d "$LOG_DIR" ]; then
-        mkdir -p "$LOG_DIR"
-    fi
-
-    if [ -f "$LOG_DIR/${1}_access.log" ]; then
-        access_log_status="✅"
-    else
-        touch "$LOG_DIR/${1}_access.log"
-        access_log_status="❌"
-    fi
-
-    if [ -f "$LOG_DIR/${1}_error.log" ]; then
-        error_log_status="✅"
-    else
-        touch "$LOG_DIR/${1}_error.log"
-        error_log_status="❌"
-    fi
+    mkdir -p "$LOG_DIR"
+    touch "$LOG_DIR/${1}_access.log" "$LOG_DIR/${1}_error.log"
 }
 
 # Function to generate Nginx configuration file with header
@@ -144,14 +129,7 @@ EOF
 
     # Create log files for the domain
     create_log_files "$domain"
-
-    if [ -f "$conf_file" ]; then
-        conf_status="✅"
-    else
-        conf_status="❌"
-    fi
-
-    echo "| $access_log_status | $error_log_status | $conf_status | $domain"
+    echo "🕸️ $domain"
 }
 
 # Function to clean up old Nginx configurations and logs
@@ -246,7 +224,7 @@ case "$1" in
         fi
 
         # Generate configurations from the configuration file
-        echo "| AC | ER | CF | Domain"
+        echo "Generating configs for domains:"
         echo "-----------------------"
         while IFS=$'\t ' read -r domain container certificate; do
             # Skip lines starting with #
@@ -267,14 +245,14 @@ case "$1" in
         ;;
     regenerate)
         clean_directories
-        # Check if CONFIG_FILE exists before attempting to parse it
+                # Check if CONFIG_FILE exists before attempting to parse it
         if [ ! -f "$CONFIG_FILE" ]; then
             echo "Configuration file not found at $CONFIG_FILE"
             exit 1
         fi
 
         # Generate configurations from the configuration file
-        echo "| AC | ER | CF | Domain"
+        echo "Generating configs for domains:"
         echo "-----------------------"
         while IFS=$'\t ' read -r domain container certificate; do
             # Skip lines starting with #
