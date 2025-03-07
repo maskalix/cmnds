@@ -99,6 +99,8 @@ EOF
     location / {
         include /etc/nginx/includes/proxy_params;
         proxy_pass $forward_scheme://$server:$port;
+        # Continue serving requests even if the upstream is down
+        proxy_next_upstream error timeout invalid_header http_502 http_503 http_504;
 EOF
 
         # Include local-only access control if the [L] flag is set
