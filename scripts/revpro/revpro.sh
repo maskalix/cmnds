@@ -98,6 +98,7 @@ EOF
         cat >> "$conf_file" <<EOF
     location / {
         include /etc/nginx/includes/proxy_params;
+        resolver 127.0.0.11 valid=30s;
         proxy_pass $forward_scheme://$server:$port;
         # Intercept errors and redirect to the error handler
         proxy_intercept_errors on;
