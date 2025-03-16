@@ -100,8 +100,8 @@ EOF
         include /etc/nginx/includes/proxy_params;
         resolver 127.0.0.11 valid=30s;
 
-        set \\$upstream $forward_scheme://$server:$port;  # Escaped variable to prevent expansion
-        proxy_pass \\$upstream;  # Use escaped variable in proxy_pass
+        set \$upstream $forward_scheme://$server:$port;  # Escaped variable to prevent expansion
+        proxy_pass \$upstream;  # Use escaped variable in proxy_pass
 
         proxy_connect_timeout 5s;
         proxy_read_timeout 10s;
