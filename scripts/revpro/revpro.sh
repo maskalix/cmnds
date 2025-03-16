@@ -98,7 +98,6 @@ EOF
         cat >> "$conf_file" <<EOF
     location / {
         include /etc/nginx/includes/proxy_params;
-        resolver 127.0.0.11 valid=30s;
 
         set \$upstream $forward_scheme://$server:$port;  # Escaped variable to prevent expansion
         proxy_pass \$upstream;  # Use escaped variable in proxy_pass
