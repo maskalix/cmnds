@@ -102,9 +102,6 @@ EOF
         set \$upstream $forward_scheme://$server:$port;  # Escaped variable to prevent expansion
         proxy_pass \$upstream;  # Use escaped variable in proxy_pass
 
-        proxy_connect_timeout 5s;
-        proxy_read_timeout 10s;
-
         #proxy_pass $forward_scheme://$server:$port;
         # Intercept errors and redirect to the error handler
         proxy_intercept_errors on;
