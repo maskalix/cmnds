@@ -99,7 +99,14 @@ EOF
     location / {
         include /etc/nginx/includes/proxy_params;
         resolver 127.0.0.11 valid=30s;
-        proxy_pass $forward_scheme://$server:$port;
+
+        set $upstream $forward_scheme://$server:$port;  # Set variable instead of hardcoding
+        proxy_pass $upstream;  # Use variable to prevent startup failure
+
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 10s;
+
+        #proxy_pass $forward_scheme://$server:$port;
         # Intercept errors and redirect to the error handler
         proxy_intercept_errors on;
         error_page 502 503 504 = @error_handler;
