@@ -34,6 +34,10 @@ generate_nginx_conf() {
 
     mkdir -p "$(dirname "$conf_file")"
 
+    if [[ "$container" == *w* ]]; then
+        websocket="true"
+    fi
+    
     # Define proxy variables
     if [[ "$container" == s:* && "$container" != *:a:* ]]; then
         forward_scheme="https"
@@ -113,6 +117,13 @@ EOF
             cat >> "$conf_file" <<EOF
         # Include access control rules from external file
         include /etc/nginx/includes/local;
+EOF
+        fi
+
+        if [[ "$websocket" == "true" ]]; then
+            cat >> "$conf_file" <<EOF
+        # Include access control rules from external file
+        include /etc/nginx/includes/websocket;
 EOF
         fi
 
