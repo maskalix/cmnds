@@ -105,7 +105,7 @@ EOF
     location / {
         include /etc/nginx/includes/proxy_params;
 
-        set \$upstream $forward_scheme://$server:$port;  # Escaped variable to prevent expansion
+        set \$upstream \$forward_scheme://\$server:\$port;  # Escaped variable to prevent expansion
         proxy_pass \$upstream;  # Use escaped variable in proxy_pass
         # Intercept errors and redirect to the error handler
         proxy_intercept_errors on;
@@ -140,7 +140,7 @@ EOF
         add_header Pragma "no-cache";
         add_header Expires "0";
 
-        return 302 $ERROR_PAGE/?error=$status&url=$upstream&protocol=https;
+        return 302 $ERROR_PAGE/?error=\$status&url=\$upstream&protocol=\$forward_scheme;
     }
 }
 EOF
