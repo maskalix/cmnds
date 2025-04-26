@@ -47,14 +47,10 @@ generate_nginx_conf() {
         forward_scheme="http"  # Otherwise, use http
     fi
     
-    # Now extract server and port, removing a, w, s but keeping the colon
-    # Remove a, s, w but leave the colon so server and port can be split
-    container_without_asw="${container//[asw]/}"
-    
     # Extract server and port
-    server="${container_without_asw%%:*}"  # Everything before the first colon
-    port="${container_without_asw##*:}"   # Everything after the last colon
-
+    server="${container%:*}"  # Everything before the last colon
+    server="${server//[a:s:w]/}"  # Remove a, s, and w from the server part
+    port="${container##*:}"  # Everything after the last colon
 
     # Create configuration file
     cat > "$conf_file" <<EOF
