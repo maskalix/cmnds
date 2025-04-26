@@ -107,6 +107,9 @@ EOF
 
         set \$upstream $forward_scheme://$server:$port;  # Escaped variable to prevent expansion
         proxy_pass \$upstream;  # Use escaped variable in proxy_pass
+        # Intercept errors and redirect to the error handler
+        proxy_intercept_errors on;
+        error_page 502 503 504 = @error_handler;
 EOF
 
         # Include local-only access control if the [L] flag is set
@@ -126,9 +129,6 @@ EOF
 
         # Closing location block and including error handling
         cat >> "$conf_file" <<EOF
-        # Intercept errors and redirect to the error handler
-        proxy_intercept_errors on;
-        error_page 502 503 504 = @error_handler;
         # Include error handling
         include /etc/nginx/includes/error_pages.conf;
     }
