@@ -34,22 +34,23 @@ generate_nginx_conf() {
 
     mkdir -p "$(dirname "$conf_file")"
 
+    # Set websocket=true if 'w' is present anywhere in the container
     if [[ "$container" == *w* ]]; then
         websocket="true"
     fi
     
-    # Define proxy variables
-    if [[ "$container" == s:* && "$container" != *:a:* ]]; then
+    # Define proxy variables based on different container patterns
+    if [[ "$container" == s:* && "$container" != *:a:* && "$container" != *:w:* ]]; then
         forward_scheme="https"
         server="${container#s:}"
         port="${server##*:}"
         server="${server%%:*}"
-    elif [[ "$container" == a:* && "$container" != *:s:* ]]; then
+    elif [[ "$container" == a:* && "$container" != *:s:* && "$container" != *:w:* ]]; then
         forward_scheme="http"
         server="${container#a:}"
         port="${server##*:}"
         server="${server%%:*}"
-    elif [[ "$container" == *:a:* || "$container" == a:s:* || "$container" == s:a:* ]]; then
+    elif [[ "$container" == *:a:* || "$container" == a:s:* || "$container" == s:a:* || "$container" == *:w:* || "$container" == w:* ]]; then
         forward_scheme="https"
         server="${container#*:}"
         port="${server##*:}"
@@ -59,6 +60,7 @@ generate_nginx_conf() {
         server="${container%%:*}"
         port="${container##*:}"
     fi
+
 
     # Create configuration file
     cat > "$conf_file" <<EOF
