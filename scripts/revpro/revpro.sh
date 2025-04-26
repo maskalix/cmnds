@@ -119,7 +119,7 @@ EOF
 
         if [[ "$websocket" == "true" ]]; then
             cat >> "$conf_file" <<EOF
-        # Include access control rules from external file
+        # Include websocket support (HTTP/1.1)
         include /etc/nginx/includes/websocket;
 EOF
         fi
