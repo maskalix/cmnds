@@ -41,26 +41,26 @@ generate_nginx_conf() {
     
     # Define proxy variables based on different container patterns
     if [[ "$container" == s:* && "$container" != *:a:* && "$container" != *:w:* ]]; then
-        forward_scheme="https"
+        forward_scheme="https"  # If 's' is found, use https by default
         server="${container#s:}"
         port="${server##*:}"
         server="${server%%:*}"
     elif [[ "$container" == a:* && "$container" != *:s:* && "$container" != *:w:* ]]; then
-        forward_scheme="http"
+        forward_scheme="http"  # If 'a' is found, use http by default
         server="${container#a:}"
         port="${server##*:}"
         server="${server%%:*}"
     elif [[ "$container" == *:a:* || "$container" == a:s:* || "$container" == s:a:* || "$container" == *:w:* || "$container" == w:* ]]; then
-        forward_scheme="https"
+        # Default to https, but w does not influence this directly
+        forward_scheme="https"  # If ':' is in the container, default to https
         server="${container#*:}"
         port="${server##*:}"
         server="${server%%:*}"
     else
-        forward_scheme="http"
+        forward_scheme="http"  # Default to http
         server="${container%%:*}"
         port="${container##*:}"
     fi
-
 
     # Create configuration file
     cat > "$conf_file" <<EOF
