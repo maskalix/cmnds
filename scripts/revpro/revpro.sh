@@ -31,26 +31,31 @@ generate_nginx_conf() {
         local_only="true"
         domain="${domain:3}" # Remove the [L] prefix from the domain
     fi
-
+    
     mkdir -p "$(dirname "$conf_file")"
-  
-    # Set websocket=true if 'w' is present anywhere in the container
-    if [[ "$container" == *w* ]]; then
+    
+    # Set websocket=true if 'w:' prefix is present
+    if [[ "$container" == *w:* ]]; then
         websocket="true"
     fi
     
-    # Define proxy variables based on different container patterns
-    # If 's' is in the container, use https, otherwise use http
+    # Set forward_scheme based on presence of 's:' prefix
     if [[ "$container" == *s:* ]]; then
-        forward_scheme="https"  # If 's' is found, use https
+        forward_scheme="https"
     else
-        forward_scheme="http"  # Otherwise, use http
+        forward_scheme="http"
     fi
     
-    # Extract server and port
-    server="${container%:*}"  # Everything before the last colon
-    server="${server//[a:s:w]/}"  # Remove a, s, and w from the server part
-    port="${container##*:}"  # Everything after the last colon
+    # Now, clean prefixes like a:, s:, w: ONLY before server part
+    # Remove all a:, s:, w: prefixes from the beginning until reaching server:port
+    cleaned_container="$container"
+    while [[ "$cleaned_container" =~ ^[asw]: ]]; do
+        cleaned_container="${cleaned_container:2}"
+    done
+    
+    # Extract server and port properly
+    server="${cleaned_container%:*}" # server = everything before last :
+    port="${cleaned_container##*:}"  # port = everything after last :
 
     # Create configuration file
     cat > "$conf_file" <<EOF
