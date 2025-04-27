@@ -128,7 +128,7 @@ EOF
         add_header Pragma "no-cache";
         add_header Expires "0";
 
-        return 302 $ERROR_PAGE/?error=\$status&url=\$upstream&protocol=\$forward_scheme;
+        return 302 $ERROR_PAGE/?error=\$upstream_status&url=\$upstream&protocol=\$forward_scheme;
     }
 }
 EOF
