@@ -81,6 +81,7 @@ server {
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
+    set \$upstream \$forward_scheme://\$server:\$port;  # Escaped variable to prevent expansion
 EOF
 
     # Include authentik proxy if required
@@ -94,26 +95,22 @@ EOF
         cat >> "$conf_file" <<EOF
     location / {
         include /etc/nginx/includes/proxy_params;
-
-        set \$upstream \$forward_scheme://\$server:\$port;  # Escaped variable to prevent expansion
         proxy_pass \$upstream;  # Use escaped variable in proxy_pass
         # Intercept errors and redirect to the error handler
         proxy_intercept_errors on;
         error_page 502 503 504 = @error_handler;
 EOF
-
+        if [[ "$websocket" == "true" ]]; then
+            cat >> "$conf_file" <<EOF
+        # Include websocket support (HTTP/1.1)
+        include /etc/nginx/includes/websocket;
+EOF
+        fi
         # Include local-only access control if the [L] flag is set
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
         # Include access control rules from external file
         include /etc/nginx/includes/local;
-EOF
-        fi
-
-        if [[ "$websocket" == "true" ]]; then
-            cat >> "$conf_file" <<EOF
-        # Include websocket support (HTTP/1.1)
-        include /etc/nginx/includes/websocket;
 EOF
         fi
 
