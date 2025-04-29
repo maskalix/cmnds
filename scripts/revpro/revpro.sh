@@ -68,8 +68,7 @@ generate_nginx_conf() {
 
 # server listen 80 should be located inside nginx.conf as redirect for all domains... use HTTPS ;)
 server {
-    listen 443 ssl;
-    http2 on;
+    listen 443 ssl http2;
     server_name $domain;
 
     access_log $LOG_DIR/${domain}_access.log;
