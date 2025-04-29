@@ -86,7 +86,7 @@ server {
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
-    set \$upstream \$forward_scheme://\$server:\$port;  # Escaped variable to prevent expansion
+    set \$upstream \$forward_scheme://\$server:\$port;
 EOF
 
     # Include authentik proxy if required
