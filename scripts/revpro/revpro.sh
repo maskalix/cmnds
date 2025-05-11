@@ -33,12 +33,7 @@ generate_nginx_conf() {
     fi
     
     mkdir -p "$(dirname "$conf_file")"
-    
-    # Set websocket=true if 'w:' prefix is present
-    if [[ "$container" == *w:* ]]; then
-        websocket="true"
-    fi
-    
+      
     # Set forward_scheme based on presence of 's:' prefix
     if [[ "$container" == *s:* ]]; then
         forward_scheme="https"
@@ -76,13 +71,15 @@ server {
     error_log $LOG_DIR/${domain}_error.log;
 
     # SSL settings
-    ssl_certificate $CERTS_SUB/$certificate/fullchain.pem;
-    ssl_certificate_key $CERTS_SUB/$certificate/privkey.pem;
+    ssl_certificate $CERTS_SUB/$certificate/$certificate.crt;
+    ssl_certificate_key $CERTS_SUB/$certificate/$certificate.key;
+    ssl_trusted_certificate $CERTS_SUB/$certificate/$certificate.issuer.crt;
 
     # Include optional configuration files
-    include /etc/nginx/includes/ssl-ciphers.conf;
-    include /etc/nginx/includes/letsencrypt-acme-challenge.conf;
-
+    include /etc/nginx/includes/letsencrypt.conf;
+    include /etc/nginx/includes/general.conf;
+    include /etc/nginx/includes/security.conf;
+            
     # Define proxy variables
     set \$forward_scheme $forward_scheme;
     set \$server $server;
@@ -100,15 +97,9 @@ EOF
         # Default location block
         cat >> "$conf_file" <<EOF
     location / {
-        include /etc/nginx/includes/proxy_params;
         proxy_pass \$upstream;  # Use escaped variable in proxy_pass
+        include /etc/nginx/includes/proxy.conf;
 EOF
-        if [[ "$websocket" == "true" ]]; then
-            cat >> "$conf_file" <<EOF
-        # Include websocket support (HTTP/1.1)
-        include /etc/nginx/includes/websocket;
-EOF
-        fi
         # Include local-only access control if the [L] flag is set
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
