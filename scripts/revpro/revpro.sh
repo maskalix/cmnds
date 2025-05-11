@@ -187,6 +187,7 @@ reload_nginx() {
 
     # Reload Nginx, specifying the config file explicitly if necessary
     docker exec -t reverseproxy nginx -s reload || echo "⚠️ Failed to reload Nginx, please check the container status and logs."
+    echo "✅ Nginx reloaded."
 }
 
 # Function to restart Nginx inside the Docker container
