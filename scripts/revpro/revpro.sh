@@ -187,7 +187,7 @@ reload_nginx() {
     echo "Reloading Nginx..."
 
     # Check the Nginx configuration syntax before reloading
-    docker compose exec -T reverseproxy nginx -t
+    docker compose exec -T reverseproxy nginx -t -c /etc/nginx/nginx.conf
     if [ $? -ne 0 ]; then
         echo "Nginx configuration test failed, please check the errors above."
         return 1
