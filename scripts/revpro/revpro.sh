@@ -113,7 +113,7 @@ EOF
         # Error handling inside server block
         error_page 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 451 500 501 502 503 504 505 506 507 508 510 511 = @error_handler;
         # Include error handling
-        include /etc/nginx/includes/error_pages.conf;
+        #include /etc/nginx/includes/error_pages.conf;
     }
 
     # Define named location for error handling
@@ -176,23 +176,23 @@ add_site_config() {
 
 # Function to reload Nginx inside the Docker container
 reload_nginx() {
-    echo "Reloading Nginx..."
+    echo "🔃 Reloading Nginx..."
 
     # Check the Nginx configuration syntax before reloading
     docker exec -t reverseproxy nginx -t
     if [ $? -ne 0 ]; then
-        echo "Nginx configuration test failed, please check the errors above."
+        echo "⚠️ Nginx configuration test failed, please check the errors above."
         return 1
     fi
 
     # Reload Nginx, specifying the config file explicitly if necessary
-    docker exec -t reverseproxy nginx -s reload || echo "Failed to reload Nginx, please check the container status and logs."
+    docker exec -t reverseproxy nginx -s reload || echo "⚠️ Failed to reload Nginx, please check the container status and logs."
 }
 
 # Function to restart Nginx inside the Docker container
 restart_nginx() {
     docker container restart reverseproxy
-    echo "Nginx restarted."
+    echo "✅ Nginx restarted."
 }
 
 # Function to list all domains from the configuration file
@@ -265,7 +265,7 @@ case "$1" in
         done < "$CONFIG_FILE"
         echo "-----------------------"
         echo "✅ Configs generated"
-        restart_nginx
+        reload_nginx
         ;;
     add)
         # Add new site configuration from command-line arguments
