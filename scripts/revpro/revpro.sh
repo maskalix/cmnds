@@ -86,6 +86,7 @@ server {
     set \$server $server;
     set \$port $port;
     set \$upstream \$forward_scheme://\$server:\$port;
+    
 EOF
 
     # Include authentik proxy if required
