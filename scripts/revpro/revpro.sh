@@ -15,7 +15,7 @@ CERTS_SUB=$(bash "$MANAGE_CONFIG" read CERTS_SUB)
 # Function to create log files
 create_log_files() {
     mkdir -p "$LOG_DIR"
-    touch "$LOG_DIR/${1}.log" "$LOG_DIR/${1}_error.log"
+    touch "$LOG_DIR/${1}_access.log" "$LOG_DIR/${1}_error.log"
 }
 
 # Function to generate Nginx configuration file with header
