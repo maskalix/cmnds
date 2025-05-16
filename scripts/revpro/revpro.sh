@@ -104,26 +104,14 @@ EOF
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
         # Include access control rules from external file
-        include /etc/nginx/includes/local;
+        include /etc/nginx/includes/local.conf;
 EOF
         fi
 
         # Closing location block and including error handling
         cat >> "$conf_file" <<EOF
-        # Error handling inside server block
-        error_page 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 451 500 501 502 503 504 505 506 507 508 510 511 = @error_handler;
         # Include error handling
-        #include /etc/nginx/includes/error_pages.conf;
-    }
-
-    # Define named location for error handling
-    location @error_handler {
-        internal;
-        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
-        add_header Pragma "no-cache";
-        add_header Expires "0";
-
-        return 302 $ERROR_PAGE/?error=\$upstream_status&url=\$host&protocol=https;
+        include /etc/nginx/includes/error.conf;
     }
 }
 EOF
