@@ -15,7 +15,7 @@ CERTS_SUB=$(bash "$MANAGE_CONFIG" read CERTS_SUB)
 # Function to create log files
 create_log_files() {
     mkdir -p "$LOG_DIR"
-    touch "$LOG_DIR/${1}_access.log" "$LOG_DIR/${1}_error.log"
+    touch "$LOG_DIR/${1}.log" "$LOG_DIR/${1}_error.log"
 }
 
 # Function to generate Nginx configuration file with header
@@ -65,22 +65,23 @@ generate_nginx_conf() {
 server {
     listen 443 ssl;
     http2 on;
+    listen [::]:443 ssl;
     server_name $domain;
 
     access_log $LOG_DIR/${domain}_access.log;
     error_log $LOG_DIR/${domain}_error.log;
 
-    # SSL settings
+    # SSL configuration
     ssl_certificate $CERTS_SUB/$certificate/$certificate.crt;
     ssl_certificate_key $CERTS_SUB/$certificate/$certificate.key;
     ssl_trusted_certificate $CERTS_SUB/$certificate/$certificate.issuer.crt;
 
-    # Include optional configuration files
+    # Configuration files
     include /etc/nginx/includes/letsencrypt.conf;
     include /etc/nginx/includes/general.conf;
     include /etc/nginx/includes/security.conf;
             
-    # Define proxy variables
+    # Proxy variables
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
@@ -97,20 +98,20 @@ EOF
         # Default location block
         cat >> "$conf_file" <<EOF
     location / {
-        proxy_pass \$upstream;  # Use escaped variable in proxy_pass
+        proxy_pass \$upstream;
         include /etc/nginx/includes/proxy.conf;
 EOF
         # Include local-only access control if the [L] flag is set
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
-        # Include access control rules from external file
+        # Access control rules
         include /etc/nginx/includes/local.conf;
 EOF
         fi
 
         # Closing location block and including error handling
         cat >> "$conf_file" <<EOF
-        # Include error handling
+        # Error handling
         include /etc/nginx/includes/error.conf;
     }
 }
@@ -238,12 +239,6 @@ case "$1" in
         ;;
     regenerate)
         clean_directories
-                # Check if CONFIG_FILE exists before attempting to parse it
-        if [ ! -f "$CONFIG_FILE" ]; then
-            echo "Configuration file not found at $CONFIG_FILE"
-            exit 1
-        fi
-
         # Generate configurations from the configuration file
         echo "Generating configs for domains:"
         echo "-----------------------"
