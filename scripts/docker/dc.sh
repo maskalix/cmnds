@@ -61,22 +61,30 @@ case "$CMD" in
     run_compose up -d "$@"
     ;;
   *)
-    echo "Usage: $0 <command> [args...]"
-    echo "Docker Compose Shortcuts:"
-    echo "  dc u       - Run 'docker compose up'"
-    echo "  dc ud      - Run 'docker compose up -d'"
-    echo "  dc udb     - Run 'docker compose up -d --build'"
-    echo "  dc d       - Run 'docker compose down'"
-    echo "  dc p       - Run 'docker compose pull'"
-    echo "  dc ps      - Run 'docker compose ps'"
-    echo "  dc b       - Run 'docker compose build'"
-    echo "  dc l       - Run 'docker compose logs'"
-    echo "  dc rs      - Run 'docker compose restart'"
-    echo "  dc e       - Edit docker-compose.yml with nano"
-    echo "  dc rec     - Recreate docker-compose.yml with nano"
-    echo "  dc sh svc  - Exec into service shell (e.g., 'dc sh web')"
-    echo "  dc c       - Validate configuration"
-    echo "  dc r       - Recompose: pull → down → up -d"
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    NC='\033[0m' # No Color
+
+    echo -e "${YELLOW}Usage:${NC} $0 <command> [args...]"
+    echo
+    echo -e "${YELLOW}Available Commands:${NC}"
+    echo -e "  ${GREEN}Command   ${NC}| ${GREEN}Description${NC}"
+    echo -e "  -----------|------------------------------"
+    echo -e "  ${GREEN}u         ${NC}| up"
+    echo -e "  ${GREEN}ud        ${NC}| up -d"
+    echo -e "  ${GREEN}udb       ${NC}| up -d --build"
+    echo -e "  ${GREEN}d         ${NC}| down"
+    echo -e "  ${GREEN}p         ${NC}| pull"
+    echo -e "  ${GREEN}ps        ${NC}| ps"
+    echo -e "  ${GREEN}b         ${NC}| build"
+    echo -e "  ${GREEN}l         ${NC}| logs"
+    echo -e "  ${GREEN}rs        ${NC}| restart"
+    echo -e "  ${GREEN}e         ${NC}| edit docker-compose.yml"
+    echo -e "  ${GREEN}rec       ${NC}| recreate docker-compose.yml"
+    echo -e "  ${GREEN}sh <svc>  ${NC}| exec into service shell"
+    echo -e "  ${GREEN}c         ${NC}| config (validate)"
+    echo -e "  ${GREEN}r         ${NC}| pull → down → up -d"
     echo
     exit 1
     ;;
