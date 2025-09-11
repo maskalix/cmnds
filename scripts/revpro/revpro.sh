@@ -26,34 +26,27 @@ generate_nginx_conf() {
     local certificate=$3
     local conf_file="$CONF_DIR/$domain.conf"
     local local_only="false"
-
-    # Check if the domain starts with [L]
     if [[ "$domain" == "[L]"* ]]; then
         local_only="true"
-        domain="${domain:3}" # Remove the [L] prefix from the domain
+        domain="${domain:3}"
     fi
-    
+
     mkdir -p "$(dirname "$conf_file")"
-      
-    # Set forward_scheme based on presence of 's:' prefix
+
     if [[ "$container" == *s:* ]]; then
         forward_scheme="https"
     else
         forward_scheme="http"
     fi
-    
-    # Now, clean prefixes like a:, s:, w: ONLY before server part
-    # Remove all a:, s:, w: prefixes from the beginning until reaching server:port
+
     cleaned_container="$container"
     while [[ "$cleaned_container" =~ ^[asw]: ]]; do
         cleaned_container="${cleaned_container:2}"
     done
-    
-    # Extract server and port properly
-    server="${cleaned_container%:*}" # server = everything before last :
-    port="${cleaned_container##*:}"  # port = everything after last :
 
-    # Create configuration file
+    server="${cleaned_container%:*}"
+    port="${cleaned_container##*:}"
+
     cat > "$conf_file" <<EOF
 ############
 # $domain
@@ -61,82 +54,73 @@ generate_nginx_conf() {
 # DON'T EDIT DIRECTLY, revpro OVERWRITES THIS FILE!!!
 # github.com/maskalix/cmnds
 ############
-
 # server listen 80 should be located inside nginx.conf as redirect for all domains... use HTTPS ;)
 server {
 EOF
-    if [[ "$HTTP3" == true ]]; then 
+
+    if [[ "$HTTP3" == true ]]; then
         cat >> "$conf_file" <<EOF
     # Enable HTTP/3
     listen 443 quic;
     listen [::]:443 quic;
 EOF
-    cat > "$conf_file" <<EOF
+    fi
+
+    cat >> "$conf_file" <<EOF
     # Enable HTTP/2
     listen 443 ssl;
     listen [::]:443 ssl;
     http2 on;
     server_name $domain;
-
     access_log $LOG_DIR/${domain}_access.log;
     error_log $LOG_DIR/${domain}_error.log;
-
-    # SSL configuration
     ssl_certificate $CERTS_SUB/$certificate/$certificate.crt;
     ssl_certificate_key $CERTS_SUB/$certificate/$certificate.key;
     ssl_trusted_certificate $CERTS_SUB/$certificate/$certificate.issuer.crt;
-
-    # Configuration files
     include /etc/nginx/includes/letsencrypt.conf;
     include /etc/nginx/includes/general.conf;
     include /etc/nginx/includes/security.conf;
-            
-    # Proxy variables
+
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
     set \$upstream \$forward_scheme://\$server:\$port;
 EOF
 
-    # Include authentik proxy if required
     if [[ "$container" == a:* || "$container" == a:s:* || "$container" == s:a:* ]]; then
         cat >> "$conf_file" <<EOF
     include $AUTH_PROXY_CONF;
 }
 EOF
     else
-        # Default location block
         cat >> "$conf_file" <<EOF
     location / {
 EOF
-    if [[ "$HTTP3" == true ]]; then 
-        cat >> "$conf_file" <<EOF
-        # Enable HTTP/3
+
+        if [[ "$HTTP3" == true ]]; then
+            cat >> "$conf_file" <<EOF
         include /etc/nginx/includes/http3.conf;
 EOF
+        fi
+
         cat >> "$conf_file" <<EOF
-        # Proxy
         proxy_pass \$upstream;
         include /etc/nginx/includes/proxy.conf;
 EOF
-        # Include local-only access control if the [L] flag is set
+
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
-        # Access control rules
         include /etc/nginx/includes/local.conf;
 EOF
         fi
 
-        # Closing location block and including error handling
         cat >> "$conf_file" <<EOF
-        # Error handling
         include /etc/nginx/includes/error.conf;
     }
 }
 EOF
     fi
 
-    # Create log files for the domain
     create_log_files "$domain"
     echo "🕸️  $domain"
 }
