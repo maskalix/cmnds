@@ -16,24 +16,29 @@ if [[ "$version" != "2" && "$version" != "3" ]]; then
 fi
 
 check_http2() {
-  # Check HTTP/2 support using curl
   response=$(curl -s -o /dev/null -w "%{http_version}" --http2 $url)
   if [[ "$response" == "2" || "$response" == "2.0" ]]; then
-    echo -e "\e[32mHTTP/2 Supported (Green OK)\e[0m"
+    echo -e "\e[32mHTTP/2 Supported\e[0m"
   else
-    echo -e "\e[31mHTTP/2 Not Supported (Red)\e[0m"
+    echo -e "\e[31mHTTP/2 Not Supported\e[0m"
   fi
   echo "Details:"
   curl -I --http2 $url
 }
 
 check_http3() {
-  # Check HTTP/3 support using curl
+  # Check if curl supports --http3
+  curl --help | grep -q -- '--http3'
+  if [ $? -ne 0 ]; then
+    echo -e "\e[31mHTTP/3 testing not supported by this curl version\e[0m"
+    exit 1
+  fi
+
   response=$(curl -s -o /dev/null -w "%{http_version}" --http3 $url 2>&1)
   if [[ "$response" == "3" || "$response" == "3.0" ]]; then
-    echo -e "\e[32mHTTP/3 Supported (Green OK)\e[0m"
+    echo -e "\e[32mHTTP/3 Supported\e[0m"
   else
-    echo -e "\e[31mHTTP/3 Not Supported (Red)\e[0m"
+    echo -e "\e[31mHTTP/3 Not Supported\e[0m"
   fi
   echo "Details:"
   curl -I --http3 $url
