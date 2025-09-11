@@ -11,6 +11,7 @@ NGINX_CONF="/etc/nginx/nginx.conf"
 AUTH_PROXY_CONF="/etc/nginx/includes/authentik-proxy.conf"
 ERROR_PAGE=$(bash "$MANAGE_CONFIG" read ERROR_PAGE)
 CERTS_SUB=$(bash "$MANAGE_CONFIG" read CERTS_SUB)
+HTTP3=$(bash "$MANAGE_CONFIG" read HTTP3)
 
 # Function to create log files
 create_log_files() {
