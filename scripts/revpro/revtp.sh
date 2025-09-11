@@ -27,21 +27,20 @@ check_http2() {
 }
 
 check_http3() {
-  # Check if curl supports --http3
-  curl --help | grep -q -- '--http3'
-  if [ $? -ne 0 ]; then
-    echo -e "\e[31mHTTP/3 testing not supported by this curl version\e[0m"
+  if ! command -v quick &> /dev/null; then
+    echo -e "\e[31mError: 'quick' tool is not installed. Please install it to test HTTP/3.\e[0m"
     exit 1
   fi
 
-  response=$(curl -s -o /dev/null -w "%{http_version}" --http3 $url 2>&1)
-  if [[ "$response" == "3" || "$response" == "3.0" ]]; then
+  response=$(quick -s -o /dev/null -w "%H" $url 2>&1)
+  # quick returns status and headers; checking for HTTP/3 presence in headers or response
+  if echo "$response" | grep -q "^HTTP/3"; then
     echo -e "\e[32mHTTP/3 Supported\e[0m"
   else
     echo -e "\e[31mHTTP/3 Not Supported\e[0m"
   fi
   echo "Details:"
-  curl -I --http3 $url
+  quick -I $url
 }
 
 if [ "$version" == "2" ]; then
