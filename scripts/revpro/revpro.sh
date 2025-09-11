@@ -63,9 +63,18 @@ generate_nginx_conf() {
 
 # server listen 80 should be located inside nginx.conf as redirect for all domains... use HTTPS ;)
 server {
+EOF
+    if [[ "$HTTP3" == true ]]; then 
+        cat >> "$conf_file" <<EOF
+    # Enable HTTP/3
+    listen 443 quic;
+    listen [::]:443 quic;
+EOF
+    cat > "$conf_file" <<EOF
+    # Enable HTTP/2
     listen 443 ssl;
-    http2 on;
     listen [::]:443 ssl;
+    http2 on;
     server_name $domain;
 
     access_log $LOG_DIR/${domain}_access.log;
@@ -86,7 +95,6 @@ server {
     set \$server $server;
     set \$port $port;
     set \$upstream \$forward_scheme://\$server:\$port;
-    
 EOF
 
     # Include authentik proxy if required
@@ -99,6 +107,14 @@ EOF
         # Default location block
         cat >> "$conf_file" <<EOF
     location / {
+EOF
+    if [[ "$HTTP3" == true ]]; then 
+        cat >> "$conf_file" <<EOF
+        # Enable HTTP/3
+        include /etc/nginx/includes/http3.conf;
+EOF
+        cat >> "$conf_file" <<EOF
+        # Proxy
         proxy_pass \$upstream;
         include /etc/nginx/includes/proxy.conf;
 EOF
