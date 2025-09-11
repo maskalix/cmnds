@@ -63,6 +63,7 @@ EOF
     # Enable HTTP/3
     listen 443 quic;
     listen [::]:443 quic;
+    
 EOF
     fi
 
@@ -71,16 +72,24 @@ EOF
     listen 443 ssl;
     listen [::]:443 ssl;
     http2 on;
+
     server_name $domain;
+
+    # Logs
     access_log $LOG_DIR/${domain}_access.log;
     error_log $LOG_DIR/${domain}_error.log;
+    
+    # SSL
     ssl_certificate $CERTS_SUB/$certificate/$certificate.crt;
     ssl_certificate_key $CERTS_SUB/$certificate/$certificate.key;
     ssl_trusted_certificate $CERTS_SUB/$certificate/$certificate.issuer.crt;
+    
+    # Includes
     include /etc/nginx/includes/letsencrypt.conf;
     include /etc/nginx/includes/general.conf;
     include /etc/nginx/includes/security.conf;
 
+    # Variables
     set \$forward_scheme $forward_scheme;
     set \$server $server;
     set \$port $port;
@@ -89,32 +98,42 @@ EOF
 
     if [[ "$container" == a:* || "$container" == a:s:* || "$container" == s:a:* ]]; then
         cat >> "$conf_file" <<EOF
+        
+    # Authentik proxy
     include $AUTH_PROXY_CONF;
 }
 EOF
     else
         cat >> "$conf_file" <<EOF
+        
     location / {
 EOF
 
         if [[ "$HTTP3" == true ]]; then
             cat >> "$conf_file" <<EOF
+        # HTTP/3 Support
         include /etc/nginx/includes/http3.conf;
 EOF
         fi
 
         cat >> "$conf_file" <<EOF
+        
+        # Proxy
         proxy_pass \$upstream;
         include /etc/nginx/includes/proxy.conf;
 EOF
 
         if [[ "$local_only" == "true" ]]; then
             cat >> "$conf_file" <<EOF
+            
+        # Local access only
         include /etc/nginx/includes/local.conf;
 EOF
         fi
 
         cat >> "$conf_file" <<EOF
+        
+        # Error redirect
         include /etc/nginx/includes/error.conf;
     }
 }
