@@ -33,7 +33,7 @@ generate_nginx_conf() {
 
     mkdir -p "$(dirname "$conf_file")"
 
-    if [[ "$container" == *s:* ]]; then
+    if [[ "$container" =~ s:[a-zA-Z] ]]; then
         forward_scheme="https"
     else
         forward_scheme="http"
